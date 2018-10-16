@@ -5,6 +5,14 @@ $ apt list --installed > install.list
 
 You can also get a subset of this file to get a smaller set of packages
 
+To make a subset for just one package you get the dependencies for it with:
+
+$ apt-cache depends <package_name>
+
+copy the name of the package and the dependencies into their own lines in a file and grep for the relevant lines
+
+$ grep -f install.list.full package-deps-names.txt > install.list 
+
 Then translate it into apt understandable format:
 
 $ sed -r  's/ \[.*?\]//g' install.list | sed -r 's/(^.*?)\/.*?[ ](.*?)[ ](.*?)$/\1:\3=\2/g' > install.list.to.dl
