@@ -1,0 +1,40 @@
+
+First get the list of what's in use (assuming all machnes have the same arch):
+
+$ apt list --installed > install.list
+
+You can also get a subset of this file to get a smaller set of packages
+
+Then translate it into apt understandable format:
+
+$ sed -r  's/ \[.*?\]//g' install.list | sed -r 's/(^.*?)\/.*?[ ](.*?)[ ](.*?)$/\1:\3=\2/g' > install.list.to.dl
+
+Then download the current packages versions:
+
+$ xargs apt download < install.list.to.dl
+This will download all debs that were currently installed to the current directory.
+Note that if you have the deb file already, you can just place it here and not do the previous steps.
+
+You would need to create a Packages.gz file in order to add this folder as a source for apt. E.g.
+
+$ cd ~/deb_server/debs/
+$ dpkg-scanpackages -m . /dev/null | gzip -9c >  Packages.gz  
+Note: path for dpkg-scanpackages must be relative, otherwise this will break the download process later
+
+(-m allows you to have multiple versions, if you want the most recent version, remove the -m)
+
+Now you have to bring up a file server for example apache2.
+
+Create a symbolic link mapping the debs to the http server
+$ ln -s ~/deb_server/debs/ /var/www/html/repo
+The last bit is to add the server machine as the only source for apt updates on each target machine.
+
+$ deb [trusted=yes] http://deb_server_ip/repo /
+If you want to update the packages, you need to re-run apt download of the list, but without the version.
+
+$ sed -r  's/ \[.*?\]//g' install.list | sed -r 's/(^.*?)\/.*?[ ](.*?)[ ](.*?)$/\1:\3/g' > install.list.for.update
+
+$ apt update && xargs apt download < install.list.for.update
+and update the Packages.gz.
+
+I'm not sure this is the best way, but it works for me.
