@@ -1,0 +1,26 @@
+
+cd ~/
+ssh-keygen -t rsa
+cat ~/.ssh/id_rsa.pub | ssh foundry@xxx.xxx.xxx.xxx 'cat >> ~/.ssh/authorized_keys'
+
+## Included in tarball
+## curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+sudo python ~/control-setup/get-pip.py
+sudo pip -V
+
+## Included in tarball
+## curl https://codeload.github.com/kubernetes-incubator/kubespray/tar.gz/v2.7.0 -o kubespray-v2.7.0.tgz
+cd ~/
+tar -zxvf ~/control-setup/kubespray-v2.7.0.tar.gz
+
+cd ~/kubespray-2.7.0/
+sudo pip install -r requirements.txt
+
+## Included in tarball
+cd ~/kubespray-2.7.0/inventory/
+tar -zxvf ~/control-setup/seba-pod-kubespray-config.tgz 
+# modify for hosts.ini for 3 xxx.xxx.xxx.xxx
+vi seba-pod/hosts.ini
+
+cd ~/kubespray-2.7.0/
+ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
