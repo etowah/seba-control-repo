@@ -1,0 +1,9 @@
+init-system-helpers:all=1.29ubuntu4
+iptables:amd64=1.6.0-2ubuntu3
+libc6:amd64=2.23-0ubuntu10
+libdevmapper1.02.1:amd64=2:1.02.110-1ubuntu10
+libltdl7:amd64=2.4.6-0.1
+libseccomp2:amd64=2.3.1-2.1ubuntu2~16.04.1
+libsystemd0:amd64=229-4ubuntu21.4
+lsb-base:all=9.20160110ubuntu0.2
+docker-ce:amd64=17.03.3~ce-0~ubuntu-xenial
