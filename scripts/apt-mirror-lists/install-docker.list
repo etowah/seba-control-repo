@@ -6,4 +6,3 @@ libltdl7:amd64=2.4.6-0.1
 libseccomp2:amd64=2.3.1-2.1ubuntu2~16.04.1
 libsystemd0:amd64=229-4ubuntu21.4
 lsb-base:all=9.20160110ubuntu0.2
-docker-ce:amd64=17.03.3~ce-0~ubuntu-xenial
