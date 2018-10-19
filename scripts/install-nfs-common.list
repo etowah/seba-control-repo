@@ -1,0 +1,5 @@
+libnfsidmap2:amd64=0.25-5
+libtirpc1:amd64=0.2.5-1ubuntu0.1
+nfs-common:amd64=1:1.2.8-9ubuntu12.1
+rpcbind:amd64=0.2.3-0.2
+keyutils:amd64=1.5.9-8ubuntu1
