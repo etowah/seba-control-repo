@@ -1,0 +1,95 @@
+# ATT SEBA Voltha Helm Values
+
+kafkaReleaseName: cord-kafka
+
+etcd:
+  operator:
+    enabled: false
+
+etcdOperator:
+  image:
+    pullPolicy: 'IfNotPresent'
+
+backupOperator:
+  image:
+    pullPolicy: 'IfNotPresent'
+
+restoreOperator:
+  image:
+    pullPolicy: 'IfNotPresent'
+
+imagePullPolicy: 'IfNotPresent'
+
+envoyForEtcdImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-envoy:gold.10.3'
+netconfImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-netconf:gold.10.3'
+ofagentImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-ofagent:gold.10.3'
+dashdImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-dashd:1.0'
+shovelImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-shovel:1.0'
+vcliImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-cli:gold.10.3'
+vcoreImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-voltha:gold.10.3'
+
+onosImage: 'onosproject/onos:1.13.4'
+
+xos_coreImage: 'xosproject/xos-core:2.1.0'
+fabric:
+  fabric_synchronizerImage: 'xosproject/fabric-synchronizer:2.1.0'
+att-workflow-driver:
+  attWorkflowDriver_synchronizerImage: 'xosproject/att-workflow-driver-synchronizer:1.0.0'
+
+images:
+  tosca_loader:
+    pullPolicy: 'IfNotPresent'
+
+  xos_api_tester:
+    pullPolicy: 'IfNotPresent'
+
+  xos_core:
+    pullPolicy: 'IfNotPresent'
+
+  xos_chameleon:
+    pullPolicy: 'IfNotPresent'
+
+  xos_tosca:
+    pullPolicy: 'IfNotPresent'
+
+  xos_api_tester:
+    pullPolicy: 'IfNotPresent'
+
+image:
+  pullPolicy: 'IfNotPresent'
+
+xos-gui:
+  images:
+    xos_gui:
+      pullPolicy: 'IfNotPresent'
+
+    xos_ws:
+      pullPolicy: 'IfNotPresent'
+
+xos-db:
+  image:
+    pullPolicy: 'IfNotPresent'
+
+rcord:
+  image:
+    pullPolicy: 'IfNotPresent'
+
+onos-service:
+  image:
+    pullPolicy: 'IfNotPresent'
+
+
+
+# ONOS applications
+oltAppUrl: "http://10.64.1.148/oar/olt-app-2.1.0-SNAPSHOT.oar"
+sadisAppUrl: "http://10.64.1.148/oar/sadis-app-2.2.0-SNAPSHOT.oar"
+dhcpl2relayAppUrl: "http://10.64.1.148/oar/dhcpl2relay-1.5.0-SNAPSHOT.oar"
+aaaAppUrl: "http://10.64.1.148/oar/aaa-1.8.0-SNAPSHOT.oar"
+kafkaAppUrl: "http://10.64.1.148/oar/kafka-1.0.0-SNAPSHOT.oar"
+
+#application_logs: |
+#  log4j.logger.org.opencord.olt = DEBUG
+#  log4j.logger.org.opencord.kafka = DEBUG
+#  log4j.logger.org.opencord.sadis = DEBUG
+#  log4j.logger.org.opencord.aaa = DEBUG
+

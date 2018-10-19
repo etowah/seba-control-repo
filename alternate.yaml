@@ -1,0 +1,115 @@
+# ATT SEBA Voltha Helm Values
+
+kafkaReleaseName: cord-kafka
+
+etcd:
+  operator:
+    enabled: false
+
+envoyForEtcdImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-envoy:gold.10.3'
+netconfImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-netconf:gold.10.3'
+ofagentImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-ofagent:gold.10.3'
+dashdImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-dashd:1.0'
+shovelImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-shovel:1.0'
+vcliImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-cli:gold.10.3'
+vcoreImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-voltha:gold.10.3'
+
+onosImage: 'onosproject/onos:1.13.4'
+
+# xos core
+images:
+  xos_core:
+    tag: 2.1.9
+    pullPolicy: 'IfNotPresent'
+  xos_chameleon:
+    tag: 2.1.9
+    pullPolicy: 'IfNotPresent'
+  xos_tosca:
+    tag: 1.1.3
+    pullPolicy: 'IfNotPresent'
+xos-gui:
+  images:
+    xos_gui:
+      tag: 1.0.3
+      pullPolicy: 'IfNotPresent'
+    xos_ws:
+      tag: 2.0.0
+      pullPolicy: 'IfNotPresent'
+xos-db:
+  image:
+    tag: '10.3-alpine'
+    pullPolicy: 'IfNotPresent'
+
+# synchronizers
+att-workflow-driver:
+  image:
+    tag: 'master'
+    pullPolicy: 'IfNotPresent'
+
+volt:
+  image:
+    tag: 'candidate'
+    pullPolicy: 'IfNotPresent'
+
+rcord:
+  image:
+    tag: 1.0.4
+    pullPolicy: 'IfNotPresent'
+
+onos-service:
+  image:
+    tag: 2.0.5
+    pullPolicy: 'IfNotPresent'
+
+fabric:
+  image:
+    tag: 2.1.3
+    pullPolicy: 'IfNotPresent'
+
+fabric-crossconnect:
+  image:
+    tag: 1.1.1
+    pullPolicy: 'IfNotPresent'
+
+kubernetes:
+  image:
+    tag: 1.0.4
+    pullPolicy: 'IfNotPresent'
+
+# others
+sadis-server:
+  image:
+    tag: 'latest'
+    pullPolicy: 'IfNotPresent'
+
+etcd-operator:
+  etcdOperator:
+    image:
+      tag: v0.7.0
+      pullPolicy: 'IfNotPresent'
+  etcdCluster:
+    image:
+      tag: v3.2.13
+      pullPolicy: 'IfNotPresent'
+  backupOperator:
+    image:
+      tag: v0.7.0
+      pullPolicy: 'IfNotPresent'
+  restoreOperator:
+    image:
+      tag: v0.7.0
+      pullPolicy: 'IfNotPresent'
+
+# ONOS applications
+oltAppUrl: "http://10.64.1.148/oar/olt-app-2.1.0-SNAPSHOT.oar"
+sadisAppUrl: "http://10.64.1.148/oar/sadis-app-2.2.0-SNAPSHOT.oar"
+dhcpl2relayAppUrl: "http://10.64.1.148/oar/dhcpl2relay-1.5.0-SNAPSHOT.oar"
+aaaAppUrl: "http://10.64.1.148/oar/aaa-1.8.0-SNAPSHOT.oar"
+kafkaAppUrl: "http://10.64.1.148/oar/kafka-1.0.0-SNAPSHOT.oar"
+
+application_logs: |
+  log4j.logger.org.opencord.olt = TRACE
+  log4j.logger.org.opencord.kafka = DEBUG
+  log4j.logger.org.opencord.sadis = DEBUG
+  log4j.logger.org.opencord.aaa = TRACE
+  log4j.logger.org.opencord.dhcpl2relay = TRACE
