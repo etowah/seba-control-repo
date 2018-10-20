@@ -14,10 +14,11 @@ do
   echo $i
   docker pull $i
 
-  if echo $i | grep --quiet voltha; 
+  if echo $i | grep --quiet foundry; 
   then
-    docker tag $i docker-repo.seba.local:5000/voltha/$i
-    docker push docker-repo.seba.local:5000/voltha/$i
+    shortname=$(echo $i | cut -d'/' -f2)
+    docker tag $i docker-repo.seba.local:5000/voltha/$shortname
+    docker push docker-repo.seba.local:5000/voltha/$shortname
   else
     docker tag $i docker-repo.seba.local:5000/$i
     docker push docker-repo.seba.local:5000/$i

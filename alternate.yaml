@@ -42,12 +42,12 @@ xos-db:
 att-workflow-driver:
   image:
     repository: docker-repo.seba.local:5000/xosproject/att-workflow-driver-synchronizer
-    tag: 'master'
+    tag: '1.0.5'
 
 volt:
   image:
     repository: docker-repo.seba.local:5000/xosproject/volt-synchronizer
-    tag: 'candidate'
+    tag: '2.1.5'
 
 rcord:
   image:
@@ -80,11 +80,12 @@ sadis-server:
     repository: 'docker-repo.seba.local:5000/opencord/sadis-server'
     tag: 'latest'
 
-# kafka
-image: 'docker-repo.seba.local:5000/confluentinc/cp-kafka:4.1.2-2'
+# kafka.  doesnt use the standard format.  may not play well with others...
+image: 'docker-repo.seba.local:5000/confluentinc/cp-kafka'
+imageTag: "4.1.2-2"
 
 zookeper:
-  image: 'docker-repo.seba.local:5000/google_samples/k8szk:v3'
+  image: 'docker-repo.seba.local:5000/gcr.io/google_samples/k8szk:v3'
 
 etcd-operator:
   etcdOperator:
@@ -110,4 +111,3 @@ application_logs: |
   log4j.logger.org.opencord.sadis = DEBUG
   log4j.logger.org.opencord.aaa = TRACE
   log4j.logger.org.opencord.dhcpl2relay = TRACE
-

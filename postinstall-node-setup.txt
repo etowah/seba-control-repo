@@ -1,0 +1,46 @@
+#
+# Node setup post kubespray
+#
+
+##
+## ALL NODES
+##
+
+# not any more.  using docker repo
+## mount -t nfs -o proto=tcp,port=2049 10.64.1.3:/storage/nfs /mnt
+## ./load-docker-images.sh /mnt/docker-images/
+
+helm init --client-only --stable-repo-url http://10.64.1.181/repo
+
+# copy over and install ~/.bashrc
+. bashrc
+
+# logout/login to verify bashrc shortcuts
+
+
+# allow non-root to run docker
+sudo usermod -aG docker foundry
+
+# install new pod ca cert
+cp seba-pod-ca.crt /usr/local/share/ca-certificates/
+update-ca-certificates
+
+# test
+curl -v https://docker-repo.seba.local:5000/v2/_catalog
+
+# ensure docker sees new ca cert
+systemctl restart docker
+
+
+
+##
+## Only on seba-node1
+##
+
+# copy pod values yaml (alternate.yaml)
+
+# Run helm install
+helm install -n cord-kafka stable/kafka --set persistence.enabled=false --set zookeeper.persistence.enabled=false -f alternate.yaml
+helm install -n etcd-operator stable/etcd-operator -f alternate.yaml 
+
+
