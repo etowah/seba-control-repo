@@ -120,11 +120,11 @@ restoreOperator:
     tag: v0.7.0
 
 # ONOS applications
-oltAppUrl: "http://10.64.1.181/oar/olt-app-2.1.0-SNAPSHOT.oar"
-sadisAppUrl: "http://10.64.1.181/oar/sadis-app-2.2.0-SNAPSHOT.oar"
-dhcpl2relayAppUrl: "http://10.64.1.181/oar/dhcpl2relay-1.5.0-SNAPSHOT.oar"
-aaaAppUrl: "http://10.64.1.181/oar/aaa-1.8.0-SNAPSHOT.oar"
-kafkaAppUrl: "http://10.64.1.181/oar/kafka-1.0.0-SNAPSHOT.oar"
+oltAppUrl: "http://docker-repo.seba.local/oar/olt-app-2.1.0-SNAPSHOT.oar"
+sadisAppUrl: "http://docker-repo.seba.local/oar/sadis-app-2.2.0-SNAPSHOT.oar"
+dhcpl2relayAppUrl: "http://docker-repo.seba.local/oar/dhcpl2relay-1.5.0-SNAPSHOT.oar"
+aaaAppUrl: "http://docker-repo.seba.local/oar/aaa-1.8.0-SNAPSHOT.oar"
+kafkaAppUrl: "http://docker-repo.seba.local/oar/kafka-1.0.0-SNAPSHOT.oar"
 
 application_logs: |
   log4j.logger.org.opencord.olt = TRACE

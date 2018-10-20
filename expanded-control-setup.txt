@@ -118,7 +118,7 @@ scp repo-package.tgz $build-artifacts
 tar -zxvf repo-package.tgz
 cd /var/www/html/repo/
 sudo cp /home/foundry/repo-package/* .
-sudo helm repo index --url http://10.64.1.181/repo/ /var/www/html/repo/
+sudo helm repo index --url http://docker-repo.seba.local/repo/ /var/www/html/repo/
 # need to fix nem-monitoring after index.yaml generated
 # nem-monitoring wont deploy anyway, skip
 
