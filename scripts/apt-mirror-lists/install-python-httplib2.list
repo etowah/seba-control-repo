@@ -1,0 +1,8 @@
+libpython-stdlib:amd64=2.7.12-1~16.04
+libpython2.7-minimal:amd64=2.7.12-1ubuntu0~16.04.3
+libpython2.7-stdlib:amd64=2.7.12-1ubuntu0~16.04.3
+python:amd64=2.7.12-1~16.04
+python-httplib2:all=0.9.1+dfsg-1
+python-minimal:amd64=2.7.12-1~16.04
+python2.7:amd64=2.7.12-1ubuntu0~16.04.3
+python2.7-minimal:amd64=2.7.12-1ubuntu0~16.04.3
