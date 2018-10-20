@@ -19,8 +19,6 @@ xosproject/xos-api-tester:master
 opencord/sadis-server:latest
 quay.io/coreos/etcd-operator:v0.7.0
 quay.io/coreos/etcd:v3.2.13
-quay.io/coreos/etcd-operator:v0.7.0
-quay.io/coreos/etcd-operator:v0.7.0
 docker-repo.dev.atl.foundry.att.com:5000/voltha-envoy:gold.10.3
 docker-repo.dev.atl.foundry.att.com:5000/voltha-netconf:gold.10.3
 docker-repo.dev.atl.foundry.att.com:5000/voltha-ofagent:gold.10.3
