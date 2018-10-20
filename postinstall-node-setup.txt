@@ -42,5 +42,17 @@ systemctl restart docker
 # Run helm install
 helm install -n cord-kafka stable/kafka --set persistence.enabled=false --set zookeeper.persistence.enabled=false -f alternate.yaml
 helm install -n etcd-operator stable/etcd-operator -f alternate.yaml 
+helm install -n etcd-cluster stable/etcd-cluster -f alternate.yaml
+# nem-monitoring fails.  chart bug
+helm install -n xos-core stable/xos-core -f alternate.yaml
+helm install -n voltha stable/voltha -f alternate.yaml
+# warning nginx-ingress-controller will fail.  its not used and can be ignored.
+helm install -n onos stable/onos -f onos.yaml -f alternate.yaml
+helm install -n att-workflow stable/att-workflow -f alternate.yaml 
+# base-kubernetes fails. chart bug
+
+# inject radius server config into onos
+scripts/quick-onos-update.sh seba-node1 radius-netcfg.json
+
 
 
