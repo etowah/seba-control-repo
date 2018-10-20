@@ -1,0 +1,15 @@
+[ req ]
+default_bits            = 4096
+default_md              = sha1
+distinguished_name      = req_distinguished_name
+prompt                  = no
+string_mask             = nombstr
+
+[ req_distinguished_name ]
+countryName             = US
+stateOrProvinceName     = GA
+localityName            = Atlanta
+organizationName        = ATT SEBA POD CA
+organizationalUnitName	= Certificate Authority
+commonName              = ATT SEBA POD Certificate Authority
+emailAddress            = sebapodadmin@att.com

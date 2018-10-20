@@ -7,4 +7,8 @@ helm init --client-only --stable-repo-url http://10.64.1.148/repo
 
 . bashrc
 
+sudo usermod -aG docker foundry
 
+cp seba-pod-ca.crt /usr/local/share/ca-certificates/
+update-ca-certificates
+curl -v https://docker-repo.seba.local:5000/v2/_catalog

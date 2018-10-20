@@ -6,106 +6,103 @@ etcd:
   operator:
     enabled: false
 
-envoyForEtcdImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-envoy:gold.10.3'
-netconfImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-netconf:gold.10.3'
-ofagentImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-ofagent:gold.10.3'
-dashdImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-dashd:1.0'
-shovelImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-shovel:1.0'
-vcliImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-cli:gold.10.3'
-vcoreImage: 'docker-repo.dev.atl.foundry.att.com:5000/voltha-voltha:gold.10.3'
+envoyForEtcdImage: 'docker-repo.seba.local:5000/voltha/voltha-envoy:gold.10.3'
+netconfImage: 'docker-repo.seba.local:5000/voltha/voltha-netconf:gold.10.3'
+ofagentImage: 'docker-repo.seba.local:5000/voltha/voltha-ofagent:gold.10.3'
+vcliImage: 'docker-repo.seba.local:5000/voltha/voltha-cli:gold.10.3'
+vcoreImage: 'docker-repo.seba.local:5000/voltha/voltha-voltha:gold.10.3'
 
-onosImage: 'onosproject/onos:1.13.4'
+onosImage: 'docker-repo.seba.local:5000/onosproject/onos:1.13.4'
 
 # xos core
 images:
   xos_core:
+    repository: docker-repo.seba.local:5000/xosproject/xos-core
     tag: 2.1.9
-    pullPolicy: 'IfNotPresent'
   xos_chameleon:
+    repository: docker-repo.seba.local:5000/xosproject/chameleon
     tag: 2.1.9
-    pullPolicy: 'IfNotPresent'
   xos_tosca:
+    repository: docker-repo.seba.local:5000/xosproject/xos-tosca
     tag: 1.1.3
-    pullPolicy: 'IfNotPresent'
 xos-gui:
   images:
     xos_gui:
+      repository: docker-repo.seba.local:5000/xosproject/xos-gui
       tag: 1.0.3
-      pullPolicy: 'IfNotPresent'
     xos_ws:
+      repository: docker-repo.seba.local:5000/xosproject/xos-ws
       tag: 2.0.0
-      pullPolicy: 'IfNotPresent'
 xos-db:
   image:
-    tag: '10.3-alpine'
-    pullPolicy: 'IfNotPresent'
+  repository: 'docker-repo.seba.local:5000/postgres'
+  tag: '10.3-alpine'
 
 # synchronizers
 att-workflow-driver:
   image:
+    repository: docker-repo.seba.local:5000/xosproject/att-workflow-driver-synchronizer
     tag: 'master'
-    pullPolicy: 'IfNotPresent'
 
 volt:
   image:
+    repository: docker-repo.seba.local:5000/xosproject/volt-synchronizer
     tag: 'candidate'
-    pullPolicy: 'IfNotPresent'
 
 rcord:
   image:
+    repository: docker-repo.seba.local:5000/xosproject/rcord-synchronizer
     tag: 1.0.4
-    pullPolicy: 'IfNotPresent'
 
 onos-service:
   image:
+    repository: docker-repo.seba.local:5000/xosproject/onos-synchronizer
     tag: 2.0.5
-    pullPolicy: 'IfNotPresent'
 
 fabric:
   image:
+    repository: docker-repo.seba.local:5000/xosproject/fabric-synchronizer
     tag: 2.1.3
-    pullPolicy: 'IfNotPresent'
 
 fabric-crossconnect:
   image:
+    repository: docker-repo.seba.local:5000/xosproject/fabric-crossconnect-synchronizer
     tag: 1.1.1
-    pullPolicy: 'IfNotPresent'
 
 kubernetes:
   image:
+    repository: docker-repo.seba.local:5000/xosproject/kubernetes-synchronizer
     tag: 1.0.4
-    pullPolicy: 'IfNotPresent'
 
 # others
 sadis-server:
   image:
+    repository: 'docker-repo.seba.local:5000/opencord/sadis-server'
     tag: 'latest'
-    pullPolicy: 'IfNotPresent'
+
+# kafka
+image: 'docker-repo.seba.local:5000/confluentinc/cp-kafka:4.1.2-2'
+
+zookeper:
+  image: 'docker-repo.seba.local:5000/google_samples/k8szk:v3'
 
 etcd-operator:
   etcdOperator:
     image:
+      repository: docker-repo.seba.local:5000/quay.io/coreos/etcd-operator
       tag: v0.7.0
-      pullPolicy: 'IfNotPresent'
   etcdCluster:
     image:
+      repository: docker-repo.seba.local:5000/quay.io/coreos/etcd
       tag: v3.2.13
-      pullPolicy: 'IfNotPresent'
   backupOperator:
     image:
+      repository: docker-repo.seba.local:5000/quay.io/coreos/etcd-operator
       tag: v0.7.0
-      pullPolicy: 'IfNotPresent'
   restoreOperator:
     image:
+      repository: docker-repo.seba.local:5000/quay.io/coreos/etcd-operator
       tag: v0.7.0
-      pullPolicy: 'IfNotPresent'
-
-# ONOS applications
-oltAppUrl: "http://10.64.1.148/oar/olt-app-2.1.0-SNAPSHOT.oar"
-sadisAppUrl: "http://10.64.1.148/oar/sadis-app-2.2.0-SNAPSHOT.oar"
-dhcpl2relayAppUrl: "http://10.64.1.148/oar/dhcpl2relay-1.5.0-SNAPSHOT.oar"
-aaaAppUrl: "http://10.64.1.148/oar/aaa-1.8.0-SNAPSHOT.oar"
-kafkaAppUrl: "http://10.64.1.148/oar/kafka-1.0.0-SNAPSHOT.oar"
 
 application_logs: |
   log4j.logger.org.opencord.olt = TRACE
@@ -113,3 +110,4 @@ application_logs: |
   log4j.logger.org.opencord.sadis = DEBUG
   log4j.logger.org.opencord.aaa = TRACE
   log4j.logger.org.opencord.dhcpl2relay = TRACE
+

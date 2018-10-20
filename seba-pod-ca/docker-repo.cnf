@@ -1,0 +1,25 @@
+[ req ]
+default_bits            = 2048
+default_md              = sha1
+distinguished_name      = req_distinguished_name
+prompt                  = no
+string_mask             = nombstr
+req_extensions          = v3_req
+x509_extensions         = v3_req
+
+[ req_distinguished_name ]
+countryName             = US
+stateOrProvinceName     = GA
+localityName            = Atlanta
+organizationName        = ATT SEBA POD Docker Repo
+commonName              = docker-repo.seba.local
+emailAddress            = sebapodadmin@att.com
+
+[ v3_req ]
+basicConstraints        = CA:FALSE
+subjectAltName          = @alt_names
+
+[ alt_names ]
+DNS.1 = seba.local
+DNS.2 = *.seba.local
+
