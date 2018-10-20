@@ -135,17 +135,25 @@ curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapsh
 curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=kafka&v=1.0.0-SNAPSHOT&e=oar' -o kafka-1.0.0-SNAPSHOT.oar
 
 
-Generate pod CA key
-Generate pod docker-repo key
+## Generate pod CA key
+## Generate pod docker-repo key
+
+cd ~/seba-pod-ca/
+openssl req -config seba-pod-ca-selfsign.cnf -new -newkey rsa:4096 -nodes -keyout ca/private/ca.key -out ca/ca.csr
+openssl ca -config seba-pod-ca-certauth.cnf -out ca/ca.crt -days 3650 -keyfile ca/private/ca.key -selfsign -extensions v3_ca -infiles ca/ca.csr
+openssl req -config docker-repo.cnf -new -newkey rsa:4096 -nodes -keyout issued/docker-repo.key -out issued/docker-repo.csr
+openssl ca -config seba-pod-ca-certauth.cnf -keyfile ca/private/ca.key -cert ca/ca.crt -policy policy_anything -days 3650 -in issued/docker-repo.csr -out issued/docker-repo.crt
+openssl x509 -in issued/docker-repo.crt -text -noout
 
 
-Install ca locally
-sudo cp seba-pod-ca/ca/ca.crt /usr/local/share/ca-certificates/seba-pod-ca.crt
+##  Install ca locally
+
+sudo cp ~/seba-pod-ca/ca/ca.crt /usr/local/share/ca-certificates/seba-pod-ca.crt
 sudo update-ca-certificates 
 sudo systemctl restart docker
 
 
-Run Docker repo
+# Run Docker repo
 
 cp ~/seba-pod-ca/issued/docker-repo.key /var/docker-persist/docker-registry/certs
 cp ~/seba-pod-ca/issued/docker-repo.crt /var/docker-persist/docker-registry/certs
@@ -156,6 +164,5 @@ systemctl start docker-repo
 Fill docker repo with images
 # side load repo rather than pull
 scripts/gather-images.sh seba-imagelist.txt
-
 
 
