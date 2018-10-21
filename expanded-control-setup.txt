@@ -176,6 +176,9 @@ systemctl start docker-repo
 
 
 # Fill docker repo with images
-# side load repo rather than pull
-scripts/gather-images.sh seba-imagelist.txt
+## Possibly via usb passthrough on host or nfs?
+## mount -t nfs -o proto=tcp,port=2049 somewhere:/storage/nfs /mnt
+scripts/load-docker-images.sh /mnt/docker-images
+scripts/populate-docker-repo.sh seba-imagelist.txt
+
 

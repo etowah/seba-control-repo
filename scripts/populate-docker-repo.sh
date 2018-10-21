@@ -12,7 +12,7 @@ fi
 for i in $(cat $imagelist)
 do 
   echo $i
-  docker pull $i
+  #docker pull $i
 
   if echo $i | grep --quiet foundry; 
   then

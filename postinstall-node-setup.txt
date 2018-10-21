@@ -15,11 +15,7 @@ scp -r ~/seba-pod-ca/ca/ca.crt foundry@xxx.xxx.xxx.xxx:~/seba-pod-ca.crt
 Ensure mgmt vm and dns ready.
 cheat with repo.seba.local /etc/hosts entries
 
-
-# not any more.  using docker repo
-## mount -t nfs -o proto=tcp,port=2049 repo.seba.local:/storage/nfs /mnt
-## scripts/load-docker-images.sh /mnt/docker-images/
-
+# setup helm client and stable local charts repo
 helm init --client-only --stable-repo-url http://repo.seba.local/charts/
 
 # copy over and install ~/.bashrc
