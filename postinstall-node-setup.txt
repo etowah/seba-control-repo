@@ -4,7 +4,9 @@
 
 # From control-repo
 scp -r ~/seba-control-repo/att-seba-pod.yaml foundry@xxx.xxx.xxx.xxx:~/
+scp -r ~/seba-control-repo/onos.yaml foundry@xxx.xxx.xxx.xxx:~/
 scp -r ~/seba-control-repo/scripts foundry@xxx.xxx.xxx.xxx:~/
+scp -r ~/seba-control-repo/radius-netcfg.json foundry@xxx.xxx.xxx.xxx:~/
 scp -r ~/seba-pod-ca/ca/ca.crt foundry@xxx.xxx.xxx.xxx:~/seba-pod-ca.crt
 
 
@@ -32,6 +34,8 @@ sudo update-ca-certificates
 # test
 curl -v https://repo.seba.local:5000/v2/_catalog
 
+helm repo update
+
 # reboot to make sure k8s comes up ok
 sudo reboot
 
@@ -45,12 +49,17 @@ cd ~/
 helm install -n cord-kafka stable/kafka --set persistence.enabled=false --set zookeeper.persistence.enabled=false -f att-seba-pod.yaml
 helm install -n etcd-operator stable/etcd-operator -f att-seba-pod.yaml 
 helm install -n etcd-cluster stable/etcd-cluster -f att-seba-pod.yaml
+# wait for all 3 to be Running.  Sometimes etcd-cluster-XXXX fails do to dns lookup bug.  etcd:3.2.18 and etcd-operator:0.9.2 would fix, but 
+# the etcd-operator helm chart isnt ready for offline. it uses a new busybox image that isnt configurable... :(
+# all you can do for now is delete/purge and re-install etcd-cluster
 # nem-monitoring fails.  chart bug
 helm install -n xos-core stable/xos-core -f att-seba-pod.yaml
 helm install -n voltha stable/voltha -f att-seba-pod.yaml
 # warning nginx-ingress-controller will fail.  its not used and can be ignored.
 helm install -n onos stable/onos -f onos.yaml -f att-seba-pod.yaml
+# wait for all to be running execpt nginx-ingress before proceeding
 helm install -n att-workflow stable/att-workflow -f att-seba-pod.yaml 
+# check onos log for apps to load
 # base-kubernetes fails. chart bug
 
 # inject radius server config into onos
