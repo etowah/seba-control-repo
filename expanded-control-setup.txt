@@ -10,20 +10,22 @@
 # install docker repo
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-apt update
-apt install docker-ce=17.03.3~ce-0~ubuntu-xenial
-systemctl start docker
+sudo apt update
+sudo apt install docker-ce=17.03.3~ce-0~ubuntu-xenial
+sudo systemctl start docker
 
 # install apache to host helm and oar repo
-apt install apache2
-mkdir /var/www/html/charts
-mkdir /var/www/html/oar
-systemctl start apache2
+sudo apt install apache2
+sudo mkdir /var/www/html/charts
+sudo mkdir /var/www/html/oar
+sudo systemctl start apache2
 
 # install nfs server... might not be needed
-apt install nfs-kernel-server
-vi /etc/exports 
-systemctl start nfs-kernel-server.service
+#sudo apt install nfs-kernel-server
+#sudo vi /etc/exports 
+#sudo systemctl start nfs-kernel-server.service
+
+sudo apt install nfs-common
 
 ## Install current version of pip, needed to get current ansible
 ## get-pip.py to be included in tarball
@@ -44,23 +46,29 @@ sudo pip install -r requirements.txt
 # install helm client
 ## wget https://storage.googleapis.com/kubernetes-helm/helm-v2.9.1-linux-amd64.tar.gz
 cd ~/
-tar -zxvf helm-v2.9.1-linux-amd64.tar.gz
+tar -zxvf ~/seba-control-repo/helm-v2.9.1-linux-amd64.tar.gz
 sudo cp linux-amd64/helm /usr/local/bin/
 
 # allow non-root to run docker
 sudo usermod -aG docker foundry
 
 # install att-foundry-atlanta-ca.crt
+sudo cp ~/seba-control-repo/att-foundry-atlanta-ca.crt /usr/local/share/ca-certificates/
 sudo update-ca-certificates
 
 # stage docker repo service
-cp ~/seba-control-repo/docker-repo.service /etc/systemd/system/
-mkdir -p /var/docker-persist/docker-registry/registry
-mkdir -p /var/docker-persist/docker-registry/certs
+sudo cp ~/seba-control-repo/docker-repo.service /etc/systemd/system/
+sudo mkdir -p /var/docker-persist/docker-registry/registry
+sudo mkdir -p /var/docker-persist/docker-registry/certs
 
-systemctl daemon-reload
-systemctl restart docker
-systemctl stop docker-repo
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+sudo systemctl start docker-repo
+sleep 20
+sudo systemctl stop docker-repo
+
+# verify registry image loaded
+docker images
 
 
 
@@ -81,7 +89,7 @@ cat ~/.ssh/id_rsa.pub | ssh foundry@xxx.xxx.xxx.xxx 'cat >> ~/.ssh/authorized_ke
 
 ## Install seba-pod specific inventory and configuration
 cd ~/kubespray-2.7.0/inventory/
-mv ~/seba-control-repo/seba-pod ~/kubespray-2.7.0/inventory/
+cp -a ~/seba-control-repo/seba-pod ~/kubespray-2.7.0/inventory/
 # modify 3 kube hosts in hosts.ini, replace 10.64.1.X with yours.
 vi seba-pod/hosts.ini
 
@@ -120,9 +128,9 @@ git add ...
 
 # on control-repo host during deployment
 cd ~/
-tar -zxvf helm-charts.tgz
+tar -zxvf ~/seba-control-repo/helm-charts.tgz
 cd /var/www/html/charts/
-sudo cp /home/foundry/helm-charts/* .
+sudo cp /home/foundry/charts/* .
 sudo helm repo index --url http://repo.seba.local/charts/ /var/www/html/charts/
 # need to fix nem-monitoring after index.yaml generated
 # nem-monitoring wont deploy anyway, skip
@@ -146,7 +154,7 @@ git add ...
 
 # on control-repo host during deployment
 cd ~/
-tar -zxvf onos-oar.tgz
+tar -zxvf ~/seba-control-repo/onos-oar.tgz
 sudo cp ~/oar/* /var/www/html/oar/
 
 
@@ -154,6 +162,13 @@ sudo cp ~/oar/* /var/www/html/oar/
 ## Generate pod docker-repo key
 cp -a ~/seba-control-repo/seba-pod-ca ~/
 cd ~/seba-pod-ca/
+
+mkdir -p issued
+mkdir -p ca/private
+mkdir -p ca/newcerts
+touch ca/index.txt
+echo 00 > ca/serial
+
 openssl req -config seba-pod-ca-selfsign.cnf -new -newkey rsa:4096 -nodes -keyout ca/private/ca.key -out ca/ca.csr
 openssl ca -config seba-pod-ca-certauth.cnf -out ca/ca.crt -days 3650 -keyfile ca/private/ca.key -selfsign -extensions v3_ca -infiles ca/ca.csr
 openssl req -config docker-repo.cnf -new -newkey rsa:4096 -nodes -keyout issued/docker-repo.key -out issued/docker-repo.csr
@@ -169,10 +184,10 @@ sudo systemctl restart docker
 
 # Run Docker repo
 
-cp ~/seba-pod-ca/issued/docker-repo.key /var/docker-persist/docker-registry/certs
-cp ~/seba-pod-ca/issued/docker-repo.crt /var/docker-persist/docker-registry/certs
+sudo cp ~/seba-pod-ca/issued/docker-repo.key /var/docker-persist/docker-registry/certs
+sudo cp ~/seba-pod-ca/issued/docker-repo.crt /var/docker-persist/docker-registry/certs
 
-systemctl start docker-repo
+sudo systemctl start docker-repo
 
 
 #
@@ -185,8 +200,8 @@ systemctl start docker-repo
 # on control-repo during deployment
 # Fill docker repo with images
 ## Possibly via usb passthrough on host or nfs?
-## mount -t nfs -o proto=tcp,port=2049 somewhere:/storage/nfs /mnt
+## sudo mount -t nfs -o proto=tcp,port=2049 somewhere:/storage/nfs /mnt
+cd ~/seba-control-repo/
 scripts/load-docker-images.sh /mnt/docker-images
 scripts/populate-docker-repo.sh seba-imagelist.txt
-
 
