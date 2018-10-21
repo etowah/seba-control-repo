@@ -175,6 +175,14 @@ cp ~/seba-pod-ca/issued/docker-repo.crt /var/docker-persist/docker-registry/cert
 systemctl start docker-repo
 
 
+#
+# on build box, gather images. 20GB
+#
+~/source/seba-control-repo/scripts/package-docker-images.sh ~/source/seba-control-repo/seba-imagelist.txt docker-images/
+## tar and copy to usb drive
+
+
+# on control-repo during deployment
 # Fill docker repo with images
 ## Possibly via usb passthrough on host or nfs?
 ## mount -t nfs -o proto=tcp,port=2049 somewhere:/storage/nfs /mnt
