@@ -2,17 +2,11 @@
 # Node setup post kubespray
 #
 
-# From control-repo
-scp -r ~/seba-control-repo/att-seba-pod.yaml foundry@xxx.xxx.xxx.xxx:~/
-scp -r ~/seba-control-repo/onos.yaml foundry@xxx.xxx.xxx.xxx:~/
-scp -r ~/seba-control-repo/scripts foundry@xxx.xxx.xxx.xxx:~/
-scp -r ~/seba-control-repo/radius-netcfg.json foundry@xxx.xxx.xxx.xxx:~/
-scp -r ~/seba-pod-ca/ca/ca.crt foundry@xxx.xxx.xxx.xxx:~/seba-pod-ca.crt
-
-
 ##
-## ALL NODES
+## ON ALL NODES
 ##
+
+# get ansible to do this...
 
 # Ensure mgmt vm and dns ready.
 # cheat with repo.seba.local /etc/hosts entries
@@ -38,6 +32,7 @@ helm repo update
 
 # reboot to make sure k8s comes up ok
 sudo reboot
+
 
 
 ##

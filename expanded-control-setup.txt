@@ -4,7 +4,75 @@
 
 
 #
-# BUILD control repo vm.  Done with internet connectivity then qcow and tgz packaged
+# Package artifacts
+#
+
+
+#
+# Pull and gather docker images on build box. 20GB
+#
+~/source/seba-control-repo/scripts/package-docker-images.sh ~/source/seba-control-repo/seba-imagelist.txt /storage/nfs/docker-images/
+tar -zcvf docker-images.tgz docker-images
+# too big to check-in
+## copy to usb drive directly
+
+
+#
+# Generate helm charts.  build box that can run  helm/tiller
+#
+
+mkdir ~/helm-charts
+cd ~/source/helm-charts
+for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
+mv *.tgz ~/helm-charts/
+
+cd xos-profiles/
+for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
+mv *.tgz ~/helm-charts/
+
+cd ../xos-services/
+for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
+mv *.tgz ~/helm-charts/
+
+cd ../xos-tools/
+for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
+mv *.tgz ~/helm-charts/
+
+cd ~/
+tar -zcvf helm-charts.tgz helm-charts
+cp helm-charts.tgz ~/seba-control-repo/
+git add helm-charts.tgz
+## copy to usb drive directly
+
+
+#
+# Download oar files.  build box that can run internet curl
+#
+cd ~/
+mkdir oar
+curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=olt-app&v=2.1.0-SNAPSHOT&e=oar' -o oar/olt-app-2.1.0-SNAPSHOT.oar
+curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=sadis-app&v=2.2.0-SNAPSHOT&e=oar' -o oar/sadis-app-2.2.0-SNAPSHOT.oar
+curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=dhcpl2relay&v=1.5.0-SNAPSHOT&e=oar' -o oar/dhcpl2relay-1.5.0-SNAPSHOT.oar
+curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=aaa&v=1.8.0-SNAPSHOT&e=oar' -o oar/aaa-1.8.0-SNAPSHOT.oar
+curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=kafka&v=1.0.0-SNAPSHOT&e=oar' -o oar/kafka-1.0.0-SNAPSHOT.oar
+tar -zcvf onos-oar.tgz oar
+cp onos-oar.tgz ~/seba-control-repo/
+git add onos-oar.tgz
+## copy to usb drive directly
+
+
+#
+# Package seba-control-repo directory
+#
+cd ~/source
+tar -zcvf seba-control-repo.tgz seba-control-repo
+## copy to usb drive directly
+
+
+
+
+#
+# BUILD control repo vm.  Done with internet connectivity then qcow and tgz from above packaged
 # 
 
 # install docker repo
@@ -70,6 +138,9 @@ sudo systemctl stop docker-repo
 # verify registry image loaded
 docker images
 
+# shutdown vm and gather qcow file. 5GB
+# shutdown -h now
+
 
 
 
@@ -78,8 +149,11 @@ docker images
 # BUILD POD.  Done with no internet.
 #
 
-Ensure mgmt vm and dns ready.
-cheat with repo.seba.local /etc/hosts entries
+# setup control-repo vm.  Run qcow file from recently setup physical host
+# Ensure mgmt vm and dns ready.
+# cheat with repo.seba.local /etc/hosts entries if needed
+
+# login to control-repo vm
 
 ## Generate needed SSH keyed authentication
 cd ~/
@@ -87,94 +161,32 @@ ssh-keygen -t rsa
 ## modify for 3 kube hosts xxx.xxx.xxx.xxx
 cat ~/.ssh/id_rsa.pub | ssh foundry@xxx.xxx.xxx.xxx 'cat >> ~/.ssh/authorized_keys'
 
-## Install seba-pod specific inventory and configuration
-cd ~/kubespray-2.7.0/inventory/
-cp -a ~/seba-control-repo/seba-pod ~/kubespray-2.7.0/inventory/
-# modify 3 kube hosts in hosts.ini, replace 10.64.1.X with yours.
-vi seba-pod/hosts.ini
-
-## Run the install.  Takes about 5 minutes. STILL NEEDS INTERNET!
-cd ~/kubespray-2.7.0/
-ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
-
-
-
-#
-# fill with helm charts from elsewhere.  build box that can run  helm/tiller
-#
-
-mkdir ~/helm-charts
-cd ~/source/helm-charts
-for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
-mv *.tgz ~/helm-charts/
-
-cd xos-profiles/
-for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
-mv *.tgz ~/helm-charts/
-
-cd ../xos-services/
-for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
-mv *.tgz ~/helm-charts/
-
-cd ../xos-tools/
-for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
-mv *.tgz ~/helm-charts/
-
+# unpack seba-control-repo
 cd ~/
-tar -zcvf helm-charts.tgz helm-charts
-cp helm-charts.tgz ~/seba-control-repo/
-git add ...
-
-
-# on control-repo host during deployment
-cd ~/
-tar -zxvf ~/seba-control-repo/helm-charts.tgz
-cd /var/www/html/charts/
-sudo cp /home/foundry/charts/* .
-sudo helm repo index --url http://repo.seba.local/charts/ /var/www/html/charts/
-# need to fix nem-monitoring after index.yaml generated
-# nem-monitoring wont deploy anyway, skip
-
-
-
-#
-# fill with oar files from elsewhere.  build box that can run internet curl
-#
-cd ~/
-mkdir oar
-curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=olt-app&v=2.1.0-SNAPSHOT&e=oar' -o oar/olt-app-2.1.0-SNAPSHOT.oar
-curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=sadis-app&v=2.2.0-SNAPSHOT&e=oar' -o oar/sadis-app-2.2.0-SNAPSHOT.oar
-curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=dhcpl2relay&v=1.5.0-SNAPSHOT&e=oar' -o oar/dhcpl2relay-1.5.0-SNAPSHOT.oar
-curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=aaa&v=1.8.0-SNAPSHOT&e=oar' -o oar/aaa-1.8.0-SNAPSHOT.oar
-curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=kafka&v=1.0.0-SNAPSHOT&e=oar' -o oar/kafka-1.0.0-SNAPSHOT.oar
-tar -zcvf onos-oar.tgz oar
-cp onos-oar.tgz ~/seba-control-repo/
-git add ...
-
-
-# on control-repo host during deployment
-cd ~/
-tar -zxvf ~/seba-control-repo/onos-oar.tgz
-sudo cp ~/oar/* /var/www/html/oar/
-
+tar -zxvf seba-control-repo.tgz
 
 ## Generate pod CA key
 ## Generate pod docker-repo key
 cp -a ~/seba-control-repo/seba-pod-ca ~/
 cd ~/seba-pod-ca/
 
+# setup CA dir structure
 mkdir -p issued
 mkdir -p ca/private
 mkdir -p ca/newcerts
 touch ca/index.txt
 echo 00 > ca/serial
 
+# generate and self sign CA
 openssl req -config seba-pod-ca-selfsign.cnf -new -newkey rsa:4096 -nodes -keyout ca/private/ca.key -out ca/ca.csr
 openssl ca -config seba-pod-ca-certauth.cnf -out ca/ca.crt -days 3650 -keyfile ca/private/ca.key -selfsign -extensions v3_ca -infiles ca/ca.csr
+
+# generate docker repo key and csr
 openssl req -config docker-repo.cnf -new -newkey rsa:4096 -nodes -keyout issued/docker-repo.key -out issued/docker-repo.csr
+
+# sign docker repo csr, generate cert, from ca
 openssl ca -config seba-pod-ca-certauth.cnf -keyfile ca/private/ca.key -cert ca/ca.crt -policy policy_anything -days 3650 -in issued/docker-repo.csr -out issued/docker-repo.crt
 openssl x509 -in issued/docker-repo.crt -text -noout
-
 
 ##  Install ca locally
 sudo cp ~/seba-pod-ca/ca/ca.crt /usr/local/share/ca-certificates/seba-pod-ca.crt
@@ -182,26 +194,52 @@ sudo update-ca-certificates
 sudo systemctl restart docker
 
 
-# Run Docker repo
-
+## Setup Docker repo
 sudo cp ~/seba-pod-ca/issued/docker-repo.key /var/docker-persist/docker-registry/certs
 sudo cp ~/seba-pod-ca/issued/docker-repo.crt /var/docker-persist/docker-registry/certs
 
 sudo systemctl start docker-repo
 
 
-#
-# on build box, gather images. 20GB
-#
-~/source/seba-control-repo/scripts/package-docker-images.sh ~/source/seba-control-repo/seba-imagelist.txt docker-images/
-## tar and copy to usb drive
-
-
-# on control-repo during deployment
-# Fill docker repo with images
+## Fill docker repo with images
 ## Possibly via usb passthrough on host or nfs?
 ## sudo mount -t nfs -o proto=tcp,port=2049 somewhere:/storage/nfs /mnt
 cd ~/seba-control-repo/
 scripts/load-docker-images.sh /mnt/docker-images
 scripts/populate-docker-repo.sh seba-imagelist.txt
 
+
+## Setup helm repository
+cd ~/
+tar -zxvf ~/seba-control-repo/helm-charts.tgz
+cd /var/www/html/charts/
+sudo cp /home/foundry/charts/* .
+sudo helm repo index --url http://repo.seba.local/charts/ /var/www/html/charts/
+
+
+## Setup onos oar app on web server
+cd ~/
+tar -zxvf ~/seba-control-repo/onos-oar.tgz
+sudo cp ~/oar/* /var/www/html/oar/
+
+
+## Install seba-pod specific inventory and configuration
+cd ~/kubespray-2.7.0/inventory/
+cp -a ~/seba-control-repo/seba-pod ~/kubespray-2.7.0/inventory/
+# modify 3 kube hosts in hosts.ini, replace 10.64.1.X with yours.
+vi seba-pod/hosts.ini
+
+
+## Run the install.  Takes about 5 minutes. STILL NEEDS INTERNET!
+cd ~/kubespray-2.7.0/
+ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
+
+
+# get ansible to do all this...
+scp -r ~/seba-control-repo/att-seba-pod.yaml foundry@xxx.xxx.xxx.xxx:~/
+scp -r ~/seba-control-repo/onos.yaml foundry@xxx.xxx.xxx.xxx:~/
+scp -r ~/seba-control-repo/scripts foundry@xxx.xxx.xxx.xxx:~/
+scp -r ~/seba-control-repo/radius-netcfg.json foundry@xxx.xxx.xxx.xxx:~/
+scp -r ~/seba-pod-ca/ca/ca.crt foundry@xxx.xxx.xxx.xxx:~/seba-pod-ca.crt
+
+# From here steps are run on k8s nodes themselves, seba-node1 seba-node2 seba-node3
