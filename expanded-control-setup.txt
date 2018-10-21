@@ -22,6 +22,12 @@ tar -zcvf docker-images.tgz docker-images
 #
 
 mkdir ~/helm-charts
+
+# get outside dependencies
+helm fetch stable/etcd-operator
+helm fetch incubator/kafka
+
+# generate our own charts
 cd ~/source/helm-charts
 for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
 mv *.tgz ~/helm-charts/
