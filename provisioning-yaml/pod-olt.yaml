@@ -33,9 +33,9 @@ topology_template:
     olt_device:
       type: tosca.nodes.OLTDevice
       properties:
-        name: Foundry OLT 208
+        name: Edgecore OLT 207
         device_type: openolt
-        host: 10.64.1.208
+        host: 10.64.1.207
         port: 9191
         switch_datapath_id: of:0000000000000001
         switch_port: "1"
