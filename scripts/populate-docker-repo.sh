@@ -17,11 +17,11 @@ do
   if echo $i | grep --quiet foundry; 
   then
     shortname=$(echo $i | cut -d'/' -f2)
-    docker tag $i docker-repo.seba.local:5000/voltha/$shortname
-    docker push docker-repo.seba.local:5000/voltha/$shortname
+    docker tag $i repo.seba.local:5000/voltha/$shortname
+    docker push repo.seba.local:5000/voltha/$shortname
   else
-    docker tag $i docker-repo.seba.local:5000/$i
-    docker push docker-repo.seba.local:5000/$i
+    docker tag $i repo.seba.local:5000/$i
+    docker push repo.seba.local:5000/$i
   fi
 
 done
