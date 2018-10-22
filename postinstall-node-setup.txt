@@ -1,5 +1,7 @@
 #
-# Node setup post kubespray
+# Node setup post kubespray.  
+#
+# Installs helm packages and subsequent docker images
 #
 
 ##
@@ -44,16 +46,24 @@ cd ~/
 helm install -n cord-kafka stable/kafka --set persistence.enabled=false --set zookeeper.persistence.enabled=false -f att-seba-pod.yaml
 helm install -n etcd-operator stable/etcd-operator -f att-seba-pod.yaml 
 helm install -n etcd-cluster stable/etcd-cluster -f att-seba-pod.yaml
-# nem-monitoring fails.  chart bug
+
+# nem-monitoring fails.  chart bug. not included
+
 helm install -n xos-core stable/xos-core -f att-seba-pod.yaml
 helm install -n voltha stable/voltha -f att-seba-pod.yaml
 # warning nginx-ingress-controller will fail.  its not used and can be ignored.
+
 helm install -n onos stable/onos -f onos.yaml -f att-seba-pod.yaml
 # wait for all to be running execpt nginx-ingress before proceeding
+
+# THIS ASSUMES A WORKING DNS.  IF YOU ARENT RUNNING A DNS SERVER, modify att-seba-pod.yaml onosApp lines and replace with IP of control-repo:
 helm install -n att-workflow stable/att-workflow -f att-seba-pod.yaml 
-# check onos log for apps to load
-# base-kubernetes fails. chart bug
+# check onos log for apps to load.  onos; log:tail; apps -s -a
+
+# base-kubernetes fails. chart bug. not included
 
 # inject radius server config into onos
 scripts/quick-onos-update.sh seba-node1 radius-netcfg.json
 
+
+# Should not be ready to use abstract-olt or manual yaml to provision pod OLT, whitelist, and subscriber.
