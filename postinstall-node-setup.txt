@@ -6,10 +6,10 @@
 ## ON ALL NODES
 ##
 
-# get ansible to do this...
-
 # Ensure mgmt vm and dns ready.
 # cheat with repo.seba.local /etc/hosts entries
+
+# TODO: get ansible to do this...
 
 # setup helm client and stable local charts repo
 helm init --client-only --stable-repo-url http://repo.seba.local/charts/
@@ -36,7 +36,7 @@ sudo reboot
 
 
 ##
-## Only on seba-node1.  todo figure out a way to run from control-repo.
+## Only on seba-node1.  TODO: figure out a way to run from control-repo.
 ##
 
 # Run helm install

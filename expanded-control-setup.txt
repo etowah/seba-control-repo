@@ -161,7 +161,7 @@ docker images
 
 # login to control-repo vm
 
-## Generate needed SSH keyed authentication
+## Generate needed SSH keyed authentication. needed for ansible
 cd ~/
 ssh-keygen -t rsa
 ## modify for 3 kube hosts xxx.xxx.xxx.xxx
@@ -241,7 +241,11 @@ cd ~/kubespray-2.7.0/
 ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
 
 
-# get ansible to do all this...
+# Verify k8s
+ansible -i inventory/seba-pod/hosts.ini kube-node -a "dig +short kubernetes.default.svc.cluster.local @10.233.0.3"
+
+
+# TODO: get ansible to do all this...
 scp -r ~/seba-control-repo/att-seba-pod.yaml foundry@xxx.xxx.xxx.xxx:~/
 scp -r ~/seba-control-repo/onos.yaml foundry@xxx.xxx.xxx.xxx:~/
 scp -r ~/seba-control-repo/scripts foundry@xxx.xxx.xxx.xxx:~/
