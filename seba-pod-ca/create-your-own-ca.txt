@@ -1,0 +1,30 @@
+#
+# Quick n fast way to create your own CA.  Note most of the heavy lifting is done in the *.cnf files themselves
+#
+
+
+## setup the ca directory and databases
+cd seba-pod-ca/
+mkdir -p ca/private
+mkdir -p ca/newcerts
+touch ca/index.txt
+echo 00 > ca/serial
+
+# create the ca self signed cert config, csr, and key
+openssl req -config seba-pod-ca-selfsign.cnf -new -newkey rsa:4096 -nodes -keyout ca/private/ca.key -out ca/ca.csr
+
+
+# create the ca self signed cert itself
+openssl ca -config seba-pod-ca-certauth.cnf -out ca/ca.crt -days 3650 -keyfile ca/private/ca.key -selfsign -extensions v3_ca -infiles ca/ca.csr
+
+
+# create the docker repo cert config, csr and key that will be signed by our new CA. 
+openssl req -config docker-repo.cnf -new -newkey rsa:4096 -nodes -keyout issued/docker-repo.key -out issued/docker-repo.csr
+# verify csr
+openssl req -in issued/docker-repo.csr -text -noout
+
+# have the CA sign it and generate the cert.  This CA can sign other certs in the pod.  
+openssl ca -config seba-pod-ca-certauth.cnf -keyfile ca/private/ca.key -cert ca/ca.crt -policy policy_anything -days 3650 -in issued/docker-repo.csr -out issued/docker-repo.crt
+# verify cert
+openssl x509 -in issued/docker-repo.crt -text -noout
+

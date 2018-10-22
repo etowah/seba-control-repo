@@ -1,0 +1,135 @@
+# ATT SEBA Voltha Helm Values
+
+kafkaReleaseName: cord-kafka
+
+etcd:
+  operator:
+    enabled: false
+
+envoyForEtcdImage: 'repo.seba.local:5000/voltha/voltha-envoy:gold.10.3'
+netconfImage: 'repo.seba.local:5000/voltha/voltha-netconf:gold.10.3'
+ofagentImage: 'repo.seba.local:5000/voltha/voltha-ofagent:gold.10.3'
+vcliImage: 'repo.seba.local:5000/voltha/voltha-cli:gold.10.3'
+vcoreImage: 'repo.seba.local:5000/voltha/voltha-voltha:gold.10.3'
+
+freeradiusImage: 'repo.seba.local:5000/tpdock/freeradius:latest'
+httpBackendImage: 'repo.seba.local:5000/gcr.io/google_containers/defaultbackend:1.4'
+ingressControllerImage: 'repo.seba.local:5000/quay.io/kubernetes-ingress-controller/nginx-ingress-controller:0.10.2'
+
+
+onosImage: 'repo.seba.local:5000/onosproject/onos:1.13.4'
+
+# xos core and att-workflow
+images:
+  xos_core:
+    repository: repo.seba.local:5000/xosproject/xos-core
+    tag: 2.1.9
+  xos_chameleon:
+    repository: repo.seba.local:5000/xosproject/chameleon
+    tag: 2.1.9
+  xos_tosca:
+    repository: repo.seba.local:5000/xosproject/xos-tosca
+    tag: 1.1.3
+  tosca_loader:
+    repository: repo.seba.local:5000/xosproject/tosca-loader
+    tag: 1.1.3
+  xos_api_tester:
+    repository: repo.seba.local:5000/xosproject/xos-api-tester
+    tag: master
+
+xos-gui:
+  images:
+    xos_gui:
+      repository: repo.seba.local:5000/xosproject/xos-gui
+      tag: 1.0.3
+    xos_ws:
+      repository: repo.seba.local:5000/xosproject/xos-ws
+      tag: 2.0.0
+
+xos-db:
+  image:
+    repository: 'repo.seba.local:5000/postgres'
+    tag: '10.3-alpine'
+
+# synchronizers
+att-workflow-driver:
+  image:
+    repository: repo.seba.local:5000/xosproject/att-workflow-driver-synchronizer
+    tag: '1.0.5'
+
+volt:
+  image:
+    repository: repo.seba.local:5000/xosproject/volt-synchronizer
+    tag: '2.1.5'
+
+rcord:
+  image:
+    repository: repo.seba.local:5000/xosproject/rcord-synchronizer
+    tag: 1.0.4
+
+onos-service:
+  image:
+    repository: repo.seba.local:5000/xosproject/onos-synchronizer
+    tag: 2.0.5
+
+fabric:
+  image:
+    repository: repo.seba.local:5000/xosproject/fabric-synchronizer
+    tag: 2.1.3
+
+fabric-crossconnect:
+  image:
+    repository: repo.seba.local:5000/xosproject/fabric-crossconnect-synchronizer
+    tag: 1.1.1
+
+kubernetes:
+  image:
+    repository: repo.seba.local:5000/xosproject/kubernetes-synchronizer
+    tag: 1.0.4
+
+# others
+sadis-server:
+  image:
+    repository: 'repo.seba.local:5000/opencord/sadis-server'
+    tag: 'latest'
+
+# kafka.  doesnt use the standard format.  may not play well with others...
+image: 'repo.seba.local:5000/confluentinc/cp-kafka'
+imageTag: "4.1.2-2"
+
+zookeeper:
+  image:
+    repository: repo.seba.local:5000/gcr.io/google_samples/k8szk
+    tag: v3
+
+etcdOperator:
+  image:
+    repository: repo.seba.local:5000/quay.io/coreos/etcd-operator
+    tag: v0.9.2
+etcdCluster:
+  image:
+    busyboxImage: repo.seba.local:5000/busybox:1.28.0-glibc
+    repository: repo.seba.local:5000/quay.io/coreos/etcd
+    tag: v3.2.18
+backupOperator:
+  image:
+    repository: repo.seba.local:5000/quay.io/coreos/etcd-operator
+    tag: v0.9.2
+restoreOperator:
+  image:
+    repository: repo.seba.local:5000/quay.io/coreos/etcd-operator
+    tag: v0.9.2
+
+# ONOS applications
+oltAppUrl: "http://repo.seba.local/oar/olt-app-2.1.0-SNAPSHOT.oar"
+sadisAppUrl: "http://repo.seba.local/oar/sadis-app-2.2.0-SNAPSHOT.oar"
+dhcpl2relayAppUrl: "http://repo.seba.local/oar/dhcpl2relay-1.5.0-SNAPSHOT.oar"
+aaaAppUrl: "http://repo.seba.local/oar/aaa-1.8.0-SNAPSHOT.oar"
+kafkaAppUrl: "http://repo.seba.local/oar/kafka-1.0.0-SNAPSHOT.oar"
+
+application_logs: |
+  log4j.logger.org.opencord.olt = TRACE
+  log4j.logger.org.opencord.kafka = DEBUG
+  log4j.logger.org.opencord.sadis = DEBUG
+  log4j.logger.org.opencord.aaa = TRACE
+  log4j.logger.org.opencord.dhcpl2relay = TRACE

@@ -1,0 +1,110 @@
+#
+# Build Offline POD.  
+#
+# Done offline with no internet.  TODO: kubespray still needs internet!!
+#
+
+
+# setup control-repo vm.  Run qcow file from recently setup physical host.  
+# virt-install or virt-manager (GUI) works for this.
+
+# Ensure mgmt vm and dns ready.
+# cheat with repo.seba.local /etc/hosts entries if needed
+
+# login to control-repo vm.  Set IP needed for POD host access.
+
+## Generate needed SSH keyed authentication. needed for ansible
+cd ~/
+ssh-keygen -t rsa
+## modify for 3 kube hosts xxx.xxx.xxx.xxx.  Replace with 3 IP of 3 ansible hosts.  TODO script.
+cat ~/.ssh/id_rsa.pub | ssh non-root-user@xxx.xxx.xxx.xxx 'cat >> ~/.ssh/authorized_keys'
+
+# unpack seba-control-repo.  copied from usb or scp in
+cd ~/
+tar -zxvf seba-control-repo.tgz
+
+## Generate pod CA key. 
+## Generate pod docker-repo key
+cp -a ~/seba-control-repo/seba-pod-ca ~/
+cd ~/seba-pod-ca/
+
+# setup CA dir structure
+mkdir -p issued
+mkdir -p ca/private
+mkdir -p ca/newcerts
+touch ca/index.txt
+echo 00 > ca/serial
+
+# generate and self sign CA
+openssl req -config seba-pod-ca-selfsign.cnf -new -newkey rsa:4096 -nodes -keyout ca/private/ca.key -out ca/ca.csr
+openssl ca -config seba-pod-ca-certauth.cnf -out ca/ca.crt -days 3650 -keyfile ca/private/ca.key -selfsign -extensions v3_ca -infiles ca/ca.csr
+
+# generate docker repo key and csr
+openssl req -config docker-repo.cnf -new -newkey rsa:4096 -nodes -keyout issued/docker-repo.key -out issued/docker-repo.csr
+
+# sign docker repo csr, generate cert, from ca
+openssl ca -config seba-pod-ca-certauth.cnf -keyfile ca/private/ca.key -cert ca/ca.crt -policy policy_anything -days 3650 -in issued/docker-repo.csr -out issued/docker-repo.crt
+openssl x509 -in issued/docker-repo.crt -text -noout
+
+##  Install ca locally
+sudo cp ~/seba-pod-ca/ca/ca.crt /usr/local/share/ca-certificates/seba-pod-ca.crt
+sudo update-ca-certificates 
+sudo systemctl restart docker
+
+
+## Setup Docker repo
+sudo cp ~/seba-pod-ca/issued/docker-repo.key /var/docker-persist/docker-registry/certs
+sudo cp ~/seba-pod-ca/issued/docker-repo.crt /var/docker-persist/docker-registry/certs
+
+sudo systemctl start docker-repo
+
+
+## Fill docker repo with images.  Unpack tarball on external storage if needed.  Likely too big to scp in.
+## Possibly via usb passthrough on host or nfs?  use virsh hotplug, similar to this:
+# https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/virtualization_administration_guide/sect-managing_guest_virtual_machines_with_virsh-attaching_and_updating_a_device_with_virsh
+
+# mount to /mnt within guest vm
+
+cd ~/seba-control-repo/
+scripts/load-docker-images.sh /mnt/docker-images
+scripts/populate-docker-repo.sh seba-imagelist.txt
+
+
+## Setup helm repository.  Pull from external storage or scp copy in
+cd ~/
+tar -zxvf ~/seba-control-repo/helm-charts.tgz
+cd /var/www/html/charts/
+sudo cp /home/non-root-user/charts/* .
+sudo helm repo index --url http://repo.seba.local/charts/ /var/www/html/charts/
+
+
+## Setup onos oar app on web server
+cd ~/
+tar -zxvf ~/seba-control-repo/onos-oar.tgz
+sudo cp ~/oar/* /var/www/html/oar/
+
+
+## Install seba-pod specific inventory and configuration
+cd ~/kubespray-2.7.0/inventory/
+cp -a ~/seba-control-repo/seba-pod ~/kubespray-2.7.0/inventory/
+# modify 3 kube hosts in hosts.ini, replace 10.64.1.X with yours.
+vi seba-pod/hosts.ini
+
+
+## Run the install.  Takes about 5 minutes. ***STILL NEEDS INTERNET***!
+cd ~/kubespray-2.7.0/
+ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
+
+
+# Verify k8s
+ansible -i inventory/seba-pod/hosts.ini kube-node -a "dig +short kubernetes.default.svc.cluster.local @10.233.0.3"
+
+
+# TODO: get ansible to do all this...  Replace xxxx with the 3 seba k8s nodes.
+scp -r ~/seba-control-repo/att-seba-pod.yaml non-root-user@xxx.xxx.xxx.xxx:~/
+scp -r ~/seba-control-repo/onos.yaml non-root-user@xxx.xxx.xxx.xxx:~/
+scp -r ~/seba-control-repo/scripts non-root-use@xxx.xxx.xxx.xxx:~/
+scp -r ~/seba-control-repo/radius-netcfg.json non-root-user@xxx.xxx.xxx.xxx:~/
+scp -r ~/seba-pod-ca/ca/ca.crt non-root-user@xxx.xxx.xxx.xxx:~/seba-pod-ca.crt
+
+# From here steps are run on k8s nodes themselves, seba-node1 seba-node2 seba-node3.  See postinstall. 
