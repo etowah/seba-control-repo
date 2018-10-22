@@ -1,6 +1,7 @@
 #!/bin/bash
 
 imagelist=$1
+pull=$2
 
 if [ -z "$imagelist" ]
 then
@@ -12,7 +13,11 @@ fi
 for i in $(cat $imagelist)
 do 
   echo $i
-  #docker pull $i
+
+  if [ -n "$pull" ]
+  then
+    docker pull $i
+  fi
 
   if echo $i | grep --quiet foundry; 
   then

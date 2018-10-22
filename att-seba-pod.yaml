@@ -105,19 +105,20 @@ zookeeper:
 etcdOperator:
   image:
     repository: repo.seba.local:5000/quay.io/coreos/etcd-operator
-    tag: v0.7.0
+    tag: v0.9.2
 etcdCluster:
   image:
+    busyboxImage: repo.seba.local:5000/busybox:1.28.0-glibc
     repository: repo.seba.local:5000/quay.io/coreos/etcd
-    tag: v3.2.13
+    tag: v3.2.18
 backupOperator:
   image:
     repository: repo.seba.local:5000/quay.io/coreos/etcd-operator
-    tag: v0.7.0
+    tag: v0.9.2
 restoreOperator:
   image:
     repository: repo.seba.local:5000/quay.io/coreos/etcd-operator
-    tag: v0.7.0
+    tag: v0.9.2
 
 # ONOS applications
 oltAppUrl: "http://repo.seba.local/oar/olt-app-2.1.0-SNAPSHOT.oar"

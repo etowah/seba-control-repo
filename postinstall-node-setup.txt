@@ -44,9 +44,6 @@ cd ~/
 helm install -n cord-kafka stable/kafka --set persistence.enabled=false --set zookeeper.persistence.enabled=false -f att-seba-pod.yaml
 helm install -n etcd-operator stable/etcd-operator -f att-seba-pod.yaml 
 helm install -n etcd-cluster stable/etcd-cluster -f att-seba-pod.yaml
-# wait for all 3 to be Running.  Sometimes etcd-cluster-XXXX fails do to dns lookup bug.  etcd:3.2.18 and etcd-operator:0.9.2 would fix, but 
-# the etcd-operator helm chart isnt ready for offline. it uses a new busybox image that isnt configurable... :(
-# all you can do for now is delete/purge and re-install etcd-cluster
 # nem-monitoring fails.  chart bug
 helm install -n xos-core stable/xos-core -f att-seba-pod.yaml
 helm install -n voltha stable/voltha -f att-seba-pod.yaml
