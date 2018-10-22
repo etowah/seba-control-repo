@@ -1,48 +1,83 @@
+To generate a custom repo there are multiple stages.
 
-First get the list of what's in use (assuming all machnes have the same arch):
+1) Generate lists of packages for the buildrepo.sh script
+2) Download and sign .deb files
+3) Create and sign an apt repository directory
 
-$ apt list --installed > install.list
 
-You can also get a subset of this file to get a smaller set of packages
+1) Generate lists of packages
 
-To make a subset for just one package you get the dependencies for it with:
+There are different approaches to this, but the one I have found to be effective for our case:
+On a machine with the same version and config as the install target, get the currently installed packages
 
-$ apt-cache depends <package_name>
+$ apt list --installed > apt-packages.txt
 
-copy the name of the package and the dependencies into their own lines in a file and grep for the relevant lines
+Install the desired package and get the list of packages afterwards
 
-$ grep -f install.list.full package-deps-names.txt > install.list 
+$ sudo apt install <package>
+$ apt list --installed > apt-packages-<package>.txt
 
-Then translate it into apt understandable format:
+Run scripts/generate-diff-package-list.sh to create the list file
 
-$ sed -r  's/ \[.*?\]//g' install.list | sed -r 's/(^.*?)\/.*?[ ](.*?)[ ](.*?)$/\1:\3=\2/g' > install.list.to.dl
+$ ./scripts/generate-diff-package-list.sh apt-packages.txt apt-packages-<package.txt > install-<pacakge>.list
 
-Then download the current packages versions:
+This file can be used with buildrepo.sh when you download the .deb files.
 
-$ xargs apt download < install.list.to.dl
-This will download all debs that were currently installed to the current directory.
-Note that if you have the deb file already, you can just place it here and not do the previous steps.
+2) Download and sign .deb files
 
-You would need to create a Packages.gz file in order to add this folder as a source for apt. E.g.
+copy scripts/buildrepo.sh and scripts/apt-mirror-lists/install-*.sh to some directory to download the .debs.
 
-$ cd ~/deb_server/debs/
-$ dpkg-scanpackages -m . /dev/null | gzip -9c >  Packages.gz  
-Note: path for dpkg-scanpackages must be relative, otherwise this will break the download process later
+$ cp scripts/buildrepo.sh scripts/apt-mirror-lists/install-*.sh ~/repodownload
+$ cd ~/repodownload
 
-(-m allows you to have multiple versions, if you want the most recent version, remove the -m)
+Download the .deb files
 
-Now you have to bring up a file server for example apache2.
+$ ./buildrepo.sh
 
-Create a symbolic link mapping the debs to the http server
-$ ln -s ~/deb_server/debs/ /var/www/html/repo
-The last bit is to add the server machine as the only source for apt updates on each target machine.
+This actually is a valid repo at this point you can use it by exposing it on http and adding "deb [trusted=yes] http://<server-name>/repo /" to /etc/apt/sources.list in the install target. We need to do the following steps for the kubespray install.
 
-$ deb [trusted=yes] http://deb_server_ip/repo /
-If you want to update the packages, you need to re-run apt download of the list, but without the version.
+Create gpg key to use for signing. Select to generate an RSA key (Option 4). Enter valid name and email when prompted
 
-$ sed -r  's/ \[.*?\]//g' install.list | sed -r 's/(^.*?)\/.*?[ ](.*?)[ ](.*?)$/\1:\3/g' > install.list.for.update
+$ gpg --gen-key
 
-$ apt update && xargs apt download < install.list.for.update
-and update the Packages.gz.
+Go ahead and produce an ascii formatted public key for distribution
 
-I'm not sure this is the best way, but it works for me.
+$ gpg --armor --export jon@aframe.com --output > public_key
+
+Install a package to sign the .deb files and sign them
+
+$ sudo apt install dpkg-sig libterm-readkey-per;
+$ dpkg-sig --sign builder *.deb --cache-passphrase
+
+3) Create and sign an apt repository directory
+
+Create a directory to story the repo somewhere
+
+$ mkdir ~/repo
+
+Create a conf directory there.
+
+$ cd ~/repo
+$ mkdir conf
+
+Create a file called distributions inside conf with the following text:
+
+Origin: apt-mirror
+Label: apt repository
+Codename: xenial
+Architectures: amd64
+Components: stable
+Description: docker/ubuntu package repo
+SignWith: yes
+Pull: xenial
+
+Now create the repo
+
+$ sudo apt install reprepro
+$ reprepro --ask-passphrase -Vb . includedeb xenial ~/repodownload/*.deb
+
+Now you just need to make the repo and the public key we created accessible on http.
+Then the install target can access it with
+
+$ wget -O - http://<server-address>/public_key | sudo apt-key add -
+$ sudo add-apt-repository "deb http://<server_address>/repo xenial stable" 
