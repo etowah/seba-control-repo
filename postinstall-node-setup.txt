@@ -20,7 +20,7 @@ helm init --client-only --stable-repo-url http://repo.seba.local/charts/
 . ~/scripts/bashrc
 
 # allow non-root to run docker
-sudo usermod -aG docker foundry
+sudo usermod -aG docker non-root-user
 
 # install new pod ca cert
 cd ~/

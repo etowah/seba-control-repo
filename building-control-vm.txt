@@ -50,7 +50,7 @@ tar -zxvf ~/seba-control-repo/helm-v2.9.1-linux-amd64.tar.gz
 sudo cp linux-amd64/helm /usr/local/bin/
 
 # allow non-root to run docker
-sudo usermod -aG docker $non-root-user
+sudo usermod -aG docker non-root-user
 
 # install att-foundry-atlanta-ca.crt
 sudo cp ~/seba-control-repo/att-foundry-atlanta-ca.crt /usr/local/share/ca-certificates/

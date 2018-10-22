@@ -17,7 +17,7 @@
 cd ~/
 ssh-keygen -t rsa
 ## modify for 3 kube hosts xxx.xxx.xxx.xxx.  Replace with 3 IP of 3 ansible hosts.  TODO script.
-cat ~/.ssh/id_rsa.pub | ssh foundry@xxx.xxx.xxx.xxx 'cat >> ~/.ssh/authorized_keys'
+cat ~/.ssh/id_rsa.pub | ssh non-root-user@xxx.xxx.xxx.xxx 'cat >> ~/.ssh/authorized_keys'
 
 # unpack seba-control-repo.  copied from usb or scp in
 cd ~/
@@ -74,7 +74,7 @@ scripts/populate-docker-repo.sh seba-imagelist.txt
 cd ~/
 tar -zxvf ~/seba-control-repo/helm-charts.tgz
 cd /var/www/html/charts/
-sudo cp /home/foundry/charts/* .
+sudo cp /home/non-root-user/charts/* .
 sudo helm repo index --url http://repo.seba.local/charts/ /var/www/html/charts/
 
 
@@ -101,10 +101,10 @@ ansible -i inventory/seba-pod/hosts.ini kube-node -a "dig +short kubernetes.defa
 
 
 # TODO: get ansible to do all this...  Replace xxxx with the 3 seba k8s nodes.
-scp -r ~/seba-control-repo/att-seba-pod.yaml foundry@xxx.xxx.xxx.xxx:~/
-scp -r ~/seba-control-repo/onos.yaml foundry@xxx.xxx.xxx.xxx:~/
-scp -r ~/seba-control-repo/scripts foundry@xxx.xxx.xxx.xxx:~/
-scp -r ~/seba-control-repo/radius-netcfg.json foundry@xxx.xxx.xxx.xxx:~/
-scp -r ~/seba-pod-ca/ca/ca.crt foundry@xxx.xxx.xxx.xxx:~/seba-pod-ca.crt
+scp -r ~/seba-control-repo/att-seba-pod.yaml non-root-user@xxx.xxx.xxx.xxx:~/
+scp -r ~/seba-control-repo/onos.yaml non-root-user@xxx.xxx.xxx.xxx:~/
+scp -r ~/seba-control-repo/scripts non-root-use@xxx.xxx.xxx.xxx:~/
+scp -r ~/seba-control-repo/radius-netcfg.json non-root-user@xxx.xxx.xxx.xxx:~/
+scp -r ~/seba-pod-ca/ca/ca.crt non-root-user@xxx.xxx.xxx.xxx:~/seba-pod-ca.crt
 
 # From here steps are run on k8s nodes themselves, seba-node1 seba-node2 seba-node3.  See postinstall. 
