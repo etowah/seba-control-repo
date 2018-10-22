@@ -91,7 +91,7 @@ cp -a ~/seba-control-repo/seba-pod ~/kubespray-2.7.0/inventory/
 vi seba-pod/hosts.ini
 
 
-## Run the install.  Takes about 5 minutes. ***STILL NEEDS INTERNET***!
+## Run the kubernetes installation.  Takes about 5 minutes. ***STILL NEEDS INTERNET***!   Skip if k8s is already installed on 3 hosts via another means.
 cd ~/kubespray-2.7.0/
 ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
 
