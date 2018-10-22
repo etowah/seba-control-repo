@@ -21,7 +21,7 @@ tar -zcvf docker-images.tgz docker-images
 # Generate helm charts.  build box that can run  helm/tiller
 #
 
-mkdir ~/helm-charts
+mkdir ~/charts
 
 # get outside dependencies
 helm fetch stable/etcd-operator
@@ -30,22 +30,22 @@ helm fetch incubator/kafka
 # generate our own charts
 cd ~/source/helm-charts
 for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
-mv *.tgz ~/helm-charts/
+mv *.tgz ~/charts/
 
 cd xos-profiles/
 for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
-mv *.tgz ~/helm-charts/
+mv *.tgz ~/charts/
 
 cd ../xos-services/
 for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
-mv *.tgz ~/helm-charts/
+mv *.tgz ~/charts/
 
 cd ../xos-tools/
 for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
-mv *.tgz ~/helm-charts/
+mv *.tgz ~/charts/
 
 cd ~/
-tar -zcvf helm-charts.tgz helm-charts
+tar -zcvf helm-charts.tgz charts
 cp helm-charts.tgz ~/seba-control-repo/
 git add helm-charts.tgz
 ## copy to usb drive directly
