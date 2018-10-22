@@ -1,0 +1,84 @@
+#
+# Package artifacts needed to install offline pod
+# Keep the tgz created here and save to external storage or laptop 
+#
+
+# Run from *internet connected build host*.  This host must already be running docker, k8s, and helm !!!!
+
+# clone seba-control-repo
+cd ~/source/
+git clone https://github.com/etowah/seba-control-repo.git
+
+
+#
+# Pull and gather docker images on build box. 20GB
+#
+# Assumes you have a large enough docker-images storage location. i used /storage/nfs/ that i happened to have.
+~/source/seba-control-repo/scripts/package-docker-images.sh ~/source/seba-control-repo/seba-imagelist.txt /storage/nfs/docker-images/
+tar -zcvf docker-images.tgz docker-images
+# too big to check-in
+## copy to usb drive directly
+
+
+#
+# Generate helm charts.  build box that can run  helm/tiller
+#
+
+mkdir ~/charts
+
+# get outside dependencies
+helm fetch stable/etcd-operator
+helm fetch incubator/kafka
+
+# generate our own charts
+cd ~/source/helm-charts
+for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
+mv *.tgz ~/charts/
+
+cd xos-profiles/
+for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
+mv *.tgz ~/charts/
+
+cd ../xos-services/
+for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
+mv *.tgz ~/charts/
+
+cd ../xos-tools/
+for i in $(ls -1); do echo $i; helm dep update $i; helm package $i; done
+mv *.tgz ~/charts/
+
+cd ~/
+tar -zcvf helm-charts.tgz charts
+cp helm-charts.tgz ~/seba-control-repo/
+git add helm-charts.tgz
+## copy to usb drive directly
+
+
+#
+# Download oar files.  build box that can run internet curl
+#
+cd ~/
+mkdir oar
+curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=olt-app&v=2.1.0-SNAPSHOT&e=oar' -o oar/olt-app-2.1.0-SNAPSHOT.oar
+curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=sadis-app&v=2.2.0-SNAPSHOT&e=oar' -o oar/sadis-app-2.2.0-SNAPSHOT.oar
+curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=dhcpl2relay&v=1.5.0-SNAPSHOT&e=oar' -o oar/dhcpl2relay-1.5.0-SNAPSHOT.oar
+curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=aaa&v=1.8.0-SNAPSHOT&e=oar' -o oar/aaa-1.8.0-SNAPSHOT.oar
+curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=kafka&v=1.0.0-SNAPSHOT&e=oar' -o oar/kafka-1.0.0-SNAPSHOT.oar
+tar -zcvf onos-oar.tgz oar
+cp onos-oar.tgz ~/seba-control-repo/
+git add onos-oar.tgz
+## copy to usb drive directly
+
+
+#
+# Package seba-control-repo directory
+#
+cd ~/source
+tar -zcvf seba-control-repo.tgz seba-control-repo
+## copy to usb drive directly
+
+
+# Take docker-images.tgz, helm-charts.tgz, onos-oar.tgz and seba-control-repo.tgz and copy to external storage or laptop for offline installation
+# Take the seba-control-repo qcow file created earlier and package as well.
+
+

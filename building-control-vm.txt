@@ -1,0 +1,78 @@
+#
+# Steps to build a control-repo VM
+#
+# Resulting qcow saved and imported into offline pod for use later
+# Done with internet connectivity. qcow and any tgz are saved to portable drive or laptop
+#
+
+
+# install docker repo
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+sudo apt update
+sudo apt install docker-ce=17.03.3~ce-0~ubuntu-xenial
+sudo systemctl start docker
+
+# install apache to host helm and oar repo
+sudo apt install apache2
+sudo mkdir /var/www/html/charts
+sudo mkdir /var/www/html/oar
+sudo systemctl start apache2
+
+# install nfs server... might not be needed
+#sudo apt install nfs-kernel-server
+#sudo vi /etc/exports 
+#sudo systemctl start nfs-kernel-server.service
+sudo apt install nfs-common
+
+
+# Clone seba-control-repo.  Or unpack from tarball
+cd ~/
+# tar -zxvf seba-control-repo.tgz 
+git clone https://github.com/etowah/seba-control-repo.git
+
+## Install current version of pip, needed to get current ansible
+cd ~/
+sudo python ~/seba-control-repo/get-pip.py
+sudo pip -V
+
+## Install tagged version of kubespray 2.7.0
+cd ~/
+tar -zxvf ~/seba-control-repo/kubespray-v2.7.0.tar.gz
+
+## Install kubespray requirements.  gets ansible and installs in /usr/local
+cd ~/kubespray-2.7.0/
+sudo pip install -r requirements.txt
+
+# install helm client
+cd ~/
+tar -zxvf ~/seba-control-repo/helm-v2.9.1-linux-amd64.tar.gz
+sudo cp linux-amd64/helm /usr/local/bin/
+
+# allow non-root to run docker
+sudo usermod -aG docker $non-root-user
+
+# install att-foundry-atlanta-ca.crt
+sudo cp ~/seba-control-repo/att-foundry-atlanta-ca.crt /usr/local/share/ca-certificates/
+sudo update-ca-certificates
+
+# stage docker repo service
+sudo cp ~/seba-control-repo/docker-repo.service /etc/systemd/system/
+sudo mkdir -p /var/docker-persist/docker-registry/registry
+sudo mkdir -p /var/docker-persist/docker-registry/certs
+
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+sudo systemctl start docker-repo
+sleep 20
+sudo systemctl stop docker-repo
+
+# verify registry image loaded
+docker images |grep registry
+
+# shutdown vm and gather qcow file. 5GB
+shutdown -h now
+
+
+# copy qcow from physical host and keep.  Typically in /var/lib/libvirt/images/
+
