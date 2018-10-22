@@ -1,66 +1,66 @@
-To generate a custom repo there are multiple stages.
+# To generate a custom repo there are multiple stages.
 
-1) Generate lists of packages for the buildrepo.sh script
-2) Download and sign .deb files
-3) Create and sign an apt repository directory
+# 1) Generate lists of packages for the buildrepo.sh script
+# 2) Download and sign .deb files
+# 3) Create and sign an apt repository directory
 
 
-1) Generate lists of packages
+# 1) Generate lists of packages
 
-There are different approaches to this, but the one I have found to be effective for our case:
-On a machine with the same version and config as the install target, get the currently installed packages
+# There are different approaches to this, but the one I have found to be effective for our case:
+# On a machine with the same version and config as the install target, get the currently installed packages
 
-$ apt list --installed > apt-packages.txt
+apt list --installed > apt-packages.txt
 
-Install the desired package and get the list of packages afterwards
+# Install the desired package and get the list of packages afterwards
 
-$ sudo apt install <package>
-$ apt list --installed > apt-packages-<package>.txt
+sudo apt install <package>
+apt list --installed > apt-packages-<package>.txt
 
-Run scripts/generate-diff-package-list.sh to create the list file
+# Run scripts/generate-diff-package-list.sh to create the list file
 
-$ ./scripts/generate-diff-package-list.sh apt-packages.txt apt-packages-<package.txt > install-<pacakge>.list
+./scripts/generate-diff-package-list.sh apt-packages.txt apt-packages-<package.txt > install-<pacakge>.list
 
-This file can be used with buildrepo.sh when you download the .deb files.
+# This file can be used with buildrepo.sh when you download the .deb files.
 
-2) Download and sign .deb files
+# 2) Download and sign .deb files
 
-copy scripts/buildrepo.sh and scripts/apt-mirror-lists/install-*.sh to some directory to download the .debs.
+# copy scripts/buildrepo.sh and scripts/apt-mirror-lists/install-*.sh to some directory to download the .debs.
 
-$ cp scripts/buildrepo.sh scripts/apt-mirror-lists/install-*.sh ~/repodownload
-$ cd ~/repodownload
+cp scripts/buildrepo.sh scripts/apt-mirror-lists/install-*.sh ~/repodownload
+cd ~/repodownload
 
-Download the .deb files
+# Download the .deb files
 
-$ ./buildrepo.sh
+./buildrepo.sh
 
-This actually is a valid repo at this point you can use it by exposing it on http and adding "deb [trusted=yes] http://<server-name>/repo /" to /etc/apt/sources.list in the install target. We need to do the following steps for the kubespray install.
+# This actually is a valid repo at this point you can use it by exposing it on http and adding "deb [trusted=yes] http://<server-name>/repo /" to /etc/apt/sources.list in the install target. We need to do the following steps for the kubespray install.
 
-Create gpg key to use for signing. Select to generate an RSA key (Option 4). Enter valid name and email when prompted
+# Create gpg key to use for signing. Select to generate an RSA key (Option 4). Enter valid name and email when prompted
 
-$ gpg --gen-key
+gpg --gen-key
 
-Go ahead and produce an ascii formatted public key for distribution
+# Go ahead and produce an ascii formatted public key for distribution
 
-$ gpg --armor --export jon@aframe.com --output > public_key
+gpg --armor --export jon@aframe.com --output > public_key
 
-Install a package to sign the .deb files and sign them
+# Install a package to sign the .deb files and sign them
 
-$ sudo apt install dpkg-sig libterm-readkey-per;
-$ dpkg-sig --sign builder *.deb --cache-passphrase
+sudo apt install dpkg-sig libterm-readkey-per;
+dpkg-sig --sign builder *.deb --cache-passphrase
 
-3) Create and sign an apt repository directory
+# 3) Create and sign an apt repository directory
 
-Create a directory to story the repo somewhere
+# Create a directory to story the repo somewhere
 
-$ mkdir ~/repo
+mkdir ~/repo
 
-Create a conf directory there.
+# Create a conf directory there.
 
-$ cd ~/repo
-$ mkdir conf
+cd ~/repo
+mkdir conf
 
-Create a file called distributions inside conf with the following text:
+# Create a file called distributions inside conf with the following text:
 
 Origin: apt-mirror
 Label: apt repository
@@ -71,13 +71,13 @@ Description: docker/ubuntu package repo
 SignWith: yes
 Pull: xenial
 
-Now create the repo
+# Now create the repo
 
-$ sudo apt install reprepro
-$ reprepro --ask-passphrase -Vb . includedeb xenial ~/repodownload/*.deb
+sudo apt install reprepro
+reprepro --ask-passphrase -Vb . includedeb xenial ~/repodownload/*.deb
 
-Now you just need to make the repo and the public key we created accessible on http.
-Then the install target can access it with
+# Now you just need to make the repo and the public key we created accessible on http.
+# Then the install target can access it with
 
-$ wget -O - http://<server-address>/public_key | sudo apt-key add -
-$ sudo add-apt-repository "deb http://<server_address>/repo xenial stable" 
+wget -O - http://<server-address>/public_key | sudo apt-key add -
+sudo add-apt-repository "deb http://<server_address>/repo xenial stable" 
