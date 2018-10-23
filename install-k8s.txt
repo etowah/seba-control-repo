@@ -17,7 +17,7 @@ vi seba-pod/hosts.ini
 
 # Verify ansible can reach 3 hosts
 cd ~/kubespray-2.7.0/
-ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "ping -c1 127.0.0.1"
+ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "whoami; uname -a" --become --become-user=root
 
 
 # Run the ansible kubespray kubernetes installation.  Takes about 12 minutes. ***STILL NEEDS INTERNET***! 
