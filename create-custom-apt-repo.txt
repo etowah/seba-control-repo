@@ -1,4 +1,4 @@
-# To generate a custom repo there are multiple stages.
+# To generate a custom repo from scratch there are multiple stages. Start from 2 if you are simply generating a release.
 
 # 1) Generate lists of packages for the buildrepo.sh script. The results of this are committed and don't need to be repeated.
 # 2) Download and sign .deb files
@@ -25,63 +25,67 @@ apt list --installed > apt-packages-<package>.txt
 
 # 2) Download and sign .deb files
 
+git clone https://github.com/etowah/seba-control-repo
+cd seba-control-repo
+
+# Add the docker repo
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable"
+
 # copy scripts/buildrepo.sh and scripts/apt-mirror-lists/install-*.sh to some directory to download the .debs.
 
-cp scripts/buildrepo.sh scripts/apt-mirror-lists/install-*.sh ~/repodownload
-cd ~/repodownload
-
-# Download the .deb files
-
+sudo apt update
+sudo mkdir -p /opt/apt-mirror/download
+sudo chown -R foundry /opt/apt-mirror/
+cp scripts/buildrepo.sh scripts/apt-mirror-lists/install-*.list /opt/apt-mirror/download/
+cd /opt/apt-mirror/download
+sudo apt install dpkg-dev -y
 ./buildrepo.sh
 
-# This actually is a valid repo at this point you can use it by exposing it on http and adding "deb [trusted=yes] http://<server-name>/repo /" to /etc/apt/sources.list in the install target. We need to do the following steps for the kubespray install.
-
 # Create gpg key to use for signing. Select to generate option 1, the default. Enter valid name and email when prompted
+# Sign the files
 
 gpg --gen-key
+sudo apt install -y dpkg-sig libterm-readkey-perl;
+dpkg-sig --sign builder *.deb -p
 
-# Go ahead and produce an ascii formatted public key for distribution
+# If it tells you need more entropy, you can sign in on another terminal and run this:
 
-gpg --armor --export <email> --output > public_key
-
-# Install a package to sign the .deb files and sign them
-
-sudo apt install dpkg-sig libterm-readkey-per;
-dpkg-sig --sign builder *.deb --cache-passphrase
+sudo apt install rng-tools
+sudo rngd -r /dev/urandom
 
 # 3) Create and sign an apt repository directory
 
 # Create a directory to story the repo somewhere
 
-mkdir ~/repo
-
-# Create a conf directory there.
-
-cd ~/repo
+cd /opt/apt-mirror/
+mkdir repo
+cd repo
 mkdir conf
-
-# Create a file called distributions inside conf with the following text:
-
-Origin: apt-mirror
+echo "Origin: apt-mirror
 Label: apt repository
 Codename: xenial
 Architectures: amd64
 Components: stable
 Description: docker/ubuntu package repo
 SignWith: yes
-Pull: xenial
+Pull: xenial" > conf/distributions
 
 # Now create the repo
 
-sudo apt install reprepro
-reprepro --ask-passphrase -Vb . includedeb xenial ~/repodownload/*.deb
+sudo apt install -y reprepro
+reprepro --ask-passphrase -Vb . includedeb xenial /opt/apt-mirror/download/*.deb
 
 # 4) Make the repo and the public key we created accessible on http.
+# Export the public key to a txt file
+
+gpg --armor --export <email> --output > /opt/apt-mirror/public_key
 
 # In the web server root, create symbolic links that points to the repo and key
 
-ln -s ~/repo /var/www/html/repo
-ln -s ~/public_key key
+ln -s /opt/apt-mirror/repo /var/www/html/repo
+ln -s /opt/apt-mirror/public_key /var/www/html/key
 
 # The install target can access it with:
 
