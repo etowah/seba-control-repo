@@ -4,38 +4,8 @@
 # Installs helm packages and subsequent docker images
 #
 
-##
-## ON ALL NODES
-##
-
 # Ensure mgmt vm and dns ready.
 # cheat with repo.seba.local /etc/hosts entries
-
-# TODO: get ansible to do this...
-
-# setup helm client and stable local charts repo
-helm init --client-only --stable-repo-url http://repo.seba.local/charts/
-
-# copy over and install ~/.bashrc
-. ~/scripts/bashrc
-
-# allow non-root to run docker
-sudo usermod -aG docker non-root-user
-
-# install new pod ca cert
-cd ~/
-sudo cp seba-pod-ca.crt /usr/local/share/ca-certificates/
-sudo update-ca-certificates
-
-# test
-curl -v https://repo.seba.local:5000/v2/_catalog
-
-helm repo update
-
-# reboot to make sure k8s comes up ok
-sudo reboot
-
-
 
 ##
 ## Only on seba-node1.  TODO: figure out a way to run from control-repo.
@@ -45,6 +15,7 @@ sudo reboot
 cd ~/
 helm install -n cord-kafka stable/kafka --set persistence.enabled=false --set zookeeper.persistence.enabled=false -f att-seba-pod.yaml
 helm install -n etcd-operator stable/etcd-operator -f att-seba-pod.yaml 
+# wait for etcd-operator crd
 helm install -n etcd-cluster stable/etcd-cluster -f att-seba-pod.yaml
 
 # nem-monitoring fails.  chart bug. not included
