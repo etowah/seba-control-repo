@@ -5,6 +5,7 @@
 #
 
 # Ensure mgmt vm and dns ready.
+# add repo.seba.local to your POD's local dns server.
 # cheat with repo.seba.local /etc/hosts entries
 
 ##
@@ -27,7 +28,7 @@ helm install -n voltha stable/voltha -f att-seba-pod.yaml
 helm install -n onos stable/onos -f onos.yaml -f att-seba-pod.yaml
 # wait for all to be running execpt nginx-ingress before proceeding
 
-# THIS ASSUMES A WORKING DNS.  IF YOU ARENT RUNNING A DNS SERVER, modify att-seba-pod.yaml onosApp lines and replace with IP of control-repo:
+# THIS ASSUMES A WORKING POD DNS SERVER.  IF YOU ARENT RUNNING A DNS SERVER, modify att-seba-pod.yaml onos *AppUrl lines and replace with IP of control-repo vm:
 helm install -n att-workflow stable/att-workflow -f att-seba-pod.yaml 
 # check onos log for apps to load.  onos; log:tail; apps -s -a
 
@@ -37,4 +38,4 @@ helm install -n att-workflow stable/att-workflow -f att-seba-pod.yaml
 scripts/quick-onos-update.sh seba-node1 radius-netcfg.json
 
 
-# Should not be ready to use abstract-olt or manual yaml to provision pod OLT, whitelist, and subscriber.
+# Should now be ready to use abstract-olt or manual yaml to provision pod OLT, whitelist, and subscriber.  TODO: add those commands below

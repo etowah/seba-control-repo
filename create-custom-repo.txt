@@ -1,9 +1,9 @@
 # To generate a custom repo there are multiple stages.
 
-# 1) Generate lists of packages for the buildrepo.sh script
+# 1) Generate lists of packages for the buildrepo.sh script. The results of this are committed and don't need to be repeated.
 # 2) Download and sign .deb files
 # 3) Create and sign an apt repository directory
-
+# 4) Make the repo and key availble via http
 
 # 1) Generate lists of packages
 
@@ -36,13 +36,13 @@ cd ~/repodownload
 
 # This actually is a valid repo at this point you can use it by exposing it on http and adding "deb [trusted=yes] http://<server-name>/repo /" to /etc/apt/sources.list in the install target. We need to do the following steps for the kubespray install.
 
-# Create gpg key to use for signing. Select to generate an RSA key (Option 4). Enter valid name and email when prompted
+# Create gpg key to use for signing. Select to generate option 1, the default. Enter valid name and email when prompted
 
 gpg --gen-key
 
 # Go ahead and produce an ascii formatted public key for distribution
 
-gpg --armor --export jon@aframe.com --output > public_key
+gpg --armor --export <email> --output > public_key
 
 # Install a package to sign the .deb files and sign them
 
@@ -76,8 +76,14 @@ Pull: xenial
 sudo apt install reprepro
 reprepro --ask-passphrase -Vb . includedeb xenial ~/repodownload/*.deb
 
-# Now you just need to make the repo and the public key we created accessible on http.
-# Then the install target can access it with
+# 4) Make the repo and the public key we created accessible on http.
 
-wget -O - http://<server-address>/public_key | sudo apt-key add -
-sudo add-apt-repository "deb http://<server_address>/repo xenial stable" 
+# In the web server root, create symbolic links that points to the repo and key
+
+ln -s ~/repo /var/www/html/repo
+ln -s ~/public_key key
+
+# The install target can access it with:
+
+wget -O - http://repo.seba.local/key | sudo apt-key add -
+sudo add-apt-repository "deb http://repo.seba.local/repo xenial stable" 

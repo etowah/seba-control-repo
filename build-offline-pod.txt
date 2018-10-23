@@ -12,6 +12,7 @@
 # virt-install or virt-manager (GUI) works for this.
 
 # Ensure mgmt vm and dns ready.
+# add repo.seba.local to your POD's local dns server.
 # cheat with repo.seba.local /etc/hosts entries if needed
 
 # login to control-repo vm as a "non-root-user".  Set IP needed for POD host access.
