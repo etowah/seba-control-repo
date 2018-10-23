@@ -61,16 +61,19 @@ gateway.sebal.local
   - other steps on physical hosts?
 11) Console into mgmt vm and control-repo vm and set vlan 10 ip (package qcow with correct ip..?)
 12) Login to control-repo vm and setup repositories
+  - https://github.com/etowah/seba-control-repo/blob/master/setup-control-repo.txt
   - image already packaged with docker repo, apache, and apt mirror
   - setup docker registry/load images, load helm charts, load onos apps
   - setup apt repo
   - setup ansible inventory files
 13) Run ansible install of k8s cluster from seba-control-repo vm
+  - https://github.com/etowah/seba-control-repo/blob/master/install-k8s.txt
   - reads from ansible inventory files
   - reaches out to freshly installed compute hosts, installs packages needed to run k8s
   - run supplimental ansible ad-hoc commands
 14) Install seba/voltha helm packages
-  - run from seba-node1.  possibly from seba-control-repo
+  - https://github.com/etowah/seba-control-repo/blob/master/postinstall-node-setup.txt
+  - run from seba-node1.  possibly from seba-control-repo one day.
 15) Install ONL ISO on Edgecore OLT
 16) IP edgecore olt
 17) scp and install bal/openolt packages
