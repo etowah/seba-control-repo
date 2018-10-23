@@ -4,7 +4,7 @@ Workflow details and resources needed described here:
 https://github.com/etowah/seba-control-repo/blob/master/details.md
 
 
-There are 4 high level steps that need to be done.   The first 2 are done on a host with internet access as part of prep.
+There are 2 high level steps that need to be done from a build host with internet access.  Those artifacts are kept and used in the offline pod.   The final 3 high level steps are done offline.  
 
 ## Build and Gather Artifacts
 Building a control-repo VM qcow that will host repositories; apt, docker-repo, helm, and oar.   This results in a vm qcow file that needs to be installed on a host in the pod later.  
