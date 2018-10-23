@@ -1,7 +1,7 @@
 #
-# Node setup post kubespray.  
+# SEBA/VOLTHA Application Installation using Helm
 #
-# Installs helm packages and subsequent docker images
+# Installs helm required helm charts and subsequent docker images
 #
 
 # Ensure mgmt vm and dns ready.
@@ -9,36 +9,57 @@
 # cheat with repo.seba.local /etc/hosts entries
 
 ##
-## Only on seba-node1.  TODO: figure out a way to run from control-repo.
+## Run below only on seba-node1. helm has already been initialized
+## TODO: figure out a way to run from control-repo.
 ##
 
 # Run helm install
+
 cd ~/
+
+# Install base requirements
 helm install -n cord-kafka stable/kafka --set persistence.enabled=false --set zookeeper.persistence.enabled=false -f att-seba-pod.yaml
-helm install -n etcd-operator stable/etcd-operator -f att-seba-pod.yaml 
+helm install -n etcd-operator stable/etcd-operator -f att-seba-pod.yaml
 # wait for etcd-operator crd
+kubectl get crd
+
+# Install etcd cluster
 helm install -n etcd-cluster stable/etcd-cluster -f att-seba-pod.yaml
 
-# nem-monitoring fails.  chart bug. not included
-
+# Install xos-core
 helm install -n xos-core stable/xos-core -f att-seba-pod.yaml
+
+# Install voltha
 helm install -n voltha stable/voltha -f att-seba-pod.yaml
 # warning nginx-ingress-controller will fail.  its not used and can be ignored.
 
+# Install onos
 helm install -n onos stable/onos -f onos.yaml -f att-seba-pod.yaml
-# wait for all to be running execpt nginx-ingress before proceeding
 
+kubectl get pods --all-namespaces -o wide
+## wait for all to be running execpt nginx-ingress before proceeding ##
+
+# Install ATT workflow synchronizers between xos and onos/voltha
 # THIS ASSUMES A WORKING POD DNS SERVER.  IF YOU ARENT RUNNING A DNS SERVER, modify att-seba-pod.yaml onos *AppUrl lines and replace with IP of control-repo vm:
-helm install -n att-workflow stable/att-workflow -f att-seba-pod.yaml 
-# check onos log for apps to load.  onos; log:tail; apps -s -a
+helm install -n att-workflow stable/att-workflow -f att-seba-pod.yaml
 
-# base-kubernetes fails. chart bug. not included
+# check voltha cli and onos cli for apps to load.  This can take 2 or 3 minutes
+# "onos" and "vcli" are aliases setup for convienence
+#
+# $ onos
+# onos> apps -s -a
+# onos> log:tail
+#
+# $ vcli
+# voltha> devices
 
-# inject radius server config into onos
+# Inject radius server config into onos once aaa app is loaded.  See above
 scripts/quick-onos-update.sh seba-node1 radius-netcfg.json
 
 
-# Should now be ready to use abstract-olt or manual yaml to provision pod OLT, whitelist, and subscriber.  
+# Provision POD OLT and test ONU/RG
+
+# Should now be ready to use abstract-olt or manual yaml to provision pod OLT, whitelist, and subscriber.
 # TODO: add abstract-olt commands instead
 
 # Edit pod-olt.yaml, replace IP of your Edgecore OLT running bal and openolt
@@ -51,9 +72,9 @@ curl -H "xos-username: admin@opencord.org" -H "xos-password: letmein" -X POST --
 
 # Modify subscribers for ONU, nas-port-id, and vlans to be used by subscribers
 curl -H "xos-username: admin@opencord.org" -H "xos-password: letmein" -X POST --data-binary @provisioning-yaml/subscribers.yaml http://seba-node1:30007/run
-# Use onos cli, log:tail, verify RG are attempting to auth succeed.  
-# Also verify kafka app picks it up and SUBSCRIBER_REGISTERED is shown.  In onos cli, run aaa-users, subscribers, and dhcpl2relay-associations 
-# Use vcli, verify onu go into omci-flows-pushed state. 
+# Use onos cli, log:tail, verify RG are attempting to auth succeed.
+# Also verify kafka app picks it up and SUBSCRIBER_REGISTERED is shown.  In onos cli, run aaa-users, subscribers, and dhcpl2relay-associations
+# Use vcli, verify onu go into omci-flows-pushed state.
 
 
 # Done ONU/RG should be able to pass traffic.
