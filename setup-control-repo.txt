@@ -1,9 +1,9 @@
 #
-# Build Offline POD.  
+# Setup seba control repo in an offline pod
 #
-# Sets up POD apt, docker, helm, and oar repositories.  Also uses ansible to install kubernetes
+# Sets up POD apt, docker, helm, and oar repositories. 
 #
-# Done offline with no internet.  TODO: kubespray still needs internet!!
+# Done offline with no internet. 
 # Could also be run while packaging hosts with internet available.
 #
 
@@ -101,49 +101,4 @@ tar -zxvf ~/seba-control-repo/onos-oar.tgz
 sudo cp ~/oar/* /var/www/html/oar/
 
 
-# Install seba-pod specific inventory and configuration
-cd ~/kubespray-2.7.0/inventory/
-cp -a ~/seba-control-repo/seba-pod ~/kubespray-2.7.0/inventory/
-# modify 3 k82 hosts in hosts.ini, replace 10.64.1.X with yours.
-echo ${IPS[@]}
-vi seba-pod/hosts.ini
-
-
-## Run the ansible kubespray kubernetes installation.  Takes about 12 minutes. ***STILL NEEDS INTERNET***! 
-cd ~/kubespray-2.7.0/
-ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
-
-
-# Ansible commands to configure all 3 k8s hosts
-
-# Verify k8s.  All 3 hosts must be able to lookup services
-ansible -i inventory/seba-pod/hosts.ini kube-node -a "dig +short kubernetes.default.svc.cluster.local @10.233.0.3"
-
-
-# Copy needed files onto k8s (kube-node) hosts
-ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/att-seba-pod.yaml dest=~/"
-ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/onos.yaml dest=~/"
-ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/scripts dest=~/"
-ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/radius-netcfg.json dest=~/"
-ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-pod-ca/ca/ca.crt dest=~/seba-pod-ca.crt"
-ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/provisioning-yaml dest=~/"
-
-# OPTIONAL!! add /etc/hosts entries for control-repo host ip.  NOT NEEDED IF USING DNS
-# ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "echo '10.64.1.169    repo.seba.local' >> /etc/hosts" --become --become-user=root
-
-# Install POD CA cert.  Replace non-root-user with your local username
-ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "cp /home/non-root-user/seba-pod-ca.crt /usr/local/share/ca-certificates/; update-ca-certificates" --become --become-user=root
-
-# Initialize helm repos
-ansible -i inventory/seba-pod/hosts.ini kube-node -a "helm init --client-only --stable-repo-url http://repo.seba.local/charts/"
-ansible -i inventory/seba-pod/hosts.ini kube-node -a "helm repo update"
-
-# Allow not-root-user to run docker commands.  Replace with your user
-ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "usermod -aG docker non-root-user" --become --become-user=root
-ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "cat ~/scripts/bashrc >> ~/.bashrc"
-
-# Reboot all 3.  Be sure you know what your doing
-#ansible -i inventory/seba-pod/hosts.ini kube-node -a "reboot" --become --become-user=root
-
-
-# From here steps are run on k8s nodes themselves, seba-node1 seba-node2 seba-node3.  See postinstall. 
+# From here the repositories are ready and k8s can be installed using the kubespray method.  See install-k8s.txt
