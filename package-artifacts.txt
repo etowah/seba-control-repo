@@ -14,8 +14,9 @@ git clone https://github.com/etowah/seba-control-repo.git
 # Pull and gather docker images on build box. 20GB
 #
 # Assumes you have a large enough docker-images storage location. i used /storage/nfs/ that i happened to have.
+cd ~/
 ~/source/seba-control-repo/scripts/package-docker-images.sh ~/source/seba-control-repo/seba-imagelist.txt /storage/nfs/docker-images/
-tar -zcvf docker-images.tgz docker-images
+tar -cvf docker-images.tar docker-images
 # too big to check-in
 ## copy to usb drive directly
 
