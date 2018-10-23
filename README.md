@@ -15,7 +15,7 @@ Packaging the needed artifacts needed within the control-repo vm.   Basically ta
 https://github.com/etowah/seba-control-repo/blob/master/package-artifacts.txt
 
 ## Run Control Repo VM and Repositories. 
-Offline docker repo, helm repo, and kubernetes installation.  Deploy control-repo vm, populate repositories within in an offline environment.  
+Offline docker repo, helm repo, oar repo installation and setup.  Deploy seba-control-repo vm, populate repositories within in an offline environment.  
 https://github.com/etowah/seba-control-repo/blob/master/setup-control-repo.txt
 
 ## Run Kubernetes Ansible Kubespray Installation
