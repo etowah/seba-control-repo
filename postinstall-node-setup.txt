@@ -38,4 +38,19 @@ helm install -n att-workflow stable/att-workflow -f att-seba-pod.yaml
 scripts/quick-onos-update.sh seba-node1 radius-netcfg.json
 
 
-# Should now be ready to use abstract-olt or manual yaml to provision pod OLT, whitelist, and subscriber.  TODO: add those commands below
+# Should now be ready to use abstract-olt or manual yaml to provision pod OLT, whitelist, and subscriber.  
+# TODO: add abstract-olt commands instead
+
+curl -H "xos-username: admin@opencord.org" -H "xos-password: letmein" -X POST --data-binary @provisioning-yaml/pod-olt.yaml http://seba-node1:30007/run
+# Use vcli, verify olt is added and any onu go into omci-admin-lock state
+
+curl -H "xos-username: admin@opencord.org" -H "xos-password: letmein" -X POST --data-binary @provisioning-yaml/whitelist.yaml http://seba-node1:30007/run
+# Use vcli, devices, verify onu go into discovered state.  use onos cli, log:tail, verify RG are attempting to auth AND FAILING.
+
+curl -H "xos-username: admin@opencord.org" -H "xos-password: letmein" -X POST --data-binary @provisioning-yaml/subscribers.yaml http://seba-node1:30007/run
+# Use onos cli, log:tail, verify RG are attempting to auth succeed.  
+# Also verify kafka app picks it up and SUBSCRIBER_REGISTERED is shown.  In onos cli, run aaa-users, subscribers, and dhcpl2relay-associations 
+# Use vcli, verify onu go into omci-flows-pushed state. 
+
+
+# Done ONU/RG should be able to pass traffic.

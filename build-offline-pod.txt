@@ -123,6 +123,7 @@ ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control
 ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/scripts dest=~/"
 ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/radius-netcfg.json dest=~/"
 ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-pod-ca/ca/ca.crt dest=~/seba-pod-ca.crt"
+ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/provisioning-yaml dest=~/"
 
 # OPTIONAL!! add /etc/hosts entries for control-repo host ip.  NOT NEEDED IF USING DNS
 # ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "echo '10.64.1.169    repo.seba.local' >> /etc/hosts" --become --become-user=root
