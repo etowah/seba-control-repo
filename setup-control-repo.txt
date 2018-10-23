@@ -24,8 +24,11 @@
 # Generate needed SSH keyed authentication. needed for ansible
 cd ~/
 ssh-keygen -t rsa
+
 # Replace with 3 IP of your to be installed k8s hosts.  Replace non-root-user with username 
 # that exists on to be installed k8s hosts.  Replace 10.64.1.X with your 3 to be installed k8s hosts
+# This pre-shared ssh key is needed for ansible to work
+
 declare -a IPS=(10.64.1.181 10.64.1.167 10.64.1.193)
 for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh non-root-user@$i 'cat >> ~/.ssh/authorized_keys'; done
 
