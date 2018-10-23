@@ -25,7 +25,7 @@
 cd ~/
 ssh-keygen -t rsa
 # Replace with 3 IP of your to be installed k8s hosts.  Replace non-root-user with username 
-# that exists on to be installed k8s hosts.
+# that exists on to be installed k8s hosts.  Replace 10.64.1.X with your 3 to be installed k8s hosts
 declare -a IPS=(10.64.1.181 10.64.1.167 10.64.1.193)
 for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh non-root-user@$i 'cat >> ~/.ssh/authorized_keys'; done
 
@@ -131,14 +131,14 @@ ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control
 # OPTIONAL!! add /etc/hosts entries for control-repo host ip.  NOT NEEDED IF USING DNS
 # ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "echo '10.64.1.169    repo.seba.local' >> /etc/hosts" --become --become-user=root
 
-# Install POD CA cert
+# Install POD CA cert.  Replace non-root-user with your local username
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "cp /home/non-root-user/seba-pod-ca.crt /usr/local/share/ca-certificates/; update-ca-certificates" --become --become-user=root
 
 # Initialize helm repos
 ansible -i inventory/seba-pod/hosts.ini kube-node -a "helm init --client-only --stable-repo-url http://repo.seba.local/charts/"
 ansible -i inventory/seba-pod/hosts.ini kube-node -a "helm repo update"
 
-# Allow not-root-user to run docker commands
+# Allow not-root-user to run docker commands.  Replace with your user
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "usermod -aG docker non-root-user" --become --become-user=root
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "cat ~/scripts/bashrc >> ~/.bashrc"
 

@@ -41,12 +41,15 @@ scripts/quick-onos-update.sh seba-node1 radius-netcfg.json
 # Should now be ready to use abstract-olt or manual yaml to provision pod OLT, whitelist, and subscriber.  
 # TODO: add abstract-olt commands instead
 
+# Edit pod-olt.yaml, replace IP of your Edgecore OLT running bal and openolt
 curl -H "xos-username: admin@opencord.org" -H "xos-password: letmein" -X POST --data-binary @provisioning-yaml/pod-olt.yaml http://seba-node1:30007/run
 # Use vcli, verify olt is added and any onu go into omci-admin-lock state
 
+# Modify whitelist for ONU plugged into proper ports.  Replace of:XXXX device id with parent_port_id from olt in vcli
 curl -H "xos-username: admin@opencord.org" -H "xos-password: letmein" -X POST --data-binary @provisioning-yaml/whitelist.yaml http://seba-node1:30007/run
 # Use vcli, devices, verify onu go into discovered state.  use onos cli, log:tail, verify RG are attempting to auth AND FAILING.
 
+# Modify subscribers for ONU, nas-port-id, and vlans to be used by subscribers
 curl -H "xos-username: admin@opencord.org" -H "xos-password: letmein" -X POST --data-binary @provisioning-yaml/subscribers.yaml http://seba-node1:30007/run
 # Use onos cli, log:tail, verify RG are attempting to auth succeed.  
 # Also verify kafka app picks it up and SUBSCRIBER_REGISTERED is shown.  In onos cli, run aaa-users, subscribers, and dhcpl2relay-associations 
