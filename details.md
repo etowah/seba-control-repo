@@ -72,7 +72,7 @@ gateway.sebal.local
   - reaches out to freshly installed compute hosts, installs packages needed to run k8s
   - run supplimental ansible ad-hoc commands
 14) Install seba/voltha helm packages
-  - https://github.com/etowah/seba-control-repo/blob/master/postinstall-node-setup.txt
+  - https://github.com/etowah/seba-control-repo/blob/master/helm-seba-voltha-install.txt
   - run from seba-node1.  possibly from seba-control-repo one day.
 15) Install ONL ISO on Edgecore OLT
 16) IP edgecore olt
