@@ -46,4 +46,3 @@ topology_template:
         - volt_service:
             node: service#volt
             relationship: tosca.relationships.BelongsToOne
-

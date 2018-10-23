@@ -1,6 +1,6 @@
 {
   "apps" : {
-   "org.opencord.aaa" : {
+    "org.opencord.aaa" : {
       "AAA" : {
         "radiusIp" : "10.10.3.39",
         "radiusServerPort" : "1645",
@@ -8,6 +8,11 @@
         "nasIp" : "10.253.10.1",
         "radiusConnectionType" : "socket",
         "packetCustomizer" : "sample"
+      }
+    },
+    "org.opencord.dhcpl2relay" : {
+      "dhcpl2relay" : {
+        "useOltUplinkForServerPktInOut" : true
       }
     }
   }
