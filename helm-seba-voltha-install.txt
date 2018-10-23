@@ -51,7 +51,8 @@ helm install -n att-workflow stable/att-workflow -f att-seba-pod.yaml
 # onos> log:tail
 #
 # $ vcli
-# voltha> devices
+# (voltha) devices
+#
 
 # Inject radius server config into onos once aaa app is loaded.  See above
 scripts/quick-onos-update.sh seba-node1 radius-netcfg.json
