@@ -3,6 +3,8 @@
 Workflow details and resources needed described here:  
 https://github.com/etowah/seba-control-repo/blob/master/details.md
 
+Network Diagram:
+https://github.com/etowah/seba-control-repo/blob/master/SEBA.pdf
 
 There are 2 high level steps that need to be done from a build host with internet access.  Those artifacts are kept and used in the offline pod.   The final 3 high level steps are done offline.  
 
@@ -29,3 +31,4 @@ https://github.com/etowah/seba-control-repo/blob/master/install-k8s.txt
 Helm package installation.    Run from seba-node1.   Run helm install steps pulling from above mentioned repo  
 https://github.com/etowah/seba-control-repo/blob/master/helm-seba-voltha-install.txt
 
+ 
