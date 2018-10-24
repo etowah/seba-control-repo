@@ -75,8 +75,9 @@ curl -H "xos-username: admin@opencord.org" -H "xos-password: letmein" -X POST --
 # Modify subscribers for ONU, nas-port-id, and vlans to be used by subscribers
 curl -H "xos-username: admin@opencord.org" -H "xos-password: letmein" -X POST --data-binary @provisioning-yaml/subscribers.yaml http://seba-node1:30007/run
 # Use onos cli, log:tail, verify RG are attempting to auth succeed.
-# Also verify kafka app picks it up and SUBSCRIBER_REGISTERED is shown.  In onos cli, run aaa-users, subscribers, and dhcpl2relay-associations
-# Use vcli, verify onu go into omci-flows-pushed state.
+# Also verify kafka app picks it up and SUBSCRIBER_REGISTERED is shown.  
+# In onos cli, run aaa-users, volt-subscribers, volt-programmed-subscribers, and dhcpl2relay-allocations
+# Use vcli, verify onu state is omci-flows-pushed.
 
 
 # Done ONU/RG should be able to pass traffic.

@@ -71,6 +71,7 @@ sudo cp ~/seba-pod-ca/issued/docker-repo.key /var/docker-persist/docker-registry
 sudo cp ~/seba-pod-ca/issued/docker-repo.crt /var/docker-persist/docker-registry/certs
 
 sudo systemctl start docker-repo
+sudo systemctl enable docker-repo
 
 
 # Fill docker repo with images.  Unpack tarball on external storage if needed.  
