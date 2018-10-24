@@ -62,4 +62,4 @@ ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "cat ~/scripts/bas
 #ansible -i inventory/seba-pod/hosts.ini kube-node -a "reboot" --become --become-user=root
 
 
-# From here steps are run on k8s nodes themselves, seba-node1 seba-node2 seba-node3.  See postinstall. 
+# From here helm is used to install seba/voltha on k8s nodes themselves, seba-node1 seba-node2 seba-node3.  See helm-seba-voltha-install.txt

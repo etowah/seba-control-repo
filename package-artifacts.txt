@@ -82,5 +82,4 @@ tar -zcvf seba-control-repo.tgz seba-control-repo
 
 # Take docker-images.tgz, helm-charts.tgz, onos-oar.tgz and seba-control-repo.tgz and copy to external storage or laptop for offline installation
 # Take the seba-control-repo qcow file created earlier and package as well.
-
-
+# At this point using the gathered artifacts we can physically install the pod and start/setup its control-repo vm.  See setup-control-repo.txt

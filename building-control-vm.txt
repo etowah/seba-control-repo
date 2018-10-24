@@ -74,5 +74,5 @@ docker images |grep registry
 shutdown -h now
 
 
-# copy qcow from physical host and keep.  Typically in /var/lib/libvirt/images/
-
+# Copy qcow from physical host and keep for offline installation of pod.  Qcow file is typically in /var/lib/libvirt/images/
+# See package-artifacts.txt for other software and images to gather
