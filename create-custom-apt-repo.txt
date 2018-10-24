@@ -1,9 +1,15 @@
 # To generate a custom repo from scratch there are multiple stages. Start from 2 if you are simply generating a release.
 
-# 1) Generate lists of packages for the buildrepo.sh script. The results of this are committed and don't need to be repeated.
-# 2) Download and sign .deb files
-# 3) Create and sign an apt repository directory
-# 4) Make the repo and key availble via http
+# Repo building
+# 	1) Generate lists of packages for the buildrepo.sh script. The results of this are committed and don't need to be repeated.
+#
+# Repo Generation whle online
+@ 	2) Download and sign .deb files - Online setup
+# 	3) Create and sign an apt repository directory - 
+# 	4) Package repo and key into tar file
+#
+# Repo Installation, can be offline
+# 	5) Untar archive and make the repo and key availble via http
 
 # 1) Generate lists of packages
 
@@ -77,17 +83,25 @@ Pull: xenial" > conf/distributions
 sudo apt install -y reprepro
 reprepro --ask-passphrase -Vb . includedeb xenial /opt/apt-mirror/download/*.deb
 
-# 4) Make the repo and the public key we created accessible on http.
-# Export the public key to a txt file
+# export the public key
+gpg --armor --export <email> --output > /opt/apt-mirror/repo/key
 
-gpg --armor --export <email> --output > /opt/apt-mirror/public_key
+# 4) Package up repo and public key
+# This can be skipped if the repo was built on the target server
+
+tar -czvf ~/apt-repo.tar.gz -C /opt/apt-mirror/signed-repo/ .
+
+# 5) Untar the package on the offline machine and make the repo we created accessible on http.
+
+sudo mkdir -p /opt/apt-mirror/repo
+sudo chown -R foundry /opt/apt-mirror/
+tar -xzvf apt-repo.tar.gz -C /opt/apt-mirror/repo/
 
 # In the web server root, create symbolic links that points to the repo and key
 
 ln -s /opt/apt-mirror/repo /var/www/html/repo
-ln -s /opt/apt-mirror/public_key /var/www/html/key
 
 # The install target can access it with:
 
-wget -O - http://repo.seba.local/key | sudo apt-key add -
+wget -O - http://repo.seba.local/repo/key | sudo apt-key add -
 sudo add-apt-repository "deb http://repo.seba.local/repo xenial stable" 
