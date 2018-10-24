@@ -14,6 +14,9 @@ https://github.com/etowah/seba-control-repo/blob/master/building-control-vm.txt
 Packaging the needed artifacts needed within the control-repo vm.   Basically tarballs to go with the qcow above. The helm-charts, oar files and tgz will versioned.  The docker images youll need to download yourself as they are 20+GB.  This list of images needed is included in this repo.  
 https://github.com/etowah/seba-control-repo/blob/master/package-artifacts.txt
 
+List of seba/voltha docker images needed:  
+https://github.com/etowah/seba-control-repo/blob/master/seba-imagelist.txt
+
 ## Run Control Repo VM and Repositories. 
 Offline docker repo, helm repo, oar repo installation and setup.  Deploy seba-control-repo vm, populate repositories within in an offline environment.  
 https://github.com/etowah/seba-control-repo/blob/master/setup-control-repo.txt
@@ -26,6 +29,3 @@ https://github.com/etowah/seba-control-repo/blob/master/install-k8s.txt
 Helm package installation.    Run from seba-node1.   Run helm install steps pulling from above mentioned repo  
 https://github.com/etowah/seba-control-repo/blob/master/helm-seba-voltha-install.txt
 
-## Image lists
-List of docker images needed:  
-https://github.com/etowah/seba-control-repo/blob/master/seba-imagelist.txt
