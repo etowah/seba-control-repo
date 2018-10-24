@@ -3,8 +3,8 @@ export HELM_HOME=~/.helm
 export ETCDCTL_API=3
 
 source <(kubectl completion bash)
-alias onos='ssh-keygen -f "~/.ssh/known_hosts" -R [seba-node1]:30115; ssh -p 30115 -o StrictHostKeyChecking=no karaf@seba-node1'
-alias vcli='ssh-keygen -f "~/.ssh/known_hosts" -R [seba-node1]:30110; ssh -p 30110 -o StrictHostKeyChecking=no voltha@seba-node1'
+alias onos='ssh-keygen -f "/home/$USER/.ssh/known_hosts" -R [seba-node1]:30115; ssh -p 30115 -o StrictHostKeyChecking=no karaf@seba-node1'
+alias vcli='ssh-keygen -f "/home/$USER/.ssh/known_hosts" -R [seba-node1]:30110; ssh -p 30110 -o StrictHostKeyChecking=no voltha@seba-node1'
 alias kgp='kubectl get pods --all-namespaces -o wide'
 
 kol ()

@@ -127,9 +127,9 @@ dhcpl2relayAppUrl: "http://repo.seba.local/oar/dhcpl2relay-1.5.0-SNAPSHOT.oar"
 aaaAppUrl: "http://repo.seba.local/oar/aaa-1.8.0-SNAPSHOT.oar"
 kafkaAppUrl: "http://repo.seba.local/oar/kafka-1.0.0-SNAPSHOT.oar"
 
-application_logs: |
-  log4j.logger.org.opencord.olt = TRACE
-  log4j.logger.org.opencord.kafka = DEBUG
-  log4j.logger.org.opencord.sadis = DEBUG
-  log4j.logger.org.opencord.aaa = TRACE
-  log4j.logger.org.opencord.dhcpl2relay = TRACE
+#application_logs: |
+#  log4j.logger.org.opencord.olt = DEBUG
+#  log4j.logger.org.opencord.kafka = DEBUG
+#  log4j.logger.org.opencord.sadis = DEBUG
+#  log4j.logger.org.opencord.aaa = DEBUG
+#  log4j.logger.org.opencord.dhcpl2relay = DEBUG
