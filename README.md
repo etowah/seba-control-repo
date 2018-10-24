@@ -3,7 +3,7 @@
 Workflow details and resources needed described here:  
 https://github.com/etowah/seba-control-repo/blob/master/details.md
 
-Network Diagram:
+Network Diagram:  
 https://github.com/etowah/seba-control-repo/blob/master/SEBA.pdf
 
 There are 2 high level steps that need to be done from a build host with internet access.  Those artifacts are kept and used in the offline pod.   The final 3 high level steps are done offline.  
