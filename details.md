@@ -3,8 +3,6 @@
 Tasks related to installing an entire SEBA pod without internet connectivity.
 Provide the needed software, packages, and repositories to setup a SEBA POD that does not have Internet access.
 
- 
-
 The goal of an offline or "air-gapped" installation is to be able to start with compute, switching, and OLT hardware still in the box from the OEM and build a fully functional POD without any Internet connectivity. Its assumed the installer brings a laptop and any installation media such as one or more USB drives. These USB drives contain the ISOs for installing Ubuntu and Open Network Linux and also any files needed to bootstrap repository installations.
 
 
@@ -35,12 +33,10 @@ The goal of an offline or "air-gapped" installation is to be able to start with 
 - basic web server for custom OAR files, site helm values yaml files.
 - Gathering artifacts for the repostitory: https://github.com/etowah/seba-control-repo/blob/master/package-artifacts.txt
 
- 
+## Northbound Network Connectivity
 
-Start with installing the site mgmt virtual machine. It will provide interior pod management vlan (vlan 10) default routing, NATing, outside ssh access, and private authoritative DNS within the pod.  Then install the control-repo vm. It will then get populated the stable versions of above apt pkg, docker images, helm charts, and oar files.  
-
-Once the onsite mgmt vm and control-repo vm is ready, run ansible based k8s install, helm install. See below for workflow.
-
+- Minimum a single physical link to the BNG, which provides both subscriber vlans and outside mgmt vlan (4093).
+- OOB connectivity 
 
 ## Reserved interior POD DNS names:
 
@@ -49,7 +45,12 @@ Top level domain: seba.local
 repo.seba.local  
 gateway.sebal.local  
 
- 
+
+
+Start with installing the site mgmt virtual machine. It will provide interior pod management vlan (vlan 10) default routing, NATing to outside management vlan (4093), management ssh access, and private authoritative DNS within the pod.  Then install the control-repo vm. It will then get populated the stable versions of above apt pkg, docker images, helm charts, and oar files.  
+
+Once the onsite mgmt vm and control-repo vm is ready, run ansible based k8s install, helm install. See below for workflow.
+
 
 ## Workflow
 
