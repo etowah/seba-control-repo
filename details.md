@@ -23,7 +23,7 @@ The goal of an offline or "air-gapped" installation is to be able to start with 
 
 ## Software services needed
 
-- Management VM. Runs outside management vlan access, Inside POD DNS, NATTING to radius, VPN/SSH, remote access
+- Management VM. Routes inside management vlan (10) to outside management vlan (4093).  NATs inside management vlan addresses to outside management vlan IP.  Also provides inside POD DNS, NAT to radius server, VPN/SSH management access.
 - SEBA Control Repo VM.   Runs web servers needed for repos, and Ansible control for kubespray
   - Qcow build instructions: https://github.com/etowah/seba-control-repo/blob/master/building-control-vm.txt
 - Apt mirror of minimial BASIC xenial packages needed to run mgmt and repo vm
