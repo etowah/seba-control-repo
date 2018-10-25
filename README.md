@@ -26,14 +26,14 @@ https://github.com/etowah/seba-control-repo/blob/master/seba-imagelist.txt
 
 
 ## Deployment
-Typically done on-site by installation engineers
+Typically done on-site by installation engineers, with NO internet connectivity.
 
 ### Run Control Repo VM and Repositories.
 Offline docker repo, helm repo, oar repo installation and setup.  Deploy seba-control-repo vm, populate repositories within in an offline environment.  
 https://github.com/etowah/seba-control-repo/blob/master/setup-control-repo.txt
 
 ### Run Kubernetes Ansible Kubespray Installation
-Extract ansible inventory and run playbooks to install kubernetes.  CURRENTLY STILL REQUIRES INTERNET
+Extract ansible inventory and run playbooks to install kubernetes.
 https://github.com/etowah/seba-control-repo/blob/master/install-k8s.txt
 
 ### Install VOLTHA/SEBA
