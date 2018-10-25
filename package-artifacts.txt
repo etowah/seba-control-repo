@@ -11,12 +11,64 @@ git clone https://github.com/etowah/seba-control-repo.git
 
 
 #
+# Gather needed deb packages and build an apt repository
+#
+sudo apt install dpkg-dev rng-tools dpkg-sig libterm-readkey-perl reprepro
+
+mkdir -p ~/apt-download/
+~/source/seba-control-repo/scripts/buildrepo.sh ~/seba-control-repo/apt-mirror-lists/ ~/apt-download/
+
+# generate new gpg key.  if needed. TODO: check
+gpg --gen-key
+dpkg-sig --sign builder ~/apt-download/*.deb -p
+
+mkdir -p ~/repo/conf
+cd ~/repo
+
+cat <<EOF > ~/repo/conf/distributions
+Origin: repo.seba.local
+Label: apt repository
+Codename: xenial
+Architectures: amd64
+Components: stable
+Description: docker/ubuntu package repo
+SignWith: yes
+Pull: xenial"
+EOF
+
+reprepro --ask-passphrase -Vb . includedeb xenial ~/apt-download/*.deb
+gpg --armor --export sebapodadmin@att.com --output > ~/repo/key
+
+#### GET PUBLIC KEY FINGERPRINT AND ADD TO kubespray-2.7.0/roles/docker/vars/ubuntu-amd64.yml during setup-control-repo step
+# should only have to do once if youve already created a private/public gpg key
+gpg --with-fingerprint ~/repo/key |grep fingerprint|cut -d'=' -f2| tr -d '[:space:]' > ~/repo/fingerprint
+
+cd ~/
+tar -zcvf apt-repo.tgz repo
+## copy to usb drive directly
+
+
+#
+# Gather needed packages for kubespray k8s install
+#
+cd ~/
+mkdir -p k8s
+curl -L "https://storage.googleapis.com/kubernetes-release/release/v1.11.3/bin/linux/amd64/kubeadm" -o k8s/kubeadm
+curl -L "https://releases.hashicorp.com/vault/0.10.1/vault_0.10.1_linux_amd64.zip" -o k8s/vault_0.10.1_linux_amd64.zip
+curl -L "https://github.com/coreos/etcd/releases/download/v3.2.18/etcd-v3.2.18-linux-amd64.tar.gz" -o k8s/etcd-v3.2.18-linux-amd64.tar.gz
+curl -L "https://storage.googleapis.com/kubernetes-release/release/v1.11.3/bin/linux/amd64/hyperkube" -o k8s/hyperkube
+tar -zcvf k8s-files.tgz k8s
+## copy to usb drive directly
+
+
+#
 # Pull and gather docker images on build box. 20GB
 #
 # Assumes you have a large enough docker-images storage location. 
 cd ~/
 mkdir -p ~/docker-images
 ~/source/seba-control-repo/scripts/package-docker-images.sh ~/source/seba-control-repo/seba-imagelist.txt ~/docker-images/
+~/source/seba-control-repo/scripts/package-docker-images.sh ~/source/seba-control-repo/kubespray-imagelist.txt ~/docker-images/
 tar -cvf docker-images.tar docker-images
 # too big to check-in
 ## copy to usb drive directly
@@ -72,14 +124,6 @@ git add onos-oar.tgz
 ## copy to usb drive directly
 
 
-#
-# Package seba-control-repo directory
-#
-cd ~/source
-tar -zcvf seba-control-repo.tgz seba-control-repo
-## copy to usb drive directly
-
-
-# Take docker-images.tgz, helm-charts.tgz, onos-oar.tgz and seba-control-repo.tgz and copy to external storage or laptop for offline installation
+# Take apt-repo.tgz, k8s-files.tgz, docker-images.tgz, helm-charts.tgz and onos-oar.tgz and copy to external storage or laptop for offline installation
 # Take the seba-control-repo qcow file created earlier and package as well.
 # At this point using the gathered artifacts we can physically install the pod and start/setup its control-repo vm.  See setup-control-repo.txt

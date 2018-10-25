@@ -26,9 +26,8 @@ sudo systemctl start apache2
 sudo apt install nfs-common
 
 
-# Clone seba-control-repo.  Or unpack from tarball
+# Clone seba-control-repo.
 cd ~/
-# tar -zxvf seba-control-repo.tgz 
 git clone https://github.com/etowah/seba-control-repo.git
 
 ## Install current version of pip, needed to get current ansible
@@ -36,9 +35,9 @@ cd ~/
 sudo python ~/seba-control-repo/get-pip.py
 sudo pip -V
 
-## Install tagged version of kubespray 2.7.0
+## Install tagged version of kubespray 2.7.0 thats part of seba-control-repo git
 cd ~/
-tar -zxvf ~/seba-control-repo/kubespray-v2.7.0.tar.gz
+cp -a ~/seba-control-repo/kubespray-2.7.0 ~/
 
 ## Install kubespray requirements.  gets ansible and installs in /usr/local
 cd ~/kubespray-2.7.0/

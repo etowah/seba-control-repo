@@ -1,0 +1,51 @@
+#
+# Simple quick kubespray setup notes
+#
+
+
+# Get the repo
+cd ~/
+git clone https://github.com/etowah/seba-control-repo.git
+
+
+## Generate needed SSH keyed authentication
+cd ~/
+ssh-keygen -t rsa
+
+## modify for 3 kube hosts 10.64.1.X
+declare -a IPS=(10.64.1.181 10.64.1.167 10.64.1.193)
+
+for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh non-root-user@$i 'cat >> ~/.ssh/authorized_keys'; done
+
+
+## Install current version of pip, needed to get current ansible
+## get-pip.py to be included in tarball
+curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+sudo python ~/get-pip.py
+sudo pip -V
+
+
+## Install tagged version of kubespray 2.7.0
+## kubespray tgz to be included in tarball
+cd ~/
+curl https://codeload.github.com/kubernetes-incubator/kubespray/tar.gz/v2.7.0 -o kubespray-v2.7.0.tgz
+tar -zxvf ~/kubespray-v2.7.0.tar.gz
+
+
+## Install kubespray requirements.  gets ansible and installs in /usr/local
+cd ~/kubespray-2.7.0/
+sudo pip install -r requirements.txt
+
+
+## Install seba-pod specific inventory and configuration
+## Included in tarball
+cd ~/kubespray-2.7.0/inventory/
+cp -a ~/seba-control-repo/kubespray-2.7.0/inventory/seba-pod .
+# modify 3 kube hosts in hosts.ini, replace 10.64.1.X with yours.
+vi seba-pod/hosts.ini
+
+
+## Run the install.  Takes about 5 minutes. 
+cd ~/kubespray-2.7.0/
+ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
+

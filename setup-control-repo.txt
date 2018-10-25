@@ -33,11 +33,6 @@ declare -a IPS=(10.64.1.181 10.64.1.167 10.64.1.193)
 for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh non-root-user@$i 'cat >> ~/.ssh/authorized_keys'; done
 
 
-# unpack seba-control-repo.  copied from usb or scp in.  Possibly already included in qcow file
-cd ~/
-tar -zxvf seba-control-repo.tgz
-
-
 # Generate pod CA key.
 # Generate pod docker-repo key
 cp -a ~/seba-control-repo/seba-pod-ca ~/
@@ -79,17 +74,19 @@ sudo systemctl enable docker-repo
 # https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/virtualization_administration_guide/sect-managing_guest_virtual_machines_with_virsh-attaching_and_updating_a_device_with_virsh
 # Mount to /mnt within guest vm. where /mnt/docker-images lists the image tar files.  
 
-# Or if you can scp in the 20GB tarfile, unpack and use with the load-docker-images script:
+# Or if you can scp in the 30GB tarfile, unpack and use with the load-docker-images script:
 cd ~/
 tar -xvf docker-images.tar
 cd ~/seba-control-repo/
 scripts/load-docker-images.sh ~/docker-images/
 scripts/populate-docker-repo.sh seba-imagelist.txt
+scripts/populate-docker-repo.sh kubespray-imagelist.txt
 
 # Alternatively if control-repo vm happens to have internet connectivity (for example system being prepared then shipped)
 # you can add skip the load-docker-images and just run populate-docker-repo with a 'pull' argument.
 cd ~/seba-control-repo/
 scripts/populate-docker-repo.sh seba-imagelist.txt pull
+scripts/populate-docker-repo.sh kubespray-imagelist.txt pull
 
 
 # Setup helm repository.  Pull from external storage or scp copy in
@@ -103,6 +100,21 @@ sudo helm repo index --url http://repo.seba.local/charts/ /var/www/html/charts/
 cd ~/
 tar -zxvf ~/seba-control-repo/onos-oar.tgz
 sudo cp ~/oar/* /var/www/html/oar/
+
+
+# Unpack apt repository and deb files
+cd ~/
+tar -zxvf apt-repo.tgz
+sudo cp -a ~/repo /var/www/html/
+
+# Modify ~/kubespray-2.7.0/roles/docker/vars/ubuntu-amd64.yml to add gpg fingerprint
+cat /var/www/html/repo/fingerprint ## get it in
+
+
+# Unpack k8s kubespray package files
+cd ~/
+tar -zxvf k8s-files.tgz
+sudo cp -a ~/k8s /var/www/html/
 
 
 # From here the repositories are ready and k8s can be installed using the kubespray method.  See install-k8s.txt
