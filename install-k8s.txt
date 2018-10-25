@@ -1,7 +1,7 @@
 #
 # Install Kubernetes using Ansible and Kubesprary
 #
-# The goal is this to be do-able offline.  CURRENTLY STILL REQUIRES INTERNET
+# Installable offline without internet.  Inventory values have been overridden to use the local apt and docker repo
 #
 
 # ssh into the seba-control-repo virtual machine.  This will be the ansible control host.  Packages should have already been 
@@ -16,17 +16,6 @@ vi seba-pod/hosts.ini
 # Verify ansible can reach 3 hosts
 cd ~/kubespray-2.7.0/
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "whoami; uname -a" --become --become-user=root
-
-
-# Run the ansible kubespray kubernetes installation.  Takes about 12 minutes. ***STILL NEEDS INTERNET***! 
-cd ~/kubespray-2.7.0/
-ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
-
-
-# Ansible commands to configure all 3 k8s hosts
-
-# Verify k8s.  All 3 hosts must be able to lookup services
-ansible -i inventory/seba-pod/hosts.ini kube-node -a "dig +short kubernetes.default.svc.cluster.local @10.233.0.3"
 
 
 # Ad-hoc commands for environment setup
@@ -47,6 +36,20 @@ ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "chmod 755 ~/scrip
 
 # Install POD CA cert.  Replace non-root-user with your local username
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "cp /home/non-root-user/seba-pod-ca.crt /usr/local/share/ca-certificates/; update-ca-certificates" --become --become-user=root
+
+
+# Run the ansible kubespray kubernetes installation.  Takes about 12 minutes. 
+cd ~/kubespray-2.7.0/
+ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
+
+
+# Ansible commands to configure all 3 k8s hosts
+
+# Verify k8s.  All 3 hosts must be able to lookup services
+ansible -i inventory/seba-pod/hosts.ini kube-node -a "dig +short kubernetes.default.svc.cluster.local @10.233.0.3"
+
+
+# Ad-hoc commands for environment setup
 
 # Initialize helm repos
 ansible -i inventory/seba-pod/hosts.ini kube-node -a "helm init --client-only --stable-repo-url http://repo.seba.local/charts/"

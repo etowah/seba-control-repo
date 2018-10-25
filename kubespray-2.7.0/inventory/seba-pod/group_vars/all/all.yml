@@ -136,3 +136,5 @@ ingress_nginx_controller_image_repo: "repo.seba.local:5000/quay.io/kubernetes-in
 ingress_nginx_default_backend_image_repo: "repo.seba.local:5000/gcr.io/google_containers/defaultbackend"
 cert_manager_controller_image_repo: "repo.seba.local:5000/quay.io/jetstack/cert-manager-controller"
 dashboard_image_repo: "repo.seba.local:5000/gcr.io/google_containers/kubernetes-dashboard-amd64"
+
+helm_stable_repo_url: "http://repo.seba.local/charts/"
