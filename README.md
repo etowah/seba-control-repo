@@ -36,11 +36,11 @@ Offline docker repo, helm repo, oar repo installation and setup.  Deploy seba-co
 https://github.com/etowah/seba-control-repo/blob/master/setup-control-repo.txt
 
 ### Run Kubernetes Ansible Kubespray Installation
-Extract ansible inventory and run playbooks to install kubernetes.
+Extract ansible inventory and run playbooks to install kubernetes.  
 https://github.com/etowah/seba-control-repo/blob/master/install-k8s.txt
 
 ### Install VOLTHA/SEBA
-Helm package installation.    Run from seba-node1.   Run helm install steps pulling from above mentioned repo  
+Helm package installation.  Run from seba-node1.  Run helm install steps pulling from above mentioned repo  
 https://github.com/etowah/seba-control-repo/blob/master/helm-seba-voltha-install.txt
 
  
