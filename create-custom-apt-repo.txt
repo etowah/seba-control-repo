@@ -47,7 +47,8 @@ sudo chown -R foundry /opt/apt-mirror/
 cp scripts/buildrepo.sh scripts/apt-mirror-lists/install-*.list /opt/apt-mirror/download/
 cd /opt/apt-mirror/download
 sudo apt install dpkg-dev -y
-./buildrepo.sh
+# use current working directory to both read and write packages
+./buildrepo.sh . .
 
 # Create gpg key to use for signing. Select to generate option 1, the default. Enter valid name and email when prompted
 # Sign the files

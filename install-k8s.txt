@@ -5,7 +5,8 @@
 #
 
 # ssh into the seba-control-repo virtual machine.  This will be the ansible control host.  Packages should have already been 
-# extracted and repos setup.
+# extracted and repos setup. TODO: convert ansible ad-hoc commands into custom seba playbooks
+
 
 
 # Modify seba-pod specific ansible/kubespray inventory and configuration
@@ -18,7 +19,8 @@ cd ~/kubespray-2.7.0/
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "whoami; uname -a" --become --become-user=root
 
 
-# Ad-hoc commands for environment setup
+
+# Ad-hoc commands for environment pre-setup and verification
 
 # Copy needed files onto k8s (kube-node) hosts
 ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/att-seba-pod.yaml dest=~/"
@@ -37,29 +39,44 @@ ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "chmod 755 ~/scrip
 # Install POD CA cert.  Replace non-root-user with your local username
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "cp /home/non-root-user/seba-pod-ca.crt /usr/local/share/ca-certificates/; update-ca-certificates" --become --become-user=root
 
+# Verify docker repo trusted https access
+ansible -i inventory/seba-pod/hosts.ini kube-node -a "curl -v https://repo.seba.local:5000/v2/_catalog"
 
+# Replace apt sources.list with local apt repo
+ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "mv /etc/apt/sources.list /etc/apt/sources.list.orig" --become --become-user=root
+ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "add-apt-repository 'deb http://repo.seba.local/repo xenial stable'" --become --become-user=root
+ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "wget -O - http://repo.seba.local/repo/key | apt-key add -" --become --become-user=root
+ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "apt update" --become --become-user=root
+
+
+
+#
 # Run the ansible kubespray kubernetes installation.  Takes about 12 minutes. 
 cd ~/kubespray-2.7.0/
 ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
-
-
-# Ansible commands to configure all 3 k8s hosts
 
 # Verify k8s.  All 3 hosts must be able to lookup services
 ansible -i inventory/seba-pod/hosts.ini kube-node -a "dig +short kubernetes.default.svc.cluster.local @10.233.0.3"
 
 
-# Ad-hoc commands for environment setup
+
+# Ad-hoc commands for environment post-setup and verification
 
 # Initialize helm repos
 ansible -i inventory/seba-pod/hosts.ini kube-node -a "helm init --client-only --stable-repo-url http://repo.seba.local/charts/"
 ansible -i inventory/seba-pod/hosts.ini kube-node -a "helm repo update"
 
+# Verify helm
+ansible -i inventory/seba-pod/hosts.ini kube-node -a "helm search voltha"
+
 # Allow not-root-user to run docker commands.  Replace with your user
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "usermod -aG docker non-root-user" --become --become-user=root
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "cat ~/scripts/bashrc >> ~/.bashrc"
 
-# Reboot all 3.  Be sure you know what your doing
+# Verify docker
+ansible -i inventory/seba-pod/hosts.ini kube-node -a "docker images"
+
+# Reboot all 3.  Be sure you know what your doing.  ansible will report back error, but hosts will reboot!
 #ansible -i inventory/seba-pod/hosts.ini kube-node -a "reboot" --become --become-user=root
 
 

@@ -45,7 +45,7 @@ cp -a ~/seba-control-repo/kubespray-2.7.0/inventory/seba-pod .
 vi seba-pod/hosts.ini
 
 
-## Run the install.  Takes about 5 minutes. 
+## Run the install.  Takes about 12 minutes. 
 cd ~/kubespray-2.7.0/
 ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
 
