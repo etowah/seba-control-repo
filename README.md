@@ -6,7 +6,7 @@ https://github.com/etowah/seba-control-repo/blob/master/details.md
 Network Diagram:  
 https://github.com/etowah/seba-control-repo/blob/master/SEBA.pdf
 
-There are 2 high level steps that need to be done from a build host with internet access.  Those artifacts are kept and used in the offline pod.   The final 3 high level steps are done offline.  
+The Build and Gather Artifacts steps are done on a build-box host with internet access.  Those artifacts are kept and used in the offline pod.   Assuming everything is gathered and staged, the Deployment steps can be done offline with no internet access.  
 
 
 ## Build and Gather Artifacts
