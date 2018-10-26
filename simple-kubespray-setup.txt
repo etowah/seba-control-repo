@@ -3,11 +3,6 @@
 #
 
 
-# Get the repo
-cd ~/
-git clone https://github.com/etowah/seba-control-repo.git
-
-
 ## Generate needed SSH keyed authentication
 cd ~/
 ssh-keygen -t rsa
@@ -40,7 +35,7 @@ sudo pip install -r requirements.txt
 ## Install seba-pod specific inventory and configuration
 ## Included in tarball
 cd ~/kubespray-2.7.0/inventory/
-cp -a ~/seba-control-repo/kubespray-2.7.0/inventory/seba-pod .
+cp -a sample seba-pod
 # modify 3 kube hosts in hosts.ini, replace 10.64.1.X with yours.
 vi seba-pod/hosts.ini
 
