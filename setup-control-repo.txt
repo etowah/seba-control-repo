@@ -15,10 +15,14 @@
 # add repo.seba.local to your POD's local dns server.
 # cheat with repo.seba.local /etc/hosts entries if needed
 
-# login to control-repo vm as a "non-root-user".  Set IP needed for POD host access.
+# login to control-repo vm as a "non-root-user".  Set IP needed for local pod network access.
 
-# Make sure whatever your "non-root-user" user exists on control-repo and all 3 hosts
-# that will have k8s installed.
+# Make sure whatever your "non-root-user" user exists on control-repo and 
+# all 3 destination node hosts that will have k8s installed.
+
+# Also make sure that on all 3 destination node hosts the non-root-user can 
+# sudo to root without password.  The following must be the bottom of /etc/sudoers 
+# non-root-user ALL=(ALL:ALL) NOPASSWD:ALL
 
 
 # Generate needed SSH keyed authentication. needed for ansible
