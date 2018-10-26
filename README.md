@@ -1,4 +1,4 @@
-# Scripts and Tools Needed to Run an Offline SEBA/VOLTHA POD
+# Building an Offline SEBA/VOLTHA POD
 
 Workflow details and resources needed described here:  
 https://github.com/etowah/seba-control-repo/blob/master/details.md
@@ -20,6 +20,9 @@ https://github.com/etowah/seba-control-repo/blob/master/building-control-vm.txt
 ### Build tarballs of software
 Requires a build-box running docker, k8s, and helm.  Packaging the needed artifacts that will be needed within the control-repo vm.   Basically tarballs to go with the qcow above. The helm-charts, oar files and tgz will versioned.  The docker images youll need to download yourself as they are 20+GB.  This list of images needed is included in this repo.  
 https://github.com/etowah/seba-control-repo/blob/master/package-artifacts.txt
+
+List of k8s docker images needed:
+https://github.com/etowah/seba-control-repo/blob/master/kubespray-imagelist.txt
 
 List of seba/voltha docker images needed:  
 https://github.com/etowah/seba-control-repo/blob/master/seba-imagelist.txt

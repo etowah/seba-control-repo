@@ -23,11 +23,10 @@ ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "whoami; uname -a"
 # Ad-hoc commands for environment pre-setup and verification
 
 # Copy needed files onto k8s (kube-node) hosts
+ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/scripts dest=~/"
 ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/att-seba-pod.yaml dest=~/"
 ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/onos.yaml dest=~/"
-ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/scripts dest=~/"
 ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/radius-netcfg.json dest=~/"
-ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-pod-ca/ca/ca.crt dest=~/seba-pod-ca.crt"
 ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/provisioning-yaml dest=~/"
 
 # Setup docker log rotation
@@ -40,7 +39,8 @@ ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "chmod 755 ~/scripts/*"
 
 # Install POD CA cert.  Replace non-root-user with your local username
-ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "cp /home/non-root-user/seba-pod-ca.crt /usr/local/share/ca-certificates/; update-ca-certificates" --become --become-user=root
+ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-pod-ca/ca/ca.crt dest=/usr/local/share/ca-certificates/seba-pod-ca.crt" --become --become-user=root
+ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "update-ca-certificates" --become --become-user=root
 
 # Verify docker repo trusted https access
 ansible -i inventory/seba-pod/hosts.ini kube-node -a "curl -v https://repo.seba.local:5000/v2/_catalog"
