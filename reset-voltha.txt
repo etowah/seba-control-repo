@@ -1,0 +1,21 @@
+#
+# Clear voltha/onos and force reprovisioning of OLT/ONU
+#
+# Use when needing to clear out voltha and onos data within etcd.   This will NOT work if the entire cluster has been shutdown.
+# A full helm delete --purge of all charts is needed in that case
+#
+
+helm delete --purge att-workflow
+
+# Reboot OLT 
+
+scripts/voltha-purge.sh 
+
+helm install -n att-workflow stable/att-workflow -f att-seba-pod.yaml
+# wait for onos apps to load, watch for kafka to connect successfully:
+
+# re-inject proper radius settings
+scripts/quick-onos-update.sh seba-node1 radius-netcfg.json
+
+# only need to re-add the olt itself.  whitelist and subs are still in xos
+curl -H "xos-username: admin@opencord.org" -H "xos-password: letmein" -X POST --data-binary @provisioning-yaml/pod-olt.yaml http://seba-node1:30007/run
