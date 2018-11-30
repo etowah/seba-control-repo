@@ -5,6 +5,14 @@
 # Done with internet connectivity. qcow and any tgz are saved to portable drive or laptop
 #
 
+# Create a vm with a 100GB virtual disk.  
+
+# Update to current
+sudo apt update
+sudo apt dist-upgrade
+sudo reboot
+sudo apt autoremove
+
 
 # install docker repo
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -17,27 +25,25 @@ sudo systemctl start docker
 sudo apt install apache2
 sudo mkdir /var/www/html/charts
 sudo mkdir /var/www/html/oar
+sudo mkdir /var/www/html/repo
+sudo mkdir /var/www/html/k8s
 sudo systemctl start apache2
 
-# install nfs server... might not be needed
-#sudo apt install nfs-kernel-server
-#sudo vi /etc/exports 
-#sudo systemctl start nfs-kernel-server.service
-sudo apt install nfs-common
 
-
-# Clone seba-control-repo.
+# Clone seba-control-repo while setting up.
 cd ~/
 git clone https://github.com/etowah/seba-control-repo.git
 
 ## Install current version of pip, needed to get current ansible
 cd ~/
-sudo python ~/seba-control-repo/get-pip.py
+wget https://bootstrap.pypa.io/get-pip.py
+sudo python get-pip.py
 sudo pip -V
 
 ## Install tagged version of kubespray 2.7.0 thats part of seba-control-repo git
 cd ~/
-cp -a ~/seba-control-repo/kubespray-2.7.0 ~/
+curl -o kubespray-v2.7.0.tar.gz https://codeload.github.com/kubernetes-sigs/kubespray/tar.gz/v2.7.0
+tar -zxvf kubespray-v2.7.0.tar.gz
 
 ## Install kubespray requirements.  gets ansible and installs in /usr/local
 cd ~/kubespray-2.7.0/
@@ -45,7 +51,8 @@ sudo pip install -r requirements.txt
 
 # install helm client
 cd ~/
-tar -zxvf ~/seba-control-repo/helm-v2.9.1-linux-amd64.tar.gz
+curl -o helm-v2.11.0-linux-amd64.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-v2.11.0-linux-amd64.tar.gz
+tar -zxvf helm-v2.11.0-linux-amd64.tar.gz
 sudo cp linux-amd64/helm /usr/local/bin/
 
 # allow non-root to run docker
@@ -67,11 +74,17 @@ sleep 20
 sudo systemctl stop docker-repo
 
 # verify registry image loaded
-docker images |grep registry
+sudo docker images |grep registry
+
+# remove seba-control-repo checkout as it will be provided and versioned separately
+cd ~/
+rm -rf seba-control-repo
 
 # shutdown vm and gather qcow file. 5GB
-shutdown -h now
+sudo shutdown -h now
 
+# on physical host use virt-sparsify to shrink unused space in qcow 
+# virt-sparsify --in-place seba-control-repo-vX.qcow2
 
 # Copy qcow from physical host and keep for offline installation of pod.  Qcow file is typically in /var/lib/libvirt/images/
 # See package-artifacts.txt for other software and images to gather

@@ -9,10 +9,16 @@
 
 
 
-# Modify seba-pod specific ansible/kubespray inventory and configuration
+# Copy and modify seba-pod specific ansible/kubespray inventory and configuration
 # Set 3 k8s hosts in hosts.ini, replace 10.64.1.X with yours.
+
+cp -a ~/seba-control-repo/kubespray-inventory/seba-pod ~/kubespray-2.7.0/inventory/
 cd ~/kubespray-2.7.0/inventory/
 vi seba-pod/hosts.ini
+
+# If installing in a totally offline pod (no internet) replace the following ansible config files
+cp ~/seba-control-repo/kubespray-inventory/offline/all.yml ~/kubespray-2.7.0/inventory/seba-pod/group_vars/all/all.yml
+cp ~/seba-control-repo/kubespray-inventory/offline/ubuntu-amd64.yml ~/kubespray-2.7.0/roles/docker/vars/ubuntu-amd64.yml
 
 # Verify ansible can reach 3 hosts
 cd ~/kubespray-2.7.0/
@@ -45,6 +51,7 @@ ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "update-ca-certifi
 # Verify docker repo trusted https access
 ansible -i inventory/seba-pod/hosts.ini kube-node -a "curl -v https://repo.seba.local:5000/v2/_catalog"
 
+# If installing in a totally offline pod (no internet) replace the hosts apt sources.list with the pod local apt repo
 # Replace apt sources.list with local apt repo
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "mv /etc/apt/sources.list /etc/apt/sources.list.orig" --become --become-user=root
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "add-apt-repository 'deb http://repo.seba.local/repo xenial stable'" --become --become-user=root

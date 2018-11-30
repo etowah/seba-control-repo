@@ -24,6 +24,14 @@
 # sudo to root without password.  The following must be the bottom of /etc/sudoers 
 # non-root-user ALL=(ALL:ALL) NOPASSWD:ALL
 
+# For example on each host:
+# useradd -m -d /home/sdn -s /bin/bash sdn
+# passwd sdn
+# export EDITOR=vi; visudo
+# ...
+# sdn ALL=(ALL:ALL) NOPASSWD:ALL
+
+
 
 # Generate needed SSH keyed authentication. needed for ansible
 cd ~/
@@ -36,6 +44,10 @@ ssh-keygen -t rsa
 declare -a IPS=(10.64.1.181 10.64.1.167 10.64.1.193)
 for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh non-root-user@$i 'mkdir -p ~/.ssh/; cat >> ~/.ssh/authorized_keys'; done
 
+
+# Install versioned seba-control-repo.tgz
+cd ~/
+tar -zxvf seba-control-repo.tgz 
 
 # Generate pod CA key.
 # Generate pod docker-repo key
@@ -109,16 +121,13 @@ sudo cp ~/oar/* /var/www/html/oar/
 # Unpack apt repository and deb files
 cd ~/
 tar -zxvf apt-repo.tgz
-sudo cp -a ~/repo /var/www/html/
-
-# Modify ~/kubespray-2.7.0/roles/docker/vars/ubuntu-amd64.yml to add gpg fingerprint
-cat /var/www/html/repo/fingerprint ## get it in
+sudo cp -a ~/repo/* /var/www/html/
 
 
 # Unpack k8s kubespray package files
 cd ~/
 tar -zxvf k8s-files.tgz
-sudo cp -a ~/k8s /var/www/html/
+sudo cp -a ~/k8s/* /var/www/html/
 
 
 # From here the repositories are ready and k8s can be installed using the kubespray method.  See install-k8s.txt
