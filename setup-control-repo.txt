@@ -45,7 +45,7 @@ declare -a IPS=(10.64.1.181 10.64.1.167 10.64.1.193)
 for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh non-root-user@$i 'mkdir -p ~/.ssh/; cat >> ~/.ssh/authorized_keys'; done
 
 
-# Install versioned seba-control-repo.tgz
+# Install versioned seba-control-repo.tgz. Pull from external storage or scp copy in
 cd ~/
 tar -zxvf seba-control-repo.tgz 
 
@@ -107,27 +107,27 @@ scripts/populate-docker-repo.sh kubespray-imagelist.txt pull
 
 # Setup helm repository.  Pull from external storage or scp copy in
 cd ~/
-tar -zxvf ~/seba-control-repo/helm-charts.tgz
+tar -zxvf helm-charts.tgz
 sudo cp ~/charts/* /var/www/html/charts/
 sudo helm repo index --url http://repo.seba.local/charts/ /var/www/html/charts/
 
 
-# Setup onos oar app on web server
+# Setup onos oar app on web server. Pull from external storage or scp copy in
 cd ~/
-tar -zxvf ~/seba-control-repo/onos-oar.tgz
+tar -zxvf onos-oar.tgz
 sudo cp ~/oar/* /var/www/html/oar/
 
 
-# Unpack apt repository and deb files
+# Unpack apt repository and deb files.  Pull from external storage or scp copy in
 cd ~/
 tar -zxvf apt-repo.tgz
-sudo cp -a ~/repo/* /var/www/html/
+sudo cp -a ~/repo/* /var/www/html/repo/
 
 
-# Unpack k8s kubespray package files
+# Unpack k8s kubespray package files. Pull from external storage or scp copy in
 cd ~/
 tar -zxvf k8s-files.tgz
-sudo cp -a ~/k8s/* /var/www/html/
+sudo cp -a ~/k8s/* /var/www/html/k8s/
 
 
 # From here the repositories are ready and k8s can be installed using the kubespray method.  See install-k8s.txt

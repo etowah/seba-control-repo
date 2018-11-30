@@ -1,0 +1,6 @@
+#!/bin/bash
+
+pod=$(kubectl get pods -n voltha |grep vcore |grep Running | awk '{print $1}');
+kubectl logs $pod -n voltha -f $@ \
+|egrep "( core\.| _uni| _pon| omci_entities| onu_config| brcm_|Error|File \"|core.start|ERROR|WARNING|function-entry|reason|Assert|Exception)" \
+
