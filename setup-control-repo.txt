@@ -24,12 +24,14 @@
 # sudo to root without password.  The following must be the bottom of /etc/sudoers 
 # non-root-user ALL=(ALL:ALL) NOPASSWD:ALL
 
-# For example on each host:
+# For example on each host, creating an "sdn" user:
 # useradd -m -d /home/sdn -s /bin/bash sdn
 # passwd sdn
 # export EDITOR=vi; visudo
 # ...
 # sdn ALL=(ALL:ALL) NOPASSWD:ALL
+
+# the seba-control-repo vm qcow file uses the sdn user
 
 
 
