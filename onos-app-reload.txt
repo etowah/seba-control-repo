@@ -1,0 +1,18 @@
+#
+# Re-installing onos apps
+#
+
+# upload new oar file to seba-control-repo web server ~/ and copy into oar web root
+sudo cp ~/aaa-1.8.0-SNAPSHOT3.oar /var/www/html/oar/
+
+# open onos cli from seba-node1 and run the following:
+
+apps -s -a
+
+app deactivate org.opencord.aaa
+app uninstall org.opencord.aaa
+app install http://seba.repo.local/oar/aaa-1.8.1-SNAPSHOT3.oar
+app activate org.opencord.aaa
+
+apps -s -a
+

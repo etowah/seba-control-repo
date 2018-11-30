@@ -1,0 +1,14 @@
+[Unit]
+Description=IPv4 SEBA Firewall
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+RemainAfterExit=yes
+ExecStart=/usr/local/bin/seba-firewall.sh start
+ExecStop=/usr/local/bin/seba-firewall.sh stop
+
+[Install]
+WantedBy=multi-user.target
+

@@ -124,7 +124,7 @@ restoreOperator:
 oltAppUrl: "http://repo.seba.local/oar/olt-app-2.1.0-SNAPSHOT.oar"
 sadisAppUrl: "http://repo.seba.local/oar/sadis-app-2.2.0-SNAPSHOT.oar"
 dhcpl2relayAppUrl: "http://repo.seba.local/oar/dhcpl2relay-1.5.0-SNAPSHOT.oar"
-aaaAppUrl: "http://repo.seba.local/oar/aaa-1.8.0-SNAPSHOT.oar"
+aaaAppUrl: "http://repo.seba.local/oar/aaa-1.8.0-SNAPSHOT3.oar"
 kafkaAppUrl: "http://repo.seba.local/oar/kafka-1.0.0-SNAPSHOT.oar"
 
 #application_logs: |

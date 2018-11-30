@@ -1,0 +1,12 @@
+[Unit]
+Description=SEBA DNS/DHCP
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+ExecStart=/usr/sbin/dnsmasq -k
+ExecStop=/bin/kill $MAINPID
+
+[Install]
+WantedBy=multi-user.target
+

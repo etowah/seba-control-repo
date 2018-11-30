@@ -7,7 +7,7 @@
         "radiusSecret" : "lightspeed",
         "nasIp" : "10.253.10.1",
         "radiusConnectionType" : "socket",
-        "packetCustomizer" : "sample"
+        "packetCustomizer" : "att"
       }
     },
     "org.opencord.dhcpl2relay" : {
