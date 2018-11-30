@@ -3,16 +3,40 @@
 #
 
 # upload new oar file to seba-control-repo web server ~/ and copy into oar web root
+# for example on seba-control-repo virtual machine:
 sudo cp ~/aaa-1.8.0-SNAPSHOT3.oar /var/www/html/oar/
 
 # open onos cli from seba-node1 and run the following:
 
 apps -s -a
 
+app deactivate org.opencord.kafka
 app deactivate org.opencord.aaa
+app deactivate org.opencord.dhcpl2relay
+app deactivate org.opencord.sadis
+app deactivate org.opencord.olt
+
+app uninstall org.opencord.kafka
 app uninstall org.opencord.aaa
-app install http://seba.repo.local/oar/aaa-1.8.1-SNAPSHOT3.oar
+app uninstall org.opencord.dhcpl2relay
+app uninstall org.opencord.sadis
+app uninstall org.opencord.olt
+
+app install http://repo.seba.local/oar/sadis-app-2.2.0-SNAPSHOT.oar
+app install http://repo.seba.local/oar/olt-app-2.1.0-SNAPSHOT.oar
+app install http://repo.seba.local/oar/dhcpl2relay-1.5.0-SNAPSHOT.oar
+app install http://repo.seba.local/oar/aaa-1.8.0-SNAPSHOT3.oar
+app install http://repo.seba.local/oar/kafka-1.0.0-SNAPSHOT.oar
+
+app activate org.opencord.sadis
+app activate org.opencord.olt
+app activate org.opencord.dhcpl2relay
 app activate org.opencord.aaa
+app activate org.opencord.kafka
 
 apps -s -a
+
+# if all of onos is restarted, activate these additionally:
+app activate org.onosproject.hostprovider
+app activate org.onosproject.netcfghostprovider
 
