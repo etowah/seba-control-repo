@@ -9,6 +9,9 @@
 cd ~/source/
 git clone https://github.com/etowah/seba-control-repo.git
 
+# create destination artifacts directory
+mkdir ~/artifacts/
+
 
 #
 # Gather needed deb packages and build an apt repository
@@ -45,7 +48,7 @@ gpg --with-fingerprint ~/repo/key |grep fingerprint|cut -d'=' -f2| tr -d '[:spac
 
 cd ~/
 tar -zcvf apt-repo.tgz repo
-## copy to usb drive directly
+cp apt-repo.tgz ~/artifacts/
 
 
 #
@@ -58,7 +61,7 @@ curl -L "https://releases.hashicorp.com/vault/0.10.1/vault_0.10.1_linux_amd64.zi
 curl -L "https://github.com/coreos/etcd/releases/download/v3.2.18/etcd-v3.2.18-linux-amd64.tar.gz" -o k8s/etcd-v3.2.18-linux-amd64.tar.gz
 curl -L "https://storage.googleapis.com/kubernetes-release/release/v1.11.3/bin/linux/amd64/hyperkube" -o k8s/hyperkube
 tar -zcvf k8s-files.tgz k8s
-## copy to usb drive directly
+cp k8s-files.tgz ~/artifacts/
 
 
 #
@@ -70,8 +73,7 @@ mkdir -p ~/docker-images
 ~/source/seba-control-repo/scripts/package-docker-images.sh ~/source/seba-control-repo/seba-imagelist.txt ~/docker-images/
 ~/source/seba-control-repo/scripts/package-docker-images.sh ~/source/seba-control-repo/kubespray-imagelist.txt ~/docker-images/
 tar -cvf docker-images.tar docker-images
-# too big to check-in
-## copy to usb drive directly
+cp docker-images.tar ~/artifacts/
 
 
 #
@@ -79,6 +81,7 @@ tar -cvf docker-images.tar docker-images
 #
 
 mkdir ~/charts
+cd ~/charts
 
 # get outside dependencies
 helm fetch stable/etcd-operator
@@ -103,9 +106,7 @@ mv *.tgz ~/charts/
 
 cd ~/
 tar -zcvf helm-charts.tgz charts
-cp helm-charts.tgz ~/seba-control-repo/
-git add helm-charts.tgz
-## copy to usb drive directly
+cp helm-charts.tgz ~/artifacts/
 
 
 #
@@ -119,11 +120,10 @@ curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapsh
 curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=aaa&v=1.8.0-SNAPSHOT&e=oar' -o oar/aaa-1.8.0-SNAPSHOT.oar
 curl -L 'https://oss.sonatype.org/service/local/artifact/maven/redirect?r=snapshots&g=org.opencord&a=kafka&v=1.0.0-SNAPSHOT&e=oar' -o oar/kafka-1.0.0-SNAPSHOT.oar
 tar -zcvf onos-oar.tgz oar
-cp onos-oar.tgz ~/seba-control-repo/
-git add onos-oar.tgz
-## copy to usb drive directly
+cp onos-oar.tgz ~/artifacts/
 
 
-# Take apt-repo.tgz, k8s-files.tgz, docker-images.tgz, helm-charts.tgz and onos-oar.tgz and copy to external storage or laptop for offline installation
+# Take the ~/artifacts directory and the containing apt-repo.tgz, k8s-files.tgz, docker-images.tar, helm-charts.tgz and onos-oar.tgz and
+# copy to external storage or laptop for offline installation
 # Take the seba-control-repo qcow file created earlier and package as well.
 # At this point using the gathered artifacts we can physically install the pod and start/setup its control-repo vm.  See setup-control-repo.txt
