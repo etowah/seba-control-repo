@@ -17,14 +17,15 @@
 
 # login to control-repo vm as a "non-root-user".  Set IP needed for local pod network access.
 
-# Make sure whatever your "non-root-user" user exists on control-repo and 
-# all 3 destination node hosts that will have k8s installed.
+# Make sure whatever your "non-root-user" user exists on seba-control-repo and
+# all 3 destination node hosts that will have k8s installed.  seba-control-repo already has a built
+# in non-root-user called sdn.
 
 # Also make sure that on all 3 destination node hosts the non-root-user can 
 # sudo to root without password.  The following must be the bottom of /etc/sudoers 
 # non-root-user ALL=(ALL:ALL) NOPASSWD:ALL
 
-# For example on each host, creating an "sdn" user:
+# For example on each host using a user called "sdn" as the non-root-user:
 # useradd -m -d /home/sdn -s /bin/bash sdn
 # passwd sdn
 # export EDITOR=vi; visudo
@@ -40,10 +41,10 @@ cd ~/
 ssh-keygen -t rsa
 
 # Replace with 3 IP of your to be installed k8s hosts.  Replace non-root-user with username 
-# that exists on to be installed k8s hosts.  Replace 10.64.1.X with your 3 to be installed k8s hosts
+# that exists on to be installed k8s hosts.  Replace 10.242.11.X with your 3 to be installed k8s hosts
 # This pre-shared ssh key is needed for ansible to work
 
-declare -a IPS=(10.64.1.181 10.64.1.167 10.64.1.193)
+declare -a IPS=(10.242.11.1 10.242.11.2 10.242.11.3)
 for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh non-root-user@$i 'mkdir -p ~/.ssh/; cat >> ~/.ssh/authorized_keys'; done
 
 

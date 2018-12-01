@@ -10,7 +10,7 @@
 
 
 # Copy and modify seba-pod specific ansible/kubespray inventory and configuration
-# Set 3 k8s hosts in hosts.ini, replace 10.64.1.X with yours.
+# Set 3 k8s hosts in hosts.ini, replace 10.242.11.X with yours.
 
 cp -a ~/seba-control-repo/kubespray-inventory/seba-pod ~/kubespray-2.7.0/inventory/
 cd ~/kubespray-2.7.0/inventory/
@@ -38,8 +38,8 @@ ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control
 # Setup docker log rotation
 ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/logrotate-docker dest=/etc/logrotate.d/docker-container" --become --become-user=root
 
-# OPTIONAL!! add /etc/hosts entries for control-repo host ip.  NOT NEEDED IF USING DNS.  Replace 10.64.1.X with your seba-control-repo IP
-# ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "echo '10.64.1.169    repo.seba.local' >> /etc/hosts" --become --become-user=root
+# OPTIONAL!! add /etc/hosts entries for control-repo host ip.  NOT NEEDED IF USING DNS.  Replace 10.242.11.X with your seba-control-repo IP
+# ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "echo '10.242.11.100    repo.seba.local' >> /etc/hosts" --become --become-user=root
 
 # set scripts to be executable
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "chmod 755 ~/scripts/*"
