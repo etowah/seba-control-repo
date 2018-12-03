@@ -2,6 +2,9 @@
 # Simple quick kubespray setup notes
 #
 
+## Clone seba-control-repo
+cd ~/
+git clone https://github.com/etowah/seba-control-repo.git
 
 ## Generate needed SSH keyed authentication
 cd ~/
@@ -33,47 +36,26 @@ sudo pip install -r requirements.txt
 
 
 ## Install seba-pod specific inventory and configuration
-## Included in tarball
-cd ~/kubespray-2.7.0/inventory/
-cp -a sample seba-pod
+cp -a ~/seba-control-repo/kubespray-inventory/seba-pod ~/kubespray-2.7.0/inventory/
 
-# replace hosts.ini, replace 10.242.11.X with yours.
+# edit hosts.ini, replace 10.242.11.X with yours.
+vi ~/kubespray-2.7.0/inventory/seba-pod/hosts.ini
 
-cat > seba-pod/hosts.ini << EOF
-[k8s-cluster:children]
-kube-master 	 
-kube-node 	 
-
-[all]
+# example
 seba-node1 	 ansible_host=10.242.11.1 ip=10.242.11.1
 seba-node2 	 ansible_host=10.242.11.2 ip=10.242.11.2
 seba-node3 	 ansible_host=10.242.11.3 ip=10.242.11.3
+# example
 
-[kube-master]
-seba-node1 	 
-seba-node2 	 
-seba-node3
 
-[kube-node]
-seba-node1 	 
-seba-node2 	 
-seba-node3 	 
 
-[etcd]
-seba-node1 	 
-seba-node2 	 
-seba-node3 	 
-
-[calico-rr]
-
-[vault]
-seba-node1 	 
-seba-node2 	 
-seba-node3 	 
-EOF
-
+# Verify ansible can reach 3 hosts
+cd ~/kubespray-2.7.0/
+ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "whoami; uname -a" --become --become-user=root
 
 ## Run the install.  Takes about 12 minutes. 
 cd ~/kubespray-2.7.0/
 ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
+
+
 
