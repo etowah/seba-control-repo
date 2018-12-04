@@ -3,7 +3,7 @@
 Tasks related to installing an entire SEBA pod without internet connectivity.
 Provide the needed software, packages, and repositories to setup a SEBA POD that does not have Internet access.
 
-The goal of an offline or "air-gapped" installation is to be able to start with compute, switching, and OLT hardware still in the box from the OEM and build a fully functional POD without any Internet connectivity. Its assumed the installer brings a laptop and any installation media such as one or more USB drives. These USB drives contain the ISOs for installing Ubuntu and Open Network Linux and also any files needed to bootstrap repository installations.
+The goal of an offline or "air-gapped" installation is to be able to start with compute, switching, and OLT hardware still in the box from the OEM and build a fully functional POD without any Internet connectivity. Its assumed the installer brings a laptop and any installation media such as one or more USB drives. These USB drives contain the ISOs for installing Ubuntu and any files needed to bootstrap docker/helm repository installations.
 
 
 
