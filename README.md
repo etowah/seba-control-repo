@@ -31,6 +31,10 @@ https://github.com/etowah/seba-control-repo/blob/master/seba-imagelist.txt
 ## Deployment
 Typically done on-site by installation engineers, with NO internet connectivity.
 
+### Run Management VM
+Virtual machine running routing and NAT between interior POD mgmt vlan and exterior OAM vlan (typically through BNG).  Also runs DNS for seba.local domain and mgmt DHCP (for laptops on site)  
+TODO: Notes on mgmt vm setup
+
 ### Run Control Repo VM and Repositories.
 Offline docker repo, helm repo, oar repo installation and setup.  Deploy seba-control-repo vm, populate repositories within in an offline environment.  
 https://github.com/etowah/seba-control-repo/blob/master/setup-control-repo.txt
