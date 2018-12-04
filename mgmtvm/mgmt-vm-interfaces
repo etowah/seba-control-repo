@@ -1,17 +1,13 @@
-# The loopback network interface
-auto lo
-iface lo inet loopback
-
 # The primary network interface (oambr - vlan 4093, via agg switch)
 # IP assigned by 7450 for vlan 4093.  gateway is assumed to be the 7450
 auto eth0
 iface eth0 inet static
-address 192.168.90.8
-netmask 255.255.255.224
-gateway 192.168.90.30
+  address 192.168.90.8
+  netmask 255.255.255.224
+  gateway 192.168.90.30
 
 # mgmtbr network interface (mgmtbr, untagged oob management switch)
 auto eth1
 iface eth1 inet static
-address 10.242.11.254
-netmask 255.255.255.0
+  address 10.242.11.254
+  netmask 255.255.255.0

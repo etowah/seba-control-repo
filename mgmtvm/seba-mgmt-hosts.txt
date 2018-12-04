@@ -1,4 +1,2 @@
-
 10.242.11.254   gateway
 10.242.11.100	repo seba-control-repo
-
