@@ -10,14 +10,13 @@ The goal of an offline or "air-gapped" installation is to be able to start with 
 ## Elements needed:
 
 - Ubuntu 16.04.X ISO Thumb Drive
-- OpenNetworkLinux XX.XX ISO Thumb Drive
-- Big USB drive of apt, docker images (~30GB), helm chart files, mgmt vm and control-repo vm qcow files, installation scripts.
+- Big USB drive of apt, docker images (~50GB), helm chart files, oar files, control-repo setup files, mgmt vm and control-repo vm qcow files, openolt/bal edgecore executables
 - Equipment on site
   - 3 servers
   - 1 mgmt switch
   - 1 agg switch
   - 1 olt (minimum)
-  - Optics/Splitter
+  - Optics/Splitter/Attenuators
   - 1 ONU
   - 1 RG
 
@@ -60,15 +59,20 @@ Once the onsite mgmt vm and control-repo vm is ready, run ansible based k8s inst
 4) Connect 3 servers iLO/iDRAC and host interfaces
 5) Use USB/Serial/VGA to configure iLO/iDRAC IP connectivity
 6) Connect to iLO/iDRAC on each host, plug in Ubuntu ISO USB
-7) Install base ubuntu, "Virtual Machine Host", SSH. Setup static ip, gateway to mgmt vm (being setup below)
-8) Login to ubuntu, add usb thumb drive BOOTSTRAP apt repo
-9) apt install bootstrap packages needed to run VM.  virtinst mostly.
+7) Install Ubuntu 16.04 on all 3 servers, Select "Virtual Machine Host" and SSH. Setup static ip, gateway to mgmt vm (being setup below).  Create "sdn" user.  Format disks with LVM. DO NOT SETUP SWAP!
+8) Login to hosts, add usb thumb drive BOOTSTRAP apt repo
+9) apt install bootstrap packages needed to run VM.  virtinst and prerequisites.
 10) virtinst/virt-install  mgmt vm and seba-control-repo vm.
+  - create mgmtbr, add copper interface. 
+  - create oambr, add SFP interface
+  - use provided vol-import.sh script to start vm
   - mgmt vm runs routing/natting for vlan 10 for whole pod.  Also runs authoritative and recursive dns for whole pod
   - seba control repo vm runs apt repository, docker image registry, helm chart repo, and onos oar web server
-  - setup each physical host to allow access to VM (iptables commands, gather mgmt vm setup notes)
-  - other steps on physical hosts?
-11) Console into mgmt vm and control-repo vm and set vlan 10 ip (package qcow with correct ip..?)
+11) Console into mgmt vm and setup networking
+  - setup ip vlan 4093 ip and mgmt vlan 10 ip
+  - setup natting firewall
+  - setup dnsmasq
+  - setup ssh
 12) Login to control-repo vm and setup repositories
   - https://github.com/etowah/seba-control-repo/blob/master/setup-control-repo.txt
   - image already packaged with docker repo, apache, and apt mirror
@@ -83,24 +87,24 @@ Once the onsite mgmt vm and control-repo vm is ready, run ansible based k8s inst
 14) Install seba/voltha helm packages
   - https://github.com/etowah/seba-control-repo/blob/master/helm-seba-voltha-install.txt
   - run from seba-node1.  possibly from seba-control-repo one day.
-15) Install ONL ISO on Edgecore OLT
-16) IP edgecore olt
-17) scp and install bal/openolt packages
-18) START bal/openolt
-19) Install operating system on Agg switch
+15) Setup Edgecore olt
+  - scp and install bal/openolt packages
+  - START bal/openolt
+16) Install/Setup operating system on Agg switch
   - Using either ONL or vendor supplied OS
   - Install ofdpa packages if using ONL
-20) Setup agg switch
   - Start ofdpa
   - If not using ofdpa optionally statically configure vlan trunking between OLT and BNG uplink
   - Vendor specific notes on agg switch configuration
-21) Run curl yaml/abstract olt commands to commision a virtual chassis
-22) Run curl yaml/abstract olt commands to add an edgcore olt linecard
-23) Run curl yaml/abstract olt commands to add whitelist entries
-24) Run curl yaml/abstract olt commands to add a TEST SUBSCRIBER
-25) plugin test splitter, test ONU
-26) plugin test RG
-27) plug laptop into LAN port of RG. Test connect to internet via real BNG.
+17) Run curl yaml/abstract olt commands to commision a virtual chassis
+18) Run curl yaml/abstract olt commands to add an edgcore olt linecard
+19) Run curl yaml/abstract olt commands to add whitelist entries
+20) Run curl yaml/abstract olt commands to add a TEST SUBSCRIBER
+21) Plug in physical Optical Distribution Network
+  - plugin test splitter and attenuator(s)
+  - plugin test ONU
+  - plugin test RG in ONU LAN Port 1
+  - plug laptop into any LAN port of RG. Test connect to internet via real BNG.
 
 
 
