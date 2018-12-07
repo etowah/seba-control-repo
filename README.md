@@ -31,9 +31,13 @@ https://github.com/etowah/seba-control-repo/blob/master/seba-imagelist.txt
 ## Deployment
 Typically done on-site by installation engineers, with NO internet connectivity.
 
+### Install Physical Host OS
+Local, offline install of Ubuntu 16.04 LTS.  Addition of local apt repo needed to install packages needed to run vm (mgmtvm and seba-control-repo vm)  
+https://github.com/etowah/seba-control-repo/blob/master/offline-host-setup.txt
+
 ### Run Management VM
 Virtual machine running routing and NAT between interior POD mgmt vlan and exterior OAM vlan (typically through BNG).  Also runs DNS for seba.local domain and mgmt DHCP (for laptops on site)  
-TODO: Notes on mgmt vm setup
+https://github.com/etowah/seba-control-repo/blob/master/setup-mgmtvm.txt
 
 ### Run Control Repo VM and Repositories.
 Offline docker repo, helm repo, oar repo installation and setup.  Deploy seba-control-repo vm, populate repositories within in an offline environment.  

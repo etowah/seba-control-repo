@@ -59,48 +59,46 @@ Once the onsite mgmt vm and control-repo vm is ready, run ansible based k8s inst
 4) Connect 3 servers iLO/iDRAC and host interfaces
 5) Use USB/Serial/VGA to configure iLO/iDRAC IP connectivity
 6) Connect to iLO/iDRAC on each host, plug in Ubuntu ISO USB
-7) Install Ubuntu 16.04 on all 3 servers, Select "Virtual Machine Host" and SSH. Setup static ip, gateway to mgmt vm (being setup below).  Create "sdn" user.  Format disks with LVM. DO NOT SETUP SWAP!
-8) Login to hosts, add usb thumb drive BOOTSTRAP apt repo
-9) apt install bootstrap packages needed to run VM.  virtinst and prerequisites.
-10) virtinst/virt-install  mgmt vm and seba-control-repo vm.
-  - create mgmtbr, add copper interface. 
-  - create oambr, add SFP interface
+7) Install Ubuntu 16.04 on all 3 servers, Select "Virtual Machine Host" and OpenSSH. Setup static ip, gateway to mgmt vm (being setup below).  Create "sdn" user.  Format disks with LVM. DO NOT SETUP SWAP!
+  - https://github.com/etowah/seba-control-repo/blob/master/offline-host-setup.txt
+  - Login to hosts, add local apt repo
+  - Setup host networking and apt install bootstrap packages needed to run VM.  virtinst and prerequisites.
+8) virtinst/virt-install  mgmt vm and setup networking
+  - https://github.com/etowah/seba-control-repo/blob/master/setup-mgmtvm.txt
   - use provided vol-import.sh script to start vm
-  - mgmt vm runs routing/natting for vlan 10 for whole pod.  Also runs authoritative and recursive dns for whole pod
-  - seba control repo vm runs apt repository, docker image registry, helm chart repo, and onos oar web server
-11) Console into mgmt vm and setup networking
   - setup ip vlan 4093 ip and mgmt vlan 10 ip
   - setup natting firewall
   - setup dnsmasq
-  - setup ssh
-12) Login to control-repo vm and setup repositories
+  - mgmt vm runs routing/natting for vlan 10 for whole pod.  Also runs authoritative and recursive dns for whole pod
+  - seba control repo vm runs apt repository, docker image registry, helm chart repo, and onos oar web server
+10) virtinst/virt-install  seba-control-repo vm and setup repositories
   - https://github.com/etowah/seba-control-repo/blob/master/setup-control-repo.txt
   - image already packaged with docker repo, apache, and apt mirror
   - setup docker registry/load images, load helm charts, load onos apps
   - setup apt repo
   - setup ansible inventory files
-13) Run ansible install of k8s cluster from seba-control-repo vm
+11) Run ansible install of k8s cluster from seba-control-repo vm
   - https://github.com/etowah/seba-control-repo/blob/master/install-k8s.txt
   - reads from ansible inventory files
   - reaches out to freshly installed compute hosts, installs packages needed to run k8s
   - run supplimental ansible ad-hoc commands
-14) Install seba/voltha helm packages
+12) Install seba/voltha helm packages
   - https://github.com/etowah/seba-control-repo/blob/master/helm-seba-voltha-install.txt
   - run from seba-node1.  possibly from seba-control-repo one day.
-15) Setup Edgecore olt
+13) Setup Edgecore olt
   - scp and install bal/openolt packages
   - START bal/openolt
-16) Install/Setup operating system on Agg switch
+14) Install/Setup operating system on Agg switch
   - Using either ONL or vendor supplied OS
   - Install ofdpa packages if using ONL
   - Start ofdpa
   - If not using ofdpa optionally statically configure vlan trunking between OLT and BNG uplink
   - Vendor specific notes on agg switch configuration
-17) Run curl yaml/abstract olt commands to commision a virtual chassis
-18) Run curl yaml/abstract olt commands to add an edgcore olt linecard
-19) Run curl yaml/abstract olt commands to add whitelist entries
-20) Run curl yaml/abstract olt commands to add a TEST SUBSCRIBER
-21) Plug in physical Optical Distribution Network
+15) Run curl yaml/abstract olt commands to commision a virtual chassis
+16) Run curl yaml/abstract olt commands to add an edgcore olt linecard
+17) Run curl yaml/abstract olt commands to add whitelist entries
+18) Run curl yaml/abstract olt commands to add a TEST SUBSCRIBER
+19) Plug in physical Optical Distribution Network
   - plugin test splitter and attenuator(s)
   - plugin test ONU
   - plugin test RG in ONU LAN Port 1

@@ -1,0 +1,131 @@
+#
+# Instructions for an offline Ubuntu 16.04 installation 
+#
+# Capable of running virtual machines installed with virt-install or virt-manager
+#
+
+
+# Install Ubuntu 16.04.  Partitions as shown in pic, NO SWAP.  non-root-user, sdn used below. 
+# node1, node2, node3 hostnames 
+#
+# Software to install:
+# - standard system utilities
+# - Virtual Machine Host
+# - OpenSSH
+#
+
+
+# Login set passwordless sudo.  add to bottom of file!
+
+export EDITOR=vi; visudo
+...
+sdn ALL=(ALL:ALL) NOPASSWD:ALL
+
+
+
+# Setup/reconfigure host networking.  Best done via console
+
+# Remove libvirt default networks
+
+virsh net-destroy default
+virsh net-undefine default
+
+
+# Configure network and bridging needed for virtual machines
+# Host specific config for interface naming.  Determine your interface names and adjust
+# accordingly.  
+
+# As an example see k8s-host-interfaces reference in seba-control-repo tarball
+cat ~/seba-control-repo/mgmtvm/k8s-host-interfaces 
+vi /etc/network/interfaces   # have to figure out based on oob switch vlan config and agg switch vlan config
+
+
+
+# Apply new network config  WARNING, this can cut off your legs if /etc/network/interfaces is 
+# incorrect and you are not on console!
+
+ifdown -a; ifup -a
+
+
+# Verify network connectivity.  SSH in now that host is reachable via network
+# Copy over artifacts from external source/thumb drive to /home/sdn
+
+# Extract apt-repo and seba-control-repo tarballs in /home/sdn
+
+cd ~/
+tar -zxvf apt-repo.tgz 
+tar -zxvf seba-control-repo.tgz
+
+
+# Become root for duration of instructions
+
+sudo bash
+
+
+# Install script to allow bridge traffic through iptables.  Needed as later docker install
+# adds restrictive iptables rules
+
+cp ~/seba-control-repo/mgmtvm/allow-mgmtbr.sh /usr/local/bin/
+chmod 755 /usr/local/bin/allow-mgmtbr.sh
+/usr/local/bin/allow-mgmtbr.sh
+
+
+# Replace /etc/apt/sources.list for directory based apt repo
+
+mv /etc/apt/sources.list /etc/apt/sources.list.orig
+echo "deb file:/home/sdn/repo xenial stable" > /etc/apt/sources.list
+apt-key add /home/sdn/repo/key 
+apt update
+
+
+# Install virtinst and python-minimal
+
+apt install virtinst python-minimal
+
+
+# Create default libvirt vm storage pool and creat new mgmt vm.
+
+~/seba-control-repo/scripts/create-default-pool.sh
+
+
+# Reboot host and verify networking restarts properly
+
+
+
+## If you have already created a mgmtvm, stop here and move on to next physical host setup.  
+## Installation does not yet support multiple mgmtvm
+## If physical hosts are done, move on to setting up the seba-control-repo vm
+
+# if you need a mgmtvm, start here to import a basic ubuntu disk image and setup
+~/seba-control-repo/scripts/vol-import.sh vnf-clone-ubuntu-1604-v3.qcow2 mgmtvm
+
+
+# Verify vm running and console in.   The vm will attempt to run a dhcp client but because there is 
+# no server it will wait and time out after 5 minutes.
+
+virsh list --all
+
+# Edit the VM configuration to add the additional interface.  Put above mgmtbr, example below:
+
+virsh edit mgmtvm
+
+    <interface type='bridge'>
+      <source bridge='oambr'/>
+      <model type='virtio'/>
+    </interface>
+
+    <interface type='bridge'>
+      <source bridge='mgmtbr'/>
+      <model type='virtio'/>
+    </interface>
+
+# Shutdown and restart VM for new interface config to take effect
+
+virsh shutdown mgmtvm
+virsh start mgmtvm
+virsh autostart mgmtvm
+
+
+# Reboot host and verify networking restarts properly and mgmtvm starts
+
+# Console login and configure the mgmtvm.  See setup-mgmtvm.txt

@@ -1,14 +1,19 @@
-# Untagged plugged into oob management switch
+# Copper interface untagged plugged into oob management switch
 auto eno1
 iface eno1 inet manual
 
-# VLAN 4093 L2 interface on oambr plugged into agg switch
+# SFP interface tagged plugged into agg switch
+auto eno49
+iface eno49 inet manual
+
+
+# OAM VLAN 4093 L2 interface 
 auto eno49.4093
 iface eno49.4093 inet manual
   vlan-raw-device eno49
 
 
-# Interior pod interface and bridge
+# Interior pod mgmt bridge
 auto mgmtbr
 iface mgmtbr inet static
   bridge_ports eno1
@@ -19,10 +24,9 @@ iface mgmtbr inet static
   dns-search seba.local
 
 
-# OAM bridge - vlan 4093
+# Exterior OAM bridge 
 auto oambr
 iface oambr inet manual
   bridge_ports eno49.4093
-  vlan-raw-device eno49
   post-up /usr/local/bin/allow-mgmtbr.sh
 

@@ -8,8 +8,19 @@
 #
 
 
-# setup control-repo vm.  Run qcow file from recently setup physical host.  
+# setup control-repo virtual machine instance.  Run qcow file from recently setup physical host.  
 # virt-install or virt-manager (GUI) works for this.
+# Login to physical host node1, import and start seba-control-repo from qcow
+~/seba-control-repo/scripts/vol-import.sh seba-control-repo-vX.qcow2 seba-control-repo
+
+# Console in and verify network connectivity
+virsh console seba-control-repo
+ip addr
+ping 10.242.11.1
+
+# exit and ssh into seba-control-repo
+
+
 
 # Ensure mgmt vm and dns ready.
 # add repo.seba.local to your POD's local dns server.
@@ -35,6 +46,7 @@
 # the seba-control-repo vm qcow file uses the sdn user
 
 
+# From the seba-control-repo vm instance...
 
 # Generate needed SSH keyed authentication. needed for ansible
 cd ~/

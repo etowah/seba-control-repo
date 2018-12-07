@@ -53,7 +53,7 @@ ansible -i inventory/seba-pod/hosts.ini kube-node -a "curl -v https://repo.seba.
 
 # If installing in a totally offline pod (no internet) replace the hosts apt sources.list with the pod local apt repo
 # Replace apt sources.list with local apt repo
-ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "mv /etc/apt/sources.list /etc/apt/sources.list.orig" --become --become-user=root
+ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "mv /etc/apt/sources.list /etc/apt/sources.list.orig2" --become --become-user=root
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "add-apt-repository 'deb http://repo.seba.local/repo xenial stable'" --become --become-user=root
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "wget -O - http://repo.seba.local/repo/key | apt-key add -" --become --become-user=root
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "apt update" --become --become-user=root

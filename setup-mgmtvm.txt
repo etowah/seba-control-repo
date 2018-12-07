@@ -1,0 +1,80 @@
+#
+# Instructions to setup a routing virtual machine providing management gateway services
+#
+# Routes and NAT between interior management network and exterior management network.
+# Assumes no internet access.  Also provides interior management network DHCP and DNS
+#
+
+
+# Login to physical host node1 and console login to newly started disk clone named mgmtvm and configure networking.
+
+virsh console mgmtvm
+
+# if the template qcow is still booting it may be waiting for dhcp, which doesnt exist yet.
+# Wait the 5 minutes and it will move on to console login
+
+# TODO setup username/password and default networking.  Prebuild image
+
+
+# Set hostname to mgmtvm and add other needed hosts entries.  These will become dns entries later
+sudo vi /etc/hostname
+mgmtvm
+
+sudo vi /etc/hosts
+127.0.1.1       mgmtvm
+10.242.11.254   gateway
+10.242.11.100	repo seba-control-repo
+
+
+# Edit /etc/network/interfaces for 2 interfaces, north facing OAM/VLAN 4093
+# south facing POD private mgmt vlan 10
+
+# reference example on physical host
+cat ~/seba-control-repo/mgmtvm/mgmt-vm-interfaces
+
+# edit in mgmtvm
+sudo vi /etc/network/interfaces   # have to figure out based on oob switch vlan config and agg switch vlan config
+
+
+# Reboot VM and verify names and connectivity.  SSH login to mgmtvm/10.242.11.254
+
+
+# From physical host copy in seba-control-repo.tgz into mgmtvm and unpack
+scp seba-control-repo.tgz sdn@10.242.11.254:~/
+
+# From mgmtvm
+cd ~/
+tar -zxvf seba-control-repo.tgz
+
+
+# As root on mgmtvm
+sudo bash
+
+# install mgmt dns/dhcp and firewall systemd services
+cp seba-control-repo/mgmtvm/seba-dnsmasq.service /etc/systemd/system/
+cp seba-control-repo/mgmtvm/seba-firewall.service /etc/systemd/system/
+
+# install firewall script
+cp seba-control-repo/mgmtvm/seba-firewall.sh /usr/local/bin/
+chmod 755 /usr/local/bin/seba-firewall.sh 
+
+
+# Change SNAT line to IP used on oam/vlan 4093 eth0 
+vi /usr/local/bin/seba-firewall.sh 
+
+
+# load new systemctl config and start dns/dhcp routing and firewall services
+systemctl daemon-reload 
+systemctl start seba-dnsmasq
+systemctl start seba-firewall
+
+systemctl enable seba-dnsmasq
+systemctl enable seba-firewall
+
+
+# verify local pod dns
+dig repo.seba.local @127.0.0.1
+
+# verify remote ssh access
+
+# At this point repeat setting up other physical hosts or move onto setting up seba-control-repo VM
