@@ -12,6 +12,7 @@
 # virt-install or virt-manager (GUI) works for this.
 # Login to physical host node1, import and start seba-control-repo from qcow
 ~/seba-control-repo/scripts/vol-import.sh seba-control-repo-vX.qcow2 seba-control-repo
+virsh autostart seba-control-repo
 
 # Console in and verify network connectivity
 virsh console seba-control-repo
