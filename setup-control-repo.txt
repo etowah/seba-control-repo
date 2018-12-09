@@ -7,14 +7,18 @@
 # Could also be run while packaging hosts with internet available.
 #
 
+# Login to a physical host that already has libvirt and virtinst installed, networking and bridging setup
+# Become root on physical host.  Import a basic ubuntu disk image and setup
 
-# setup control-repo virtual machine instance.  Run qcow file from recently setup physical host.  
-# virt-install or virt-manager (GUI) works for this.
-# Login to physical host node1, import and start seba-control-repo from qcow
+sudo bash
+
 ~/seba-control-repo/scripts/vol-import.sh seba-control-repo-vX.qcow2 seba-control-repo
+
 virsh autostart seba-control-repo
 
-# Console in and verify network connectivity
+
+# Console login to to newly started seba-control-repo and verify network connectivity
+
 virsh console seba-control-repo
 ip addr
 ping 10.242.11.1
@@ -23,11 +27,10 @@ ping 10.242.11.1
 
 
 
-# Ensure mgmt vm and dns ready.
-# add repo.seba.local to your POD's local dns server.
-# cheat with repo.seba.local /etc/hosts entries if needed
+# Ensure mgmt vm and dns ready, see setup-mgmtvm.txt.
+# repo.seba.local should be added to your POD's local dns server.
 
-# login to control-repo vm as a "non-root-user".  Set IP needed for local pod network access.
+# login to seba-control-repo vm as a "non-root-user". sdn user setup by default in qcow image 
 
 # Make sure whatever your "non-root-user" user exists on seba-control-repo and
 # all 3 destination node hosts that will have k8s installed.  seba-control-repo already has a built
@@ -47,9 +50,10 @@ ping 10.242.11.1
 # the seba-control-repo vm qcow file uses the sdn user
 
 
-# From the seba-control-repo vm instance...
 
-# Generate needed SSH keyed authentication. needed for ansible
+# SSH and run from the seba-control-repo vm instance...
+
+# Generate needed SSH keyed authentication as non-root-user (sdn). needed for ansible
 cd ~/
 ssh-keygen -t rsa
 

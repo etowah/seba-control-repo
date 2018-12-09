@@ -25,11 +25,11 @@ The goal of an offline or "air-gapped" installation is to be able to start with 
 - Management VM. Routes inside management vlan (10) to outside management vlan (4093).  NATs inside management vlan addresses to outside management vlan IP.  Also provides inside POD DNS, NAT to radius server, VPN/SSH management access.
 - SEBA Control Repo VM.   Runs web servers needed for repos, and Ansible control for kubespray
   - Qcow build instructions: https://github.com/etowah/seba-control-repo/blob/master/building-control-vm.txt
-- Apt mirror of minimial BASIC xenial packages needed to run mgmt and repo vm
-- Apt mirror of docker-ce, k8s, other utility apt repos
-- docker image registry
-- helm chart repository
-- basic web server for custom OAR files, site helm values yaml files.
+  - Apt mirror of minimial BASIC xenial packages needed to run mgmt and repo vm
+  - Apt mirror of docker-ce, k8s, other utility apt repos
+  - docker image registry
+  - helm chart repository
+  - basic web server for custom OAR files, site helm values yaml files.
 - Gathering artifacts for the repostitory: https://github.com/etowah/seba-control-repo/blob/master/package-artifacts.txt
 
 ## Northbound Network Connectivity
@@ -59,7 +59,7 @@ Once the onsite mgmt vm and control-repo vm is ready, run ansible based k8s inst
 4) Connect 3 servers iLO/iDRAC and host interfaces
 5) Use USB/Serial/VGA to configure iLO/iDRAC IP connectivity
 6) Connect to iLO/iDRAC on each host, plug in Ubuntu ISO USB
-7) Install Ubuntu 16.04 on all 3 servers, Select "Virtual Machine Host" and OpenSSH. Setup static ip, gateway to mgmt vm (being setup below).  Create "sdn" user.  Format disks with LVM. DO NOT SETUP SWAP!
+7) Install Ubuntu 16.04 on all 3 servers 
   - https://github.com/etowah/seba-control-repo/blob/master/offline-host-setup.txt
   - Login to hosts, add local apt repo
   - Setup host networking and apt install bootstrap packages needed to run VM.  virtinst and prerequisites.
@@ -73,6 +73,7 @@ Once the onsite mgmt vm and control-repo vm is ready, run ansible based k8s inst
   - seba control repo vm runs apt repository, docker image registry, helm chart repo, and onos oar web server
 10) virtinst/virt-install  seba-control-repo vm and setup repositories
   - https://github.com/etowah/seba-control-repo/blob/master/setup-control-repo.txt
+  - use provided vol-import.sh script to start vm
   - image already packaged with docker repo, apache, and apt mirror
   - setup docker registry/load images, load helm charts, load onos apps
   - setup apt repo
@@ -86,6 +87,8 @@ Once the onsite mgmt vm and control-repo vm is ready, run ansible based k8s inst
   - https://github.com/etowah/seba-control-repo/blob/master/helm-seba-voltha-install.txt
   - run from seba-node1.  possibly from seba-control-repo one day.
 13) Setup Edgecore olt
+  - Install needed apt packages (TODO)
+  - Install build of protobuf (TODO)
   - scp and install bal/openolt packages
   - START bal/openolt
 14) Install/Setup operating system on Agg switch

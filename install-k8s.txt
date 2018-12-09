@@ -87,7 +87,8 @@ ansible -i inventory/seba-pod/hosts.ini kube-node -a "helm search voltha"
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "usermod -aG docker non-root-user" --become --become-user=root
 ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "cat ~/scripts/bashrc >> ~/.bashrc"
 
-# Reboot all 3.  Be sure you know what your doing.  ansible will report back error, but hosts will reboot!
+
+# Reboot all 3 hosts.  Be sure you know what your doing.  ansible will report back error, but hosts, AND VM will reboot!
 # This will also restart seba-control-repo, mgmt vm, or anything else on the physical hosts.  The VM should restart.
 #ansible -i inventory/seba-pod/hosts.ini kube-node -a "reboot" --become --become-user=root
 

@@ -5,7 +5,8 @@
 #
 
 
-# Install Ubuntu 16.04.  Partitions as shown in pic, NO SWAP.  non-root-user, sdn used below. 
+# Install Ubuntu 16.04 using iso setup on usb drive.  
+# Partitions as shown in pic, DO NOT SETUP SWAP.  Setup a non-root-user, sdn used below and in packaged qcow. 
 # node1, node2, node3 hostnames 
 #
 # Software to install:
@@ -22,9 +23,12 @@ export EDITOR=vi; visudo
 sdn ALL=(ALL:ALL) NOPASSWD:ALL
 
 
+# Logout/Login, verify sdn user passwordless root.  Become and stay root for duration of host configuration
+
+sudo bash
+
 
 # Setup/reconfigure host networking.  Best done via console
-
 # Remove libvirt default networks
 
 virsh net-destroy default
@@ -57,11 +61,6 @@ tar -zxvf apt-repo.tgz
 tar -zxvf seba-control-repo.tgz
 
 
-# Become root for duration of instructions
-
-sudo bash
-
-
 # Install script to allow bridge traffic through iptables.  Needed as later docker install
 # adds restrictive iptables rules
 
@@ -90,42 +89,9 @@ apt install virtinst python-minimal
 
 # Reboot host and verify networking restarts properly
 
+# Confirm host has access to pod mgmt network.  Confirm ssh access.  Also confirm libvirt vm list is empty
 
-
-## If you have already created a mgmtvm, stop here and move on to next physical host setup.  
-## Installation does not yet support multiple mgmtvm
-## If physical hosts are done, move on to setting up the seba-control-repo vm
-
-# if you need a mgmtvm, start here to import a basic ubuntu disk image and setup
-~/seba-control-repo/scripts/vol-import.sh vnf-clone-ubuntu-1604-v3.qcow2 mgmtvm
-
-
-# Verify vm running and console in.   The vm will attempt to run a dhcp client but because there is 
-# no server it will wait and time out after 5 minutes.
-
+virsh vol-list default
 virsh list --all
 
-# Edit the VM configuration to add the additional interface.  Put above mgmtbr, example below:
-
-virsh edit mgmtvm
-
-    <interface type='bridge'>
-      <source bridge='oambr'/>
-      <model type='virtio'/>
-    </interface>
-
-    <interface type='bridge'>
-      <source bridge='mgmtbr'/>
-      <model type='virtio'/>
-    </interface>
-
-# Shutdown and restart VM for new interface config to take effect
-
-virsh shutdown mgmtvm
-virsh start mgmtvm
-virsh autostart mgmtvm
-
-
-# Reboot host and verify networking restarts properly and mgmtvm starts
-
-# Console login and configure the mgmtvm.  See setup-mgmtvm.txt
+# At this point repeat setting up physical hosts or install the mgmtgm.  See setup-mgmtvm.txt
