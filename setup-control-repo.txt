@@ -8,7 +8,7 @@
 #
 
 # Login to a physical host that already has libvirt and virtinst installed, networking and bridging setup
-# Become root on physical host.  Import a basic ubuntu disk image and setup
+# Become root on physical host.  Import the versioned seba-control-repo qcow image template.
 
 sudo bash
 
@@ -17,7 +17,8 @@ sudo bash
 virsh autostart seba-control-repo
 
 
-# Console login to to newly started seba-control-repo and verify network connectivity
+# Console login to to newly started seba-control-repo and verify network connectivity. 
+# The built in username is sdn 
 
 virsh console seba-control-repo
 ip addr
@@ -30,7 +31,7 @@ ping 10.242.11.1
 # Ensure mgmt vm and dns ready, see setup-mgmtvm.txt.
 # repo.seba.local should be added to your POD's local dns server.
 
-# login to seba-control-repo vm as a "non-root-user". sdn user setup by default in qcow image 
+# login to seba-control-repo vm as a "non-root-user". sdn user setup by default in template qcow image 
 
 # Make sure whatever your "non-root-user" user exists on seba-control-repo and
 # all 3 destination node hosts that will have k8s installed.  seba-control-repo already has a built
