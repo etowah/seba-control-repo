@@ -86,6 +86,13 @@ scp seba-control-repo.tgz sdn@10.242.11.254:~/
 cd ~/
 tar -zxvf seba-control-repo.tgz
 
+# Run remaining as root inside mgmtvm
+
+sudo bash
+
+# install dnsmasq dhcp/dns config
+cp seba-control-repo/mgmtvm/dnsmasq.conf /etc/
+
 # install mgmt dns/dhcp and firewall systemd services
 cp seba-control-repo/mgmtvm/seba-dnsmasq.service /etc/systemd/system/
 cp seba-control-repo/mgmtvm/seba-firewall.service /etc/systemd/system/
