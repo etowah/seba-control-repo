@@ -20,7 +20,10 @@ The goal of an offline or "air-gapped" installation is to be able to start with 
   - 1 ONU
   - 1 RG
 
-## Software services needed
+
+## Software services and virtual machines
+
+These will be packaged by release management and will be provided.  
 
 - Management VM. Routes inside management vlan (10) to outside management vlan (4093).  NATs inside management vlan addresses to outside management vlan IP.  Also provides inside POD DNS, NAT to radius server, VPN/SSH management access.
 - SEBA Control Repo VM.   Runs web servers needed for repos, and Ansible control for kubespray
@@ -32,10 +35,12 @@ The goal of an offline or "air-gapped" installation is to be able to start with 
   - basic web server for custom OAR files, site helm values yaml files.
 - Gathering artifacts for the repostitory: https://github.com/etowah/seba-control-repo/blob/master/package-artifacts.txt
 
+
 ## Northbound Network Connectivity
 
 - Minimum a single physical link to the BNG, which provides both subscriber vlans and outside mgmt vlan (4093).
 - OOB connectivity 
+
 
 ## Reserved interior POD DNS names:
 
@@ -46,12 +51,11 @@ gateway.sebal.local
 
 
 
+## Workflow
+
 Start with installing the site mgmt virtual machine. It will provide interior pod management vlan (vlan 10) default routing, NATing to outside management vlan (4093), management ssh access, and private authoritative DNS within the pod.  Then install the control-repo vm. It will then get populated the stable versions of above apt pkg, docker images, helm charts, and oar files.  
 
 Once the onsite mgmt vm and control-repo vm is ready, run ansible based k8s install, helm install. See below for workflow.
-
-
-## Workflow
 
 1) Unbox compute, switching, olt. wire network and power on
 2) Install config into mgmt switch. Most importantly in-pod management vlan 10
