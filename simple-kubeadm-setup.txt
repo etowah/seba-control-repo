@@ -1,0 +1,51 @@
+#
+# Simple quick single host kubadm k8s setup
+#
+
+# Requires 1 host/vm to run k8s.  Runs most current stable docker and k8s!
+
+# Add docker-ce gpg key and repo
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+
+# Add kubernetes gpg key and repo
+curl -s https://packages.cloud.google.com/apt/doc/apt-key.gpg | sudo apt-key add -
+sudo add-apt-repository "deb http://apt.kubernetes.io/ kubernetes-xenial main"
+
+# Install docker-ce, kubelet, kubeadm and kubectl from the newly added repos.
+sudo apt update
+sudo apt install docker-ce kubelet kubeadm kubectl kubernetes-cni cri-tools -y
+
+
+# Install k8s
+sudo kubeadm init --pod-network-cidr=192.168.0.0/16
+
+# Allow local non-root-user to have kubectl CLI access
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+# Install calico CNI networking
+kubectl apply -f https://docs.projectcalico.org/v3.4/getting-started/kubernetes/installation/hosted/kubernetes-datastore/calico-networking/1.7/calico.yaml
+
+# Allow single node master to run non-master workloads
+kubectl taint nodes --all node-role.kubernetes.io/master-
+
+# Verify everything is running
+kubectl get pods --all-namespaces -o wide
+dig +short kubernetes.default.svc.cluster.local @10.96.0.10
+
+
+# Create RBAC entries needed for helm tiller
+kubectl create serviceaccount --namespace kube-system tiller
+kubectl create clusterrolebinding tiller-cluster-rule --clusterrole=cluster-admin --serviceaccount=kube-system:tiller
+
+# Install helm tiller
+curl https://raw.githubusercontent.com/helm/helm/master/scripts/get | bash
+helm init --service-account tiller
+
+# Verify helm is ready
+helm repo list
+helm list
+
+
