@@ -32,6 +32,8 @@ ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "whoami; uname -a"
 ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/scripts dest=~/"
 ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/att-seba-pod.yaml dest=~/"
 ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/onos.yaml dest=~/"
+ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/kafka-config.yaml dest=~/"
+ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/update-certs.yaml dest=~/"
 ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/radius-netcfg.json dest=~/"
 ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-control-repo/provisioning-yaml dest=~/"
 

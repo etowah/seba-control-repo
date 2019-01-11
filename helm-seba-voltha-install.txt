@@ -18,7 +18,7 @@
 cd ~/
 
 # Install base requirements
-helm install -n cord-kafka stable/kafka --set persistence.enabled=false --set zookeeper.persistence.enabled=false -f att-seba-pod.yaml
+helm install -n cord-kafka stable/kafka -f att-seba-pod.yaml -f kafka-config.yaml
 helm install -n etcd-operator stable/etcd-operator -f att-seba-pod.yaml
 # wait for etcd-operator crd
 kubectl get crd
@@ -27,7 +27,7 @@ kubectl get crd
 helm install -n etcd-cluster stable/etcd-cluster -f att-seba-pod.yaml
 
 # Install xos-core
-helm install -n xos-core stable/xos-core -f att-seba-pod.yaml
+helm install -n xos-core stable/xos-core -f att-seba-pod.yaml -f update-certs.yaml
 
 # Install voltha
 helm install -n voltha stable/voltha -f att-seba-pod.yaml
