@@ -1,0 +1,57 @@
+sudo yum install -y yum-utils device-mapper-persistent-data lvm2
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+sudo yum install -y docker-ce docker-ce-cli containerd.io
+sudo systemctl enable docker
+sudo systemctl start docker
+
+sudo yum install -y https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm
+sudo yum update
+sudo yum install -y bind-utils httpd
+
+sudo mkdir /var/www/html/charts
+sudo mkdir /var/www/html/oar
+sudo mkdir /var/www/html/repo
+sudo mkdir /var/www/html/k8s
+
+sudo systemctl status httpd
+sudo systemctl start httpd
+sudo systemctl enable httpd
+
+wget https://bootstrap.pypa.io/get-pip.py
+sudo python get-pip.py
+pip -V
+pip list
+
+sudo pip install ceph-deploy
+ceph-deploy --help
+
+curl -o kubespray-v2.10.3.tar.gz https://codeload.github.com/kubernetes-sigs/kubespray/tar.gz/v2.10.3
+tar -zxvf kubespray-v2.10.3.tar.gz
+cd kubespray-2.10.3/
+
+vi requirements.txt
+##
+## change ansible to pin version 2.7.11
+##  ansible==2.7.11
+## 
+sudo pip install -r requirements.txt
+
+wget https://get.helm.sh/helm-v2.13.1-linux-amd64.tar.gz
+tar -zxvf helm-v2.13.1-linux-amd64.tar.gz
+sudo cp linux-amd64/helm /usr/local/bin/
+
+tar -zxvf seba-control-repo.tgz
+sudo cp ~/seba-control-repo/att-foundry-atlanta-ca.crt /etc/pki/ca-trust/source/anchors/
+sudo update-ca-trust
+
+sudo cp ~/seba-control-repo/docker-repo.service /etc/systemd/system/
+sudo mkdir -p /var/docker-persist/docker-registry/registry
+sudo mkdir -p /var/docker-persist/docker-registry/certs
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+sudo systemctl start docker-repo
+sudo docker images |grep registry
+sudo systemctl stop docker-repo
+
+sudo usermod -aG docker foundry
+

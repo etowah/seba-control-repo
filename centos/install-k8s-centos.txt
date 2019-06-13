@@ -1,0 +1,75 @@
+
+cd ~/kubespray-2.10.3/inventory
+tar -zxvf ~/seba-pod-v2.tgz 
+
+vi seba-pod-v2/inventory.ini
+##
+## replace ip with 3 target kube/ceph hosts
+##
+
+
+cd ~/kubespray-2.10.3/
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "whoami; uname -a" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "yum install -y ntp ntpdate ntp-doc" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "systemctl start ntpd" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "systemctl enable ntpd" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "ntpq -p" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "date" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "yum install -y yum-plugin-priorities bind-utils" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "date" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "ntpq -p" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "lsblk" --become --become-user=root
+
+cd ~/
+mkdir ceph-cluster
+cd ceph-cluster/
+
+ceph-deploy new seba-dev-node-04 seba-dev-node-05 seba-dev-node-06
+ceph-deploy install seba-dev-node-04 seba-dev-node-05 seba-dev-node-06
+ceph-deploy mon create-initial
+ceph-deploy admin seba-dev-node-04 seba-dev-node-05 seba-dev-node-06
+ceph-deploy mgr create seba-dev-node-04 seba-dev-node-05 seba-dev-node-06
+ceph-deploy osd create --data /dev/vdb seba-dev-node-04
+ceph-deploy osd create --data /dev/vdb seba-dev-node-05
+ceph-deploy osd create --data /dev/vdb seba-dev-node-06
+ceph-deploy mds create seba-dev-node-04 seba-dev-node-05 seba-dev-node-06
+ceph-deploy rgw create seba-dev-node-04 seba-dev-node-05 seba-dev-node-06
+
+cd ~/kubespray-2.10.3/
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "ceph -s" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "ceph health" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "ceph quorum_status --format json-pretty" --become --become-user=root
+
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m copy -a "src=~/seba-pod-ca/ca/ca.crt dest=/etc/pki/ca-trust/source/anchors/seba-pod-ca.crt" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m copy -a "src=~/seba-control-repo/att-foundry-atlanta-ca.crt dest=/etc/pki/ca-trust/source/anchors/att-foundry-atlanta-ca.crt" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "update-ca-trust" --become --become-user=root
+
+vi inventory/seba-pod-v2/group_vars/k8s-cluster/addons.yml
+#
+# sudo ceph auth get-key client.admin 
+# replace rbd_provisioner_user_secret and rbd_provisioner_secret with above base64 stuff
+# replace ip:port for ceph mons
+#
+
+ansible-playbook -i inventory/seba-pod-v2/inventory.ini --become --become-user=root cluster.yml
+
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "dig +short kubernetes.default.svc.cluster.local @10.233.0.3"
+
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "mkdir .kube"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m copy -a "src=inventory/seba-pod-v2/artifacts/admin.conf dest=~/.kube/config" 
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "kubectl get nodes -o wide"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "kubectl get pods --all-namespaces -o wide"
+
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "helm init --client-only"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "helm repo list"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "helm repo update"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "helm list"
+
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "usermod -aG docker foundry" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "docker ps" --become --become-user=root
+
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m copy -a "src=~/seba-control-repo/scripts/bashrc dest=~/voltha-bashrc"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "cat ~/voltha-bashrc >> ~/.bashrc"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "reboot" --become --become-user=root
+
+

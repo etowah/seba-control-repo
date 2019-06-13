@@ -1,0 +1,24 @@
+
+ssh-keygen -t rsa
+declare -a IPS=(10.64.1.192 10.64.1.145 10.64.1.123)
+for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh foundry@$i 'mkdir -p ~/.ssh/; cat >> ~/.ssh/authorized_keys'; done
+
+cp -a ~/seba-control-repo/seba-pod-ca ~/
+cd ~/seba-pod-ca/
+mkdir -p issued
+mkdir -p ca/private
+mkdir -p ca/newcerts
+touch ca/index.txt
+echo 00 > ca/serial
+openssl req -config seba-pod-ca-selfsign.cnf -new -newkey rsa:4096 -nodes -keyout ca/private/ca.key -out ca/ca.csr
+openssl ca -config seba-pod-ca-certauth.cnf -out ca/ca.crt -days 3650 -keyfile ca/private/ca.key -selfsign -extensions v3_ca -infiles ca/ca.csr
+openssl req -config docker-repo.cnf -new -newkey rsa:4096 -nodes -keyout issued/docker-repo.key -out issued/docker-repo.csr
+openssl ca -config seba-pod-ca-certauth.cnf -keyfile ca/private/ca.key -cert ca/ca.crt -policy policy_anything -days 3650 -in issued/docker-repo.csr -out issued/docker-repo.crt
+sudo cp ~/seba-pod-ca/ca/ca.crt /etc/pki/ca-trust/source/anchors/
+sudo update-ca-trust
+
+sudo cp ~/seba-pod-ca/issued/docker-repo.key /var/docker-persist/docker-registry/certs
+sudo cp ~/seba-pod-ca/issued/docker-repo.crt /var/docker-persist/docker-registry/certs
+sudo systemctl start docker-repo
+sudo systemctl enable docker-repo
+

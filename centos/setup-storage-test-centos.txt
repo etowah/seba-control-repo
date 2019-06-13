@@ -1,0 +1,26 @@
+sudo ceph auth ls
+sudo ceph auth get-key 
+sudo ceph auth get-key client.admin | base64
+kubectl get secret -n rbd-provisioner -o yaml
+kubectl get sc rbd -o yaml
+
+sudo ceph osd lspools
+sudo rados df
+
+sudo ceph osd pool create kube 64
+sudo rbd pool init kube
+
+sudo ceph osd lspools
+sudo rados df
+
+sudo ceph osd pool get kube pg_num
+sudo ceph osd pool get kube size
+sudo ceph -s
+
+# test
+helm install --name test-mysql stable/mysql --set persistence.storageClass=rbd
+
+kubectl get pvc -o yaml
+kubectl get pv -o yaml
+sudo ceph -s
+
