@@ -19,6 +19,9 @@ ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "yum instal
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "date" --become --become-user=root
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "ntpq -p" --become --become-user=root
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "lsblk" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "sysctl -w vm.max_map_count=262144" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "echo 'vm.max_map_count=262144' >> /etc/sysctl.conf" --become --become-user=root
+
 
 cd ~/
 mkdir ceph-cluster
