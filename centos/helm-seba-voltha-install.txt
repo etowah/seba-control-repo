@@ -24,6 +24,8 @@ helm install -n etcd-operator stable/etcd-operator --version 0.8.0
 ## wait for etcdoperator crd
 kubectl get crd
 
+## wait for 3 zookeepers and 3 kafka to save on some voltha retry timing
+
 helm upgrade -i voltha charts/voltha --set freeradius.enabled=false --set images.vcore.repository=docker-repo.dev.atl.foundry.att.com:5000/nokia/voltha-voltha --set images.vcore.tag=nokia-1.6.6
 helm upgrade -i onos charts/onos --set images.onos.repository=voltha/voltha-onos --set images.onos.tag=2.0.0
 
