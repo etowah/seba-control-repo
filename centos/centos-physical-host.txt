@@ -1,4 +1,5 @@
 
+sudo bash
 yum update
 yum install bridge-utils bind-utils sysstat
 
@@ -38,12 +39,13 @@ vi /etc/fstab
 mkdir -p /var/lib/docker
 mount /var/lib/docker
 
+visudo
+# make wheel NOPASSWD
 
+
+## exit sudo, be the local user
 mkdir .ssh
 chmod 700 .ssh
 vi .ssh/authorized_keys
 chmod 600 .ssh/authorized_keys 
-
-visudo
-# make wheel NOPASSWD
 
