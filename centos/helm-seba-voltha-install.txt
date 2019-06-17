@@ -1,4 +1,11 @@
 
+mkdir charts
+cd charts/
+tar -zxvf ../altiplano-solution-19.3-REL-0221.tgz
+tar -zxvf ../altiplano-volumeclaims-19.3-REL-0221.tgz
+tar -zxvf ../voltha-1.0.4-nodeportfix.tgz
+tar -zxvf ../onos-1.1.0.tgz
+
 helm repo add incubator https://kubernetes-charts-incubator.storage.googleapis.com/
 helm repo update
 
@@ -14,7 +21,8 @@ helm install --version 0.8.8 \
 
 helm install -n etcd-operator stable/etcd-operator --version 0.8.0
 
-## wait for crd
+## wait for etcdoperator crd
+kubectl get crd
 
 helm upgrade -i voltha charts/voltha --set freeradius.enabled=false --set images.vcore.repository=docker-repo.dev.atl.foundry.att.com:5000/nokia/voltha-voltha --set images.vcore.tag=nokia-1.6.6
 helm upgrade -i onos charts/onos --set images.onos.repository=voltha/voltha-onos --set images.onos.tag=2.0.0

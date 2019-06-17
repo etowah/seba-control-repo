@@ -1,0 +1,13 @@
+helm upgrade -i altiplano-pvc charts/altiplano-volumeclaims \
+--set global.persistence=true \
+--version 19.3-REL-0221
+
+
+helm upgrade -i altiplano charts/altiplano-solution \
+--set global.registry=docker-repo.dev.atl.foundry.att.com:5000/nokia \
+--set global.persistence=true \
+--set tags.premium=true \
+--set global.K8S_PUBLIC_IP=10.64.1.192 \
+--set tags.infra=true \
+--version 19.3-REL-0221
+
