@@ -1,0 +1,49 @@
+
+yum update
+yum install bridge-utils bind-utils sysstat
+
+# if installing vm host
+yum install qemu-kvm virt-manager virt-install libvirt
+
+# clean up libvirt
+systemctl enable libvirtd
+systemctl start libvirtd
+virsh net-destroy default
+virsh net-undefine default
+virsh list --all
+sudo usermod -aG libvirt foundry
+
+
+# setup mgmtbr, useful for containers, vm, netns later
+cd /etc/sysconfig/network-scripts/
+vi ifcfg-mgmtbr
+vi ifcfg-eno1
+
+# stop this from breaking things
+systemctl stop firewalld
+systemctl disable firewalld
+
+
+# prep docker partitions
+parted /dev/nvme0n1 --script mkpart primary xfs 0 100%
+parted /dev/nvme0n1 --script set 1 lvm on
+parted /dev/nvme0n1 --script print
+
+vgcreate images /dev/nvme0n1p1
+lvcreate -l 100%FREE -n docker_images images
+mkfs.xfs /dev/mapper/images-docker_images 
+
+vi /etc/fstab
+# /dev/mapper/images-docker_images	/var/lib/docker	xfs	defaults 	0	0
+mkdir -p /var/lib/docker
+mount /var/lib/docker
+
+
+mkdir .ssh
+chmod 700 .ssh
+vi .ssh/authorized_keys
+chmod 600 .ssh/authorized_keys 
+
+visudo
+# make wheel NOPASSWD
+
