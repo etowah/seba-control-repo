@@ -26,7 +26,7 @@ systemctl disable firewalld
 
 
 # prep docker partitions
-parted /dev/nvme0n1 --script mkpart primary xfs 0 100%
+parted /dev/nvme0n1 --script mkpart primary xfs 0% 100%
 parted /dev/nvme0n1 --script set 1 lvm on
 parted /dev/nvme0n1 --script print
 

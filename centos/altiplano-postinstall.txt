@@ -1,0 +1,56 @@
+# scp keys/certs to each host
+
+# figure out where each pv is and load certs and fix permissions
+
+
+
+kubectl logs altiplano-altiplano-webdav-0
+kubectl describe pod altiplano-altiplano-webdav-0
+kubectl get pvc webdav-certificates-pvclaim
+kubectl get pv pvc-362612a3-914a-11e9-8276-ecb1d785dcf2 -o yaml
+
+# find host and as root:
+mount |grep  kubernetes-dynamic-pvc-3be2ea40-914a-11e9-a62e-fe10a72e12a5
+cd /var/lib/kubelet/plugins/kubernetes.io/rbd/mounts/kube-image-kubernetes-dynamic-pvc-3be2ea40-914a-11e9-a62e-fe10a72e12a5
+cp /home/foundry/altiplano.dev.atl.foundry.att.com.crt server.crt
+cp /home/foundry/altiplano.dev.atl.foundry.att.com.key server.key
+
+
+
+kubectl logs altiplano-altiplano-kibanakcproxy-6fd7cc6db9-mz8cq
+kubectl describe pod altiplano-altiplano-kibanakcproxy-6fd7cc6db9-mz8cq
+kubectl get pvc kcproxykibana-certificates-pvclaim
+kubectl get pv pvc-36191ed0-914a-11e9-8276-ecb1d785dcf2 -o yaml
+
+# find host and as root:
+mount |grep kubernetes-dynamic-pvc-384f6038-914a-11e9-a62e-fe10a72e12a5
+cd /var/lib/kubelet/plugins/kubernetes.io/rbd/mounts/kube-image-kubernetes-dynamic-pvc-384f6038-914a-11e9-a62e-fe10a72e12a5
+cp /home/foundry/altiplano.dev.atl.foundry.att.com.jks keycloak.jks
+
+
+
+
+kubectl logs altiplano-altiplano-grafanakcproxy-b76f598b7-tjgqs
+kubectl describe pod altiplano-altiplano-grafanakcproxy-b76f598b7-tjgqs
+kubectl get pvc kcproxygrafana-certificates-pvclaim
+kubectl get pv pvc-3616fe99-914a-11e9-8276-ecb1d785dcf2 -o yaml
+
+# find host and as root:
+mount |grep kubernetes-dynamic-pvc-384f6038-914a-11e9-a62e-fe10a72e12a5
+cd /var/lib/kubelet/plugins/kubernetes.io/rbd/mounts/kube-image-kubernetes-dynamic-pvc-384f6038-914a-11e9-a62e-fe10a72e12a5
+cp /home/foundry/altiplano.dev.atl.foundry.att.com.jks keycloak.jks
+
+
+
+
+kubectl logs altiplano-altiplano-elasticsearch-0
+kubectl describe pod altiplano-altiplano-elasticsearch-0
+kubectl get pvc elasticsearch-pvclaim
+kubectl get pv pvc-360d0924-914a-11e9-8276-ecb1d785dcf2 -o yaml
+
+# find host and as root:
+mount |grep kubernetes-dynamic-pvc-362a052e-914a-11e9-a62e-fe10a72e12a5
+cd /var/lib/kubelet/plugins/kubernetes.io/rbd/mounts/kube-image-kubernetes-dynamic-pvc-362a052e-914a-11e9-a62e-fe10a72e12a5
+chmod 777 .
+
+

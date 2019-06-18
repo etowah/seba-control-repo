@@ -1,0 +1,14 @@
+kubectl scale statefulsets altiplano-altiplano-opentsdb --replicas=0
+
+sudo rbd map -p kube kubernetes-dynamic-pvc-d9554578-8e2c-11e9-b19b-36107624871d --name client.admin
+
+# Prints rbd device created
+/dev/rbd2
+
+sudo mount /dev/rbd2 /mnt
+sudo umount /mnt
+
+sudo rbd unmap -p kube kubernetes-dynamic-pvc-d9554578-8e2c-11e9-b19b-36107624871d --name client.admin
+
+kubectl scale statefulsets altiplano-altiplano-opentsdb --replicas=1
+
