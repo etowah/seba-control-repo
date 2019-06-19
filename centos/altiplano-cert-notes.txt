@@ -1,0 +1,46 @@
+
+# From control vm create certs.  Need to install keytool in base image!
+
+sudo yum install java-1.8.0-openjdk
+cd seba-pod-ca/
+
+cat << EOF > altiplano.nwnn.foundry.att.com.cnf
+[ req ]
+default_bits            = 4096
+default_md              = sha1
+distinguished_name      = req_distinguished_name
+prompt                  = no
+string_mask             = nombstr
+req_extensions          = v3_req
+x509_extensions         = v3_req
+
+[ req_distinguished_name ]
+countryName             = US
+stateOrProvinceName     = GA
+localityName            = Atlanta
+organizationName        = AT&T Foundry Nokia Altiplano Server Cert
+commonName              = altiplano.nwnn.foundry.att.com
+emailAddress            = mj3580@att.com
+
+[ v3_req ]
+basicConstraints        = CA:FALSE
+subjectAltName          = @alt_names
+
+[ alt_names ]
+DNS.1 = altiplano.nwnn.foundry.att.com
+DNS.2 = 10.242.11.211
+DNS.3 = 10.242.11.212
+DNS.4 = 10.242.11.213
+EOF
+
+openssl req -config altiplano.nwnn.foundry.att.com.cnf -new -newkey rsa:4096 -nodes -keyout issued/altiplano.nwnn.foundry.att.com.key -out issued/altiplano.nwnn.foundry.att.com.csr
+openssl ca -config seba-pod-ca-certauth.cnf -keyfile ca/private/ca.key -cert ca/ca.crt -policy policy_anything -days 3650 -in issued/altiplano.nwnn.foundry.att.com.csr -out issued/altiplano.nwnn.foundry.att.com.crt
+openssl pkcs12 -export -in issued/altiplano.nwnn.foundry.att.com.crt -inkey issued/altiplano.nwnn.foundry.att.com.key -out issued/altiplano.nwnn.foundry.att.com.p12 -name altiplano.nwnn.foundry.att.com -CAfile ca/ca.crt -caname seba-pod-ca
+keytool -importkeystore -destkeystore issued/altiplano.nwnn.foundry.att.com.jks -srckeystore issued/altiplano.nwnn.foundry.att.com.p12 -srcstoretype PKCS12 -alias altiplano.nwnn.foundry.att.com
+
+
+# Copy to each host. TODO run with ansible
+
+scp issued/altiplano.nwnn.foundry.att.com.crt issued/altiplano.nwnn.foundry.att.com.key issued/altiplano.nwnn.foundry.att.com.jks foundry@nwnn-seba-node-01:~/
+scp issued/altiplano.nwnn.foundry.att.com.crt issued/altiplano.nwnn.foundry.att.com.key issued/altiplano.nwnn.foundry.att.com.jks foundry@nwnn-seba-node-02:~/
+scp issued/altiplano.nwnn.foundry.att.com.crt issued/altiplano.nwnn.foundry.att.com.key issued/altiplano.nwnn.foundry.att.com.jks foundry@nwnn-seba-node-03:~/
