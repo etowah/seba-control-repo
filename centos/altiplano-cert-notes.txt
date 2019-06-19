@@ -35,8 +35,9 @@ EOF
 
 openssl req -config altiplano.nwnn.foundry.att.com.cnf -new -newkey rsa:4096 -nodes -keyout issued/altiplano.nwnn.foundry.att.com.key -out issued/altiplano.nwnn.foundry.att.com.csr
 openssl ca -config seba-pod-ca-certauth.cnf -keyfile ca/private/ca.key -cert ca/ca.crt -policy policy_anything -days 3650 -in issued/altiplano.nwnn.foundry.att.com.csr -out issued/altiplano.nwnn.foundry.att.com.crt
+
 openssl pkcs12 -export -in issued/altiplano.nwnn.foundry.att.com.crt -inkey issued/altiplano.nwnn.foundry.att.com.key -out issued/altiplano.nwnn.foundry.att.com.p12 -name altiplano.nwnn.foundry.att.com -CAfile ca/ca.crt -caname seba-pod-ca
-keytool -importkeystore -destkeystore issued/altiplano.nwnn.foundry.att.com.jks -srckeystore issued/altiplano.nwnn.foundry.att.com.p12 -srcstoretype PKCS12 -alias altiplano.nwnn.foundry.att.com
+keytool -importkeystore -destkeystore issued/altiplano.nwnn.foundry.att.com.jks -srckeystore issued/altiplano.nwnn.foundry.att.com.p12 -srcstoretype pkcs12 -alias altiplano.nwnn.foundry.att.com -deststoretype pkcs12
 
 
 # Copy to each host. TODO run with ansible
