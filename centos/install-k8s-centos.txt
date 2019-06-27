@@ -75,6 +75,8 @@ ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "docker ps"
 
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m copy -a "src=~/seba-control-repo/scripts/bashrc dest=~/voltha-bashrc"
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "cat ~/voltha-bashrc >> ~/.bashrc"
-ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "reboot" --become --become-user=root
+
+# reboot one host at a time, verify k8s/ceph come back clean before starting next.
+#ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "reboot" --become --become-user=root
 
 
