@@ -1,0 +1,43 @@
+#
+# SEBA/VOLTHA Application Installation using Helm
+#
+# Installs helm required helm charts and subsequent docker images
+#
+
+# update charts repositories to latest
+helm repo update
+
+# install kafka
+helm install --version 0.13.3 \
+             --set configurationOverrides."offsets\.topic\.replication\.factor"=3 \
+             --set configurationOverrides."log\.retention\.hours"=4 \
+             --set configurationOverrides."log\.message\.timestamp\.type"="LogAppendTime" \
+             --set replicas=3 \
+             --set persistence.enabled=true \
+             --set persistence.size=5Gi \
+             --set zookeeper.replicaCount=3 \
+             --set zookeeper.persistence.enabled=true \
+             -n cord-kafka incubator/kafka
+
+# install etcd operator
+helm install -n etcd-operator stable/etcd-operator --version 0.8.3
+# wait for etcd-operator crd to be created
+kubectl get crd
+
+
+# Install voltha
+helm install -n voltha onf/voltha --version 1.0.6
+
+# Install onos
+helm install -n onos onf/onos --set images.onos.repository=voltha/voltha-onos --set images.onos.tag=2.1.0
+
+kubectl get pods --all-namespaces -o wide
+
+
+# check voltha cli and onos cli for apps to load.  This can take 2 or 3 minutes
+
+# Inject static olt config, static sadis config and radius server config into onos once aaa app is loaded. 
+curl -v --user onos:rocks -X POST -H "Content-Type: application/json" http://lab-kube-01.cluster.local:30120/onos/v1/network/configuration/ -d @network-config.json
+
+
+# Done ONU/RG should be able to pass traffic.

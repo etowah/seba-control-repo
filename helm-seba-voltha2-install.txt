@@ -1,0 +1,36 @@
+#
+# SEBA/VOLTHA Application Installation using Helm
+#
+# Installs helm required helm charts and subsequent docker images
+#
+
+# install kafka
+helm install --version 0.13.3 \
+             --set configurationOverrides."offsets\.topic\.replication\.factor"=3 \
+             --set configurationOverrides."log\.retention\.hours"=4 \
+             --set configurationOverrides."log\.message\.timestamp\.type"="LogAppendTime" \
+             --set replicas=3 \
+             --set persistence.enabled=true \
+             --set persistence.size=5Gi \
+             --set zookeeper.replicaCount=3 \
+             --set zookeeper.persistence.enabled=true \
+             -n cord-kafka incubator/kafka
+
+# install etcd operator.  wait for crd
+helm install -n etcd-operator stable/etcd-operator --version 0.8.3
+
+# install voltha 2 with chosen adapters
+helm install -n voltha onf/voltha -f voltha-values.yaml
+helm install -n openolt onf/voltha-adapter-openolt -f voltha-values.yaml
+helm install -n openonu onf/voltha-adapter-openonu -f voltha-values.yaml
+
+# install onos
+helm install -n onos onf/onos --set images.onos.repository=voltha/voltha-onos --set images.onos.tag=2.2.0
+
+# needed for vcli and voltctl to work
+kubectl port-forward --address 0.0.0.0 service/voltha-cli 30110:5022 &
+kubectl port-forward --address 0.0.0.0 service/voltha-api 30655:55555 &
+
+# inject olt/onu, radius config
+curl -v --user onos:rocks -X POST -H "Content-Type: application/json" http://lab-kube-01.cluster.local:30120/onos/v1/network/configuration/ -d @network-config.json
+
