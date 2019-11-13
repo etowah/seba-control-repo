@@ -1,12 +1,12 @@
 #
-# Instructions for an offline Ubuntu 16.04 installation 
+# Instructions for an Ubuntu 16.04 KVM installation 
 #
 # Capable of running virtual machines installed with virt-install or virt-manager
 #
 
 
 # Install Ubuntu 16.04 using iso setup on usb drive.  
-# Partitions as shown in pic, DO NOT SETUP SWAP.  Setup a non-root-user, sdn used below and in packaged qcow. 
+# Partitions as shown in pic, DO NOT SETUP SWAP.  Setup a non-root-user, foundry used below.
 # node1, node2, node3 hostnames 
 #
 # Software to install:
@@ -17,20 +17,17 @@
 
 
 # Login set passwordless sudo.  add to bottom of file!
-
 export EDITOR=vi; visudo
 ...
-sdn ALL=(ALL:ALL) NOPASSWD:ALL
+foundry ALL=(ALL:ALL) NOPASSWD:ALL
 
 
-# Logout/Login, verify sdn user passwordless root.  Become and stay root for duration of host configuration
-
+# Logout/Login, verify foundry user passwordless root.  Become and stay root for duration of host configuration
 sudo bash
 
 
-# Setup/reconfigure host networking.  Best done via console
+# Setup/reconfigure host networking.
 # Remove libvirt default networks
-
 virsh net-destroy default
 virsh net-undefine default
 
@@ -40,58 +37,39 @@ virsh net-undefine default
 # accordingly.  
 
 # As an example see k8s-host-interfaces reference in seba-control-repo tarball
-cat ~/seba-control-repo/mgmtvm/k8s-host-interfaces 
+cat ~/seba-control-repo/offline-setup/mgmtvm/k8s-host-interfaces 
 vi /etc/network/interfaces   # have to figure out based on oob switch vlan config and agg switch vlan config
-
 
 
 # Apply new network config  WARNING, this can cut off your legs if /etc/network/interfaces is 
 # incorrect and you are not on console!
-
 ifdown -a; ifup -a
 
 
-# Verify network connectivity.  SSH in now that host is reachable via network
-# Copy over artifacts from external source/thumb drive to /home/sdn
-
-# Extract apt-repo and seba-control-repo tarballs in /home/sdn
-
-cd ~/
-tar -zxvf apt-repo.tgz 
-tar -zxvf seba-control-repo.tgz
-
-
-# Install script to allow bridge traffic through iptables.  Needed as later docker install
-# adds restrictive iptables rules
-
-cp ~/seba-control-repo/mgmtvm/allow-mgmtbr.sh /usr/local/bin/
-chmod 755 /usr/local/bin/allow-mgmtbr.sh
-/usr/local/bin/allow-mgmtbr.sh
-
-
-# Replace /etc/apt/sources.list for directory based apt repo
-
-mv /etc/apt/sources.list /etc/apt/sources.list.orig
-echo "deb file:/home/sdn/repo xenial stable" > /etc/apt/sources.list
-apt-key add /home/sdn/repo/key 
-apt update
-
-
 # Install virtinst and python-minimal
-
 apt install virtinst python-minimal
 
-
 # Create default libvirt vm storage pool and creat new mgmt vm.
-
 ~/seba-control-repo/scripts/create-default-pool.sh
-
 
 # Reboot host and verify networking restarts properly
 
 # Confirm host has access to pod mgmt network.  Confirm ssh access.  Also confirm libvirt vm list is empty
-
 virsh vol-list default
 virsh list --all
 
-# At this point repeat setting up physical hosts or install the mgmtgm.  See setup-mgmtvm.txt
+
+# prep docker partitions. replace nvme0n1 with disk dedicated to docker
+parted /dev/nvme0n1 --script mkpart primary xfs 0% 100%
+parted /dev/nvme0n1 --script set 1 lvm on
+parted /dev/nvme0n1 --script print
+
+vgcreate images /dev/nvme0n1p1
+lvcreate -l 100%FREE -n docker_images images
+mkfs.xfs /dev/mapper/images-docker_images
+
+vi /etc/fstab
+# /dev/mapper/images-docker_images      /var/lib/docker xfs     defaults        0       0
+mkdir -p /var/lib/docker
+mount /var/lib/docker
+

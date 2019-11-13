@@ -1,18 +1,11 @@
 #
 # Steps to build a control-repo VM
 #
-# Resulting qcow saved and imported into offline pod for use later
+# Resulting qcow saved and imported into pod for use later
 # Done with internet connectivity. qcow and any tgz are saved to portable drive or laptop
 #
 
 # Create a vm with a 100GB virtual disk.  
-
-# Update to current
-sudo apt update
-sudo apt dist-upgrade
-sudo reboot
-sudo apt autoremove
-
 
 # install docker repo
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
@@ -30,33 +23,35 @@ sudo mkdir /var/www/html/k8s
 sudo systemctl start apache2
 
 
-# Clone seba-control-repo while setting up.
-cd ~/
-git clone https://github.com/etowah/seba-control-repo.git
-
 ## Install current version of pip, needed to get current ansible
 cd ~/
 wget https://bootstrap.pypa.io/get-pip.py
 sudo python get-pip.py
-sudo pip -V
+pip -V
+pip list
 
-## Install tagged version of kubespray 2.7.0 thats part of seba-control-repo git
-cd ~/
-curl -o kubespray-v2.7.0.tar.gz https://codeload.github.com/kubernetes-sigs/kubespray/tar.gz/v2.7.0
-tar -zxvf kubespray-v2.7.0.tar.gz
+sudo pip install ceph-deploy
+ceph-deploy --help
 
-## Install kubespray requirements.  gets ansible and installs in /usr/local
-cd ~/kubespray-2.7.0/
+curl -o kubespray-v2.10.3.tar.gz https://codeload.github.com/kubernetes-sigs/kubespray/tar.gz/v2.10.3
+tar -zxvf kubespray-v2.10.3.tar.gz
+cd kubespray-2.10.3/
+
+vi requirements.txt
+##
+## change ansible to pin version 2.7.11
+##  ansible==2.7.11
+##
 sudo pip install -r requirements.txt
 
-# install helm client
-cd ~/
-curl -o helm-v2.11.0-linux-amd64.tar.gz https://storage.googleapis.com/kubernetes-helm/helm-v2.11.0-linux-amd64.tar.gz
-tar -zxvf helm-v2.11.0-linux-amd64.tar.gz
+
+wget https://get.helm.sh/helm-v2.13.1-linux-amd64.tar.gz
+tar -zxvf helm-v2.13.1-linux-amd64.tar.gz
 sudo cp linux-amd64/helm /usr/local/bin/
 
+
 # allow non-root to run docker
-sudo usermod -aG docker non-root-user
+sudo usermod -aG docker foundry
 
 # install att-foundry-atlanta-ca.crt
 sudo cp ~/seba-control-repo/att-foundry-atlanta-ca.crt /usr/local/share/ca-certificates/
@@ -70,21 +65,18 @@ sudo mkdir -p /var/docker-persist/docker-registry/certs
 sudo systemctl daemon-reload
 sudo systemctl restart docker
 sudo systemctl start docker-repo
-sleep 20
 sudo systemctl stop docker-repo
 
 # verify registry image loaded
 sudo docker images |grep registry
 
-# remove seba-control-repo checkout as it will be provided and versioned separately
-cd ~/
-rm -rf seba-control-repo
 
+# if you want to save the qcow generated from this:
+#
 # shutdown vm and gather qcow file. 5GB
-sudo shutdown -h now
+# sudo shutdown -h now
 
 # on physical host use virt-sparsify to shrink unused space in qcow 
 # virt-sparsify --in-place seba-control-repo-vX.qcow2
 
 # Copy qcow from physical host and keep for offline installation of pod.  Qcow file is typically in /var/lib/libvirt/images/
-# See package-artifacts.txt for other software and images to gather
