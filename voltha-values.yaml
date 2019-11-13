@@ -1,0 +1,23 @@
+private_kafka_cluster: false
+use_go: true
+
+
+defaults:
+  log_level: "DEBUG"
+  image_tag: '2.2.1'
+  image_org: "voltha/"
+
+
+services:
+  kafka:
+    adapter:
+      service: cord-kafka.default.svc.cluster.local
+      port: 9092
+    cluster:
+      service: cord-kafka.default.svc.cluster.local
+      port: 9092
+
+  etcd:
+    service: voltha-etcd-cluster-client.default.svc.cluster.local
+    port: 2379
+
