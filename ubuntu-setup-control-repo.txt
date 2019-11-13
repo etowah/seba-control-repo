@@ -1,60 +1,26 @@
 #
-# Setup seba control repo in an offline pod
+# Setup seba control repo in a pod
 #
 # Sets up POD apt, docker, helm, and oar repositories. 
 #
-# Done offline with no internet. 
-# Could also be run while packaging hosts with internet available.
 #
 
-# Login to a physical host that already has libvirt and virtinst installed, networking and bridging setup
-# Become root on physical host.  Import the versioned seba-control-repo qcow image template.
-
-sudo bash
-
-~/seba-control-repo/scripts/vol-import.sh seba-control-repo-vX.qcow2 seba-control-repo
-
-virsh autostart seba-control-repo
-
-
-# Console login to to newly started seba-control-repo and verify network connectivity. 
-# The built in username is sdn 
-
-virsh console seba-control-repo
-ip addr
-ping 10.242.11.1
-
-# exit and ssh into seba-control-repo
-
-
-
-# Ensure mgmt vm and dns ready, see setup-mgmtvm.txt.
-# repo.seba.local should be added to your POD's local dns server.
-
-# login to seba-control-repo vm as a "non-root-user". sdn user setup by default in template qcow image 
-
-# Make sure whatever your "non-root-user" user exists on seba-control-repo and
-# all 3 destination node hosts that will have k8s installed.  seba-control-repo already has a built
-# in non-root-user called sdn.
-
-# Also make sure that on all 3 destination node hosts the non-root-user can 
+# Make sure that on all 3 destination node hosts the non-root-user can 
 # sudo to root without password.  The following must be the bottom of /etc/sudoers 
 # non-root-user ALL=(ALL:ALL) NOPASSWD:ALL
 
-# For example on each host using a user called "sdn" as the non-root-user:
-# useradd -m -d /home/sdn -s /bin/bash sdn
-# passwd sdn
+# For example on each host using a user called "foundry" as the non-root-user:
+# useradd -m -d /home/foundry -s /bin/bash foundry
+# passwd foundry
 # export EDITOR=vi; visudo
 # ...
-# sdn ALL=(ALL:ALL) NOPASSWD:ALL
-
-# the seba-control-repo vm qcow file uses the sdn user
+# foundry ALL=(ALL:ALL) NOPASSWD:ALL
 
 
 
 # SSH and run from the seba-control-repo vm instance...
 
-# Generate needed SSH keyed authentication as non-root-user (sdn). needed for ansible
+# Generate needed SSH keyed authentication as non-root-user (foundry). needed for ansible
 cd ~/
 ssh-keygen -t rsa
 
@@ -105,50 +71,3 @@ sudo cp ~/seba-pod-ca/issued/docker-repo.crt /var/docker-persist/docker-registry
 sudo systemctl start docker-repo
 sudo systemctl enable docker-repo
 
-
-# Fill docker repo with images.  Unpack tarball on external storage if needed.  
-# Possibly via usb passthrough on host or nfs?  use virsh hotplug, similar to this:
-# https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/virtualization_administration_guide/sect-managing_guest_virtual_machines_with_virsh-attaching_and_updating_a_device_with_virsh
-# Mount to /mnt within guest vm. where /mnt/docker-images lists the image tar files.  
-
-# Or if you can scp in the 30GB tarfile, unpack and use with the load-docker-images script:
-cd ~/
-tar -xvf docker-images.tar
-cd ~/seba-control-repo/
-scripts/load-docker-images.sh ~/docker-images/
-scripts/populate-docker-repo.sh seba-imagelist.txt
-scripts/populate-docker-repo.sh kubespray-imagelist.txt
-
-# Alternatively if control-repo vm happens to have internet connectivity (for example system being prepared then shipped)
-# you can add skip the load-docker-images and just run populate-docker-repo with a 'pull' argument.
-cd ~/seba-control-repo/
-scripts/populate-docker-repo.sh seba-imagelist.txt pull
-scripts/populate-docker-repo.sh kubespray-imagelist.txt pull
-
-
-# Setup helm repository.  Pull from external storage or scp copy in
-cd ~/
-tar -zxvf helm-charts.tgz
-sudo cp ~/charts/* /var/www/html/charts/
-sudo helm repo index --url http://repo.seba.local/charts/ /var/www/html/charts/
-
-
-# Setup onos oar app on web server. Pull from external storage or scp copy in
-cd ~/
-tar -zxvf onos-oar.tgz
-sudo cp ~/oar/* /var/www/html/oar/
-
-
-# Unpack apt repository and deb files.  Pull from external storage or scp copy in
-cd ~/
-tar -zxvf apt-repo.tgz
-sudo cp -a ~/repo/* /var/www/html/repo/
-
-
-# Unpack k8s kubespray package files. Pull from external storage or scp copy in
-cd ~/
-tar -zxvf k8s-files.tgz
-sudo cp -a ~/k8s/* /var/www/html/k8s/
-
-
-# From here the repositories are ready and k8s can be installed using the kubespray method.  See install-k8s.txt
