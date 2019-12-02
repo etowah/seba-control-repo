@@ -1,6 +1,6 @@
 {
   "devices": {
-    "of:000000000a4001ce": {
+    "of:000000000a4001d0": {
       "accessDevice": {
         "uplink": "1048576",
         "vlan": "1"
@@ -42,62 +42,40 @@
         },
         "entries": [
           {
-            "id": "EC1721000221",
+            "id": "EC1829000885",
             "uplinkPort": 1048576,
-            "hardwareIdentifier": "00:00:0a:40:01:ce",
-            "ipAddress": "10.64.1.206",
+            "hardwareIdentifier": "00:00:0a:40:01:d0",
+            "ipAddress": "10.64.1.208",
             "nasId": "ATLEDGEVOLT1"
           },
           {
             "id": "ALPHe3d1cf57-1",
-            "cTag": 20,
-            "sTag": 11,
+            "cTag": 21,
+            "sTag": 13,
             "nasPortId": "PON 1/1/3/1:2.1.1",
             "circuitId": "PON 1/1/3/1:2.1.1-CID",
             "remoteId": "ATLEDGEVOLT1-RID",
             "technologyProfileId": 64,
-            "upstreamBandwidthProfile": "Default",
-            "downstreamBandwidthProfile": "Default"
+            "upstreamBandwidthProfile": "User_Bandwidth1",
+            "downstreamBandwidthProfile": "User_Bandwidth2"
           },
           {
-            "id": "ALPHe3d1cf57-2",
+            "id": "ALCLfa5b91ba-1",
             "cTag": 20,
-            "sTag": 11,
-            "nasPortId": "PON 1/1/3/1:2.1.1",
-            "circuitId": "PON 1/1/3/1:2.1.1-CID",
+            "sTag": 13,
+            "nasPortId": "PON 1/1/3/1:4.1.1",
+            "circuitId": "PON 1/1/3/1:4.1.1-CID",
             "remoteId": "ATLEDGEVOLT1-RID",
             "technologyProfileId": 64,
-            "upstreamBandwidthProfile": "Default",
-            "downstreamBandwidthProfile": "Default"
+            "upstreamBandwidthProfile": "User_Bandwidth2",
+            "downstreamBandwidthProfile": "User_Bandwidth3"
           },
           {
-            "id": "ALPHe3d1cf57-3",
-            "cTag": 20,
-            "sTag": 11,
-            "nasPortId": "PON 1/1/3/1:2.1.1",
-            "circuitId": "PON 1/1/3/1:2.1.1-CID",
-            "remoteId": "ATLEDGEVOLT1-RID",
-            "technologyProfileId": 64,
-            "upstreamBandwidthProfile": "Default",
-            "downstreamBandwidthProfile": "Default"
-          },
-          {
-            "id": "ALPHe3d1cf57-4",
-            "cTag": 20,
-            "sTag": 11,
-            "nasPortId": "PON 1/1/3/1:2.1.1",
-            "circuitId": "PON 1/1/3/1:2.1.1-CID",
-            "remoteId": "ATLEDGEVOLT1-RID",
-            "technologyProfileId": 64,
-            "upstreamBandwidthProfile": "Default",
-            "downstreamBandwidthProfile": "Default"
-          },
-          {
-            "id": "ALPHe3d1cf57-5",
-            "cTag": 20,
-            "sTag": 11,
-            "nasPortId": "PON 1/1/3/1:2.1.1",
-            "circuitId": "PON 1/1/3/1:2.1.1-CID",
+            "id": "ALPHe32e82df-1",
+            "cTag": 25,
+            "sTag": 13,
+            "nasPortId": "PON 1/1/3/1:10.1.1",
+            "circuitId": "PON 1/1/3/1:10.1.1-CID",
             "remoteId": "ATLEDGEVOLT1-RID",
             "technologyProfileId": 64,
             "upstreamBandwidthProfile": "Default",
@@ -121,6 +99,30 @@
             "cir": 750000,
             "ebs": 5000,
             "eir": 1000000
+          },
+          {
+            "id": "User_Bandwidth1",
+            "air": 10000000,
+            "cbs": 1000,
+            "cir": 10000,
+            "ebs": 1000,
+            "eir": 20000
+          },
+          {
+            "id": "User_Bandwidth2",
+            "air": 10000000,
+            "cbs": 2000,
+            "cir": 75000,
+            "ebs": 2000,
+            "eir": 100000
+          },
+          {
+            "id": "User_Bandwidth3",
+            "air": 10000000,
+            "cbs": 3000,
+            "cir": 200000,
+            "ebs": 3000,
+            "eir": 400000
           }
         ]
       }

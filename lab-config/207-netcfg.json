@@ -2,7 +2,7 @@
   "devices": {
     "of:000000000a4001cf": {
       "accessDevice": {
-        "uplink": "65536",
+        "uplink": "1048576",
         "vlan": "1"
       },
       "basic": {
@@ -43,7 +43,7 @@
         "entries": [
           {
             "id": "EC1829000886",
-            "uplinkPort": 65536,
+            "uplinkPort": 1048576,
             "hardwareIdentifier": "00:00:0a:40:01:cf",
             "ipAddress": "10.64.1.207",
             "nasId": "ATLEDGEVOLT1"
@@ -116,11 +116,11 @@
         "entries": [
           {
             "id": "Default",
-            "cir": 1000000,
-            "cbs": 1001,
-            "eir": 1002,
-            "ebs": 1003,
-            "air": 1004
+            "air": 10000000,
+            "cbs": 5000,
+            "cir": 750000,
+            "ebs": 5000,
+            "eir": 1000000
           }
         ]
       }
