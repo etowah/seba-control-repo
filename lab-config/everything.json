@@ -31,11 +31,59 @@
         },
         "entries": [
           {
-            "id": "EC1829000885",
+            "id": "EC1721000221",
             "uplinkPort": 1048576,
-            "hardwareIdentifier": "00:00:0a:40:01:d0",
-            "ipAddress": "10.64.1.208",
+            "hardwareIdentifier": "00:00:0a:40:01:ce",
+            "ipAddress": "10.64.1.206",
             "nasId": "ATLEDGEVOLT1"
+          },
+          {
+            "id": "ALCLfa5b915b-1",
+            "nasPortId": "PON 1/1/3/1:1.1.1",
+            "circuitId": "PON 1/1/3/1:1.1.1-CID",
+            "remoteId": "ATLEDGEVOLT1-RID",
+            "uniTagList": [
+              {
+                "ponCTag": 20,
+                "ponSTag": 11,
+                "technologyProfileId": 64,
+                "downstreamBandwidthProfile": "Bronze_Download",
+                "upstreamBandwidthProfile": "Bronze_Upload",
+                "isDhcpRequired": true
+              }
+            ]
+          },
+          {
+            "id": "ALPHe3d1cf57-1",
+            "nasPortId": "PON 1/1/3/1:2.1.1",
+            "circuitId": "PON 1/1/3/1:2.1.1-CID",
+            "remoteId": "ATLEDGEVOLT1-RID",
+            "uniTagList": [
+              {
+                "ponCTag": 21,
+                "ponSTag": 11,
+                "technologyProfileId": 64,
+                "downstreamBandwidthProfile": "Silver_Download",
+                "upstreamBandwidthProfile": "Silver_Upload",
+                "isDhcpRequired": true
+              }
+            ]
+          },
+          {
+            "id": "ALPHe3d1ce3f-1",
+            "nasPortId": "PON 1/1/3/1:3.1.1",
+            "circuitId": "PON 1/1/3/1:3.1.1-CID",
+            "remoteId": "ATLEDGEVOLT1-RID",
+            "uniTagList": [
+              {
+                "ponCTag": 22,
+                "ponSTag": 11,
+                "technologyProfileId": 64,
+                "downstreamBandwidthProfile": "Silver_Download",
+                "upstreamBandwidthProfile": "Silver_Upload",
+                "isDhcpRequired": true
+              }
+            ]
           },
           {
             "id": "ALCLfa5b91ba-1",
@@ -44,11 +92,11 @@
             "remoteId": "ATLEDGEVOLT1-RID",
             "uniTagList": [
               {
-                "ponCTag": 20,
-                "ponSTag": 13,
+                "ponCTag": 23,
+                "ponSTag": 11,
                 "technologyProfileId": 64,
-                "downstreamBandwidthProfile": "Bronze_Download",
-                "upstreamBandwidthProfile": "Bronze_Upload",
+                "downstreamBandwidthProfile": "Gold_Download",
+                "upstreamBandwidthProfile": "Gold_Upload",
                 "isDhcpRequired": true
               }
             ]
@@ -61,10 +109,10 @@
             "uniTagList": [
               {
                 "ponCTag": 25,
-                "ponSTag": 13,
+                "ponSTag": 11,
                 "technologyProfileId": 64,
-                "downstreamBandwidthProfile": "Silver_Download",
-                "upstreamBandwidthProfile": "Silver_Upload",
+                "downstreamBandwidthProfile": "Gold_Download",
+                "upstreamBandwidthProfile": "Gold_Upload",
                 "isDhcpRequired": true
               }
             ]
@@ -77,7 +125,7 @@
             "uniTagList": [
               {
                 "ponCTag": 26,
-                "ponSTag": 13,
+                "ponSTag": 11,
                 "technologyProfileId": 64,
                 "downstreamBandwidthProfile": "Gold_Download",
                 "upstreamBandwidthProfile": "Gold_Upload",
