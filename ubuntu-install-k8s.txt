@@ -27,7 +27,7 @@ cd ~/kubespray-2.10.3/
 
 # Verify ansible can reach 3 worker hosts
 cd ~/kubespray-2.10.3/
-ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "whoami; uname -a" --become --become-user=root
+ansible -i inventory/seba-pod-v2/hosts.ini kube-node -m shell -a "whoami; uname -a" --become --become-user=root
 
 
 
@@ -81,13 +81,13 @@ ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "ceph quoru
 
 
 # Optionally install POD CA cert if you setup a docker registry.  Replace non-root-user with your local username
-ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-pod-ca/ca/ca.crt dest=/usr/local/share/ca-certificates/seba-pod-ca.crt" --become --become-user=root
-ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "update-ca-certificates" --become --become-user=root
+ansible -i inventory/seba-pod-v2/hosts.ini kube-node -m copy -a "src=~/seba-pod-ca/ca/ca.crt dest=/usr/local/share/ca-certificates/seba-pod-ca.crt" --become --become-user=root
+ansible -i inventory/seba-pod-v2/hosts.ini kube-node -m shell -a "update-ca-certificates" --become --become-user=root
 
 #
 # TODO: Fix swapoff in kubespray ansible scripts.  Currently swap must be removed MANUALLY.  Edit /etc/fstab to get rid of.
 #
-ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "swapoff -a" --become --become-user=root
+ansible -i inventory/seba-pod-v2/hosts.ini kube-node -m shell -a "swapoff -a" --become --become-user=root
 
 
 
@@ -109,7 +109,7 @@ vi inventory/seba-pod-v2/group_vars/k8s-cluster/addons.yml
 #
 # Run the ansible kubespray kubernetes installation.  Takes about 12 minutes. 
 cd ~/kubespray-2.10.3/
-ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
+ansible-playbook -i inventory/seba-pod-v2/hosts.ini --become --become-user=root cluster.yml
 
 
 

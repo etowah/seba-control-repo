@@ -37,7 +37,7 @@ for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh non-root-user@$i 'mkdir -p ~/
 10.242.11.3 lab-kube-03
 
 
-# Install versioned seba-control-repo.tgz. Pull from external storage or scp copy in
+# Install versioned seba-control-repo.tgz. Pull from external storage or scp copy in.  Or git pull.
 cd ~/
 tar -zxvf seba-control-repo.tgz 
 
