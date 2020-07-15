@@ -31,10 +31,21 @@ ssh-keygen -t rsa
 declare -a IPS=(10.242.11.1 10.242.11.2 10.242.11.3)
 for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh non-root-user@$i 'mkdir -p ~/.ssh/; cat >> ~/.ssh/authorized_keys'; done
 
+# Add 3 workers to /etc/hosts on ansible/seba-control-repo host
+10.242.11.1 lab-kube-01
+10.242.11.2 lab-kube-02
+10.242.11.3 lab-kube-03
+
 
 # Install versioned seba-control-repo.tgz. Pull from external storage or scp copy in
 cd ~/
 tar -zxvf seba-control-repo.tgz 
+
+
+
+#
+# Below is optional if you want to run a local docker registry
+#
 
 # Generate pod CA key.
 # Generate pod docker-repo key

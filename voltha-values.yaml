@@ -1,12 +1,9 @@
 private_kafka_cluster: false
-use_go: true
-
+private_etcd_cluster: false
 
 defaults:
   log_level: "DEBUG"
-  image_tag: '2.2.1'
-  image_org: "voltha/"
-
+  image_pullPolicy: "Always"
 
 services:
   kafka:
@@ -20,4 +17,3 @@ services:
   etcd:
     service: voltha-etcd-cluster-client.default.svc.cluster.local
     port: 2379
-

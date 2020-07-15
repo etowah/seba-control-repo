@@ -31,7 +31,10 @@ pip -V
 pip list
 
 sudo pip install ceph-deploy
+
+# confirm its there
 ceph-deploy --help
+
 
 curl -o kubespray-v2.10.3.tar.gz https://codeload.github.com/kubernetes-sigs/kubespray/tar.gz/v2.10.3
 tar -zxvf kubespray-v2.10.3.tar.gz
@@ -53,9 +56,10 @@ sudo cp linux-amd64/helm /usr/local/bin/
 # allow non-root to run docker
 sudo usermod -aG docker foundry
 
-# install att-foundry-atlanta-ca.crt
-sudo cp ~/seba-control-repo/att-foundry-atlanta-ca.crt /usr/local/share/ca-certificates/
-sudo update-ca-certificates
+
+#
+# Below is optional if you want to run a docker registry
+# 
 
 # stage docker repo service
 sudo cp ~/seba-control-repo/docker-repo.service /etc/systemd/system/
@@ -69,6 +73,7 @@ sudo systemctl stop docker-repo
 
 # verify registry image loaded
 sudo docker images |grep registry
+
 
 
 # if you want to save the qcow generated from this:

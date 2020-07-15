@@ -4,33 +4,45 @@
 # Installs helm required helm charts and subsequent docker images
 #
 
-# install kafka
-helm install --version 0.13.3 \
-             --set configurationOverrides."offsets\.topic\.replication\.factor"=3 \
-             --set configurationOverrides."log\.retention\.hours"=4 \
-             --set configurationOverrides."log\.message\.timestamp\.type"="LogAppendTime" \
-             --set replicas=3 \
-             --set persistence.enabled=true \
-             --set persistence.size=5Gi \
-             --set zookeeper.replicaCount=3 \
-             --set zookeeper.persistence.enabled=true \
-             -n cord-kafka incubator/kafka
+export ETCDCTL_API=3
+k8sdns=10.233.0.3
 
-# install etcd operator.  wait for crd
-helm install -n etcd-operator stable/etcd-operator --version 0.8.3
+registry="voltha"
 
-# install voltha 2 with chosen adapters
-helm install -n voltha onf/voltha -f voltha-values.yaml
-helm install -n openolt onf/voltha-adapter-openolt -f voltha-values.yaml
-helm install -n openonu onf/voltha-adapter-openonu -f voltha-values.yaml
+# install onos and voltha core
+helm install -n onos onf/onos --version 3.0.1 --set images.onos.repository=${registry}/voltha-onos --set images.onos.tag=4.0.2
+helm install -n voltha onf/voltha --version 2.3.2 -f voltha-values.yaml
 
-# install onos
-helm install -n onos onf/onos --set images.onos.repository=voltha/voltha-onos --set images.onos.tag=2.2.0
+sleep 15
 
-# needed for vcli and voltctl to work
-kubectl port-forward --address 0.0.0.0 service/voltha-cli 30110:5022 &
-kubectl port-forward --address 0.0.0.0 service/voltha-api 30655:55555 &
+# install adapters
+helm install -n openolt onf/voltha-adapter-openolt --version 2.3.2 -f voltha-values.yaml
+helm install -n openonu onf/voltha-adapter-openonu --version 2.3.0 -f voltha-values.yaml
 
-# inject olt/onu, radius config
-curl -v --user onos:rocks -X POST -H "Content-Type: application/json" http://lab-kube-01.cluster.local:30120/onos/v1/network/configuration/ -d @network-config.json
+sleep 60
+
+
+# configure onos
+onosip=$(dig +short onos-ui.default.svc.cluster.local @${k8sdns})
+curl -v --user karaf:karaf -X POST -H "Content-Type: application/json" http://${onosip}:8181/onos/v1/configuration/org.opencord.olt.impl.OltFlowService --data '{"enableDhcpOnProvisioning":true,"enableDhcpV4":true, "enableEapol":false}'
+curl -v --user karaf:karaf -X POST -H "Content-Type: application/json" http://${onosip}:8181/onos/v1/configuration/org.onosproject.provider.lldp.impl.LldpLinkProvider --data '{ "enabled": false }'
+curl -v --user karaf:karaf -X POST -H "Content-Type: application/json" http://${onosip}:8181/onos/v1/network/configuration/ -d @network-config.json
+
+
+# optionally add ONU MIB Templates
+etcdip=$(dig +short voltha-etcd-cluster-client.default.svc.cluster.local @${k8sdns})
+cat ALCL-BVMGR00BRAXS020XA-3FE47059BFHB52-v2.json | etcdctl --endpoints=${etcdip}:2379 put service/voltha/omci_mibs/templates/ALCL/BVMGR00BRAXS020XA/3FE47059BFHB52
+cat ALCL-BVMGR00BRAXS020XA-3FE47059BFHB21-v2.json | etcdctl --endpoints=${etcdip}:2379 put service/voltha/omci_mibs/templates/ALCL/BVMGR00BRAXS020XA/3FE47059BFHB21
+cat BRCM-BVM4K00BRA0915-0083-5023_020O02414-v2.json | etcdctl --endpoints=${etcdip}:2379 put service/voltha/omci_mibs/templates/BRCM/BVM4K00BRA0915-0083/5023_020O02414
+cat BRCM-BVM4K00BRA0915-0083-5023_003GWOV36-VEIP-v1.json | etcdctl --endpoints=${etcdip}:2379 put service/voltha/omci_mibs/templates/BRCM/BVM4K00BRA0915-0083/5023_003GWOV36
+
+sleep 5
+
+voltctl adapter list
+
+# Do your tests, then
+# helm delete --purge onos openolt openonu voltha
+# etcdctl --endpoints=${etcdip}:2379 del --from-key=true 'service'
+# upgrade: helm upgrade openonu onf/voltha-adapter-openonu -f voltha-values.yaml --set images.adapter_open_onu.repository=etowah/voltha-openonu-adapter --set images.adapter_open_onu.tag=evtocleanup
+
 
