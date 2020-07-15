@@ -18,11 +18,11 @@ https://github.com/etowah/seba-control-repo/blob/master/ubuntu-build-control-vm.
 https://github.com/etowah/seba-control-repo/blob/master/ubuntu-setup-control-repo.txt  
 
 ### Run Ceph Installation and Kubernetes Ansible Kubespray Installation
-Extract ansible inventory and run playbooks to install kubernetes.   
+Extract ansible inventory and run playbooks to install kubernetes.  
 https://github.com/etowah/seba-control-repo/blob/master/ubuntu-install-k8s.txt  
 
 ### Assign Ceph storage pool to k8s and test 
-Run from node1.  Sets up ceph pool and modifies k8s config to use it.
+Run from node1.  Sets up ceph pool and modifies k8s config to use it.  
 https://github.com/etowah/seba-control-repo/blob/master/ubuntu-setup-k8s-ceph-storage.txt  
 
 ### Install VOLTHA/SEBA
