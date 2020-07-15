@@ -1,10 +1,7 @@
 
 sudo bash
 yum update
-yum install bridge-utils bind-utils sysstat
-
-# if installing vm host
-yum install qemu-kvm virt-manager virt-install libvirt
+yum install bridge-utils bind-utils sysstat qemu-kvm virt-manager virt-install libvirt
 
 # clean up libvirt
 systemctl enable libvirtd
@@ -14,6 +11,8 @@ virsh net-undefine default
 virsh list --all
 sudo usermod -aG libvirt foundry
 
+# Create default libvirt vm storage pool
+~/seba-control-repo/scripts/create-default-pool.sh
 
 # setup mgmtbr, useful for containers, vm, netns later
 cd /etc/sysconfig/network-scripts/
@@ -24,24 +23,8 @@ vi ifcfg-eno1
 systemctl stop firewalld
 systemctl disable firewalld
 
-
-# prep docker partitions
-parted /dev/nvme0n1 --script mkpart primary xfs 0% 100%
-parted /dev/nvme0n1 --script set 1 lvm on
-parted /dev/nvme0n1 --script print
-
-vgcreate images /dev/nvme0n1p1
-lvcreate -l 100%FREE -n docker_images images
-mkfs.xfs /dev/mapper/images-docker_images 
-
-vi /etc/fstab
-# /dev/mapper/images-docker_images	/var/lib/docker	xfs	defaults 	0	0
-mkdir -p /var/lib/docker
-mount /var/lib/docker
-
 visudo
 # make wheel NOPASSWD
-
 
 ## exit sudo, be the local user
 mkdir .ssh

@@ -1,0 +1,64 @@
+#
+# Instructions for an Ubuntu 16.04 KVM installation 
+#
+# Capable of running virtual machines installed with virt-install or virt-manager
+#
+
+
+# Install Ubuntu 16.04 using iso setup on usb drive.  
+# Partitions as shown in pic, DO NOT SETUP SWAP.  Setup a non-root-user, foundry used below.
+# node1, node2, node3 hostnames 
+#
+# Software to install:
+# - standard system utilities
+# - Virtual Machine Host
+# - OpenSSH
+#
+
+
+# Logout/Login, verify foundry user passwordless root.  Become and stay root for duration of host configuration
+sudo bash
+
+sudo apt install qemu-kvm libvirt-clients libvirt-daemon-system bridge-utils virt-manager virtinst python-minimal
+
+
+# Setup/reconfigure host networking.
+# Remove libvirt default networks
+virsh net-destroy default
+virsh net-undefine default
+
+
+# Configure network and bridging needed for virtual machines
+# Host specific config for interface naming.  Determine your interface names and adjust
+# accordingly.  
+
+# As an example see k8s-host-interfaces reference in seba-control-repo tarball
+cat ~/seba-control-repo/offline-setup/mgmtvm/k8s-host-interfaces 
+vi /etc/network/interfaces   # have to figure out based on oob switch vlan config and agg switch vlan config
+
+
+# Apply new network config  WARNING, this can cut off your legs if /etc/network/interfaces is 
+# incorrect and you are not on console!
+ifdown -a; ifup -a
+
+# Create default libvirt vm storage pool and creat new mgmt vm.
+~/seba-control-repo/scripts/create-default-pool.sh
+
+
+# Reboot host and verify networking restarts properly
+
+# Confirm host has access to pod mgmt network.  Confirm ssh access.  Also confirm libvirt vm list is empty
+virsh vol-list default
+virsh list --all
+
+# Login set passwordless sudo.  add to bottom of file!
+export EDITOR=vi; visudo
+...
+foundry ALL=(ALL:ALL) NOPASSWD:ALL
+
+## exit sudo, be the local user
+mkdir .ssh
+chmod 700 .ssh
+vi .ssh/authorized_keys
+chmod 600 .ssh/authorized_keys
+

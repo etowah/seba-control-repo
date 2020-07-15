@@ -1,0 +1,151 @@
+#
+# Install Kubernetes and Ceph using Ansible and Kubesprary
+#
+# Ansible inventory values have been overridden to use the local apt and docker repo
+#
+
+# ssh into the seba-control-repo virtual machine.  This will be the ansible control host.  Packages should have already been 
+# extracted and repos setup. TODO: convert ansible ad-hoc commands into custom seba playbooks
+
+
+
+# Copy and modify seba-pod specific ansible/kubespray inventory and configuration
+# Set 3 k8s hosts in hosts.ini, replace 10.242.11.X with yours.
+# Copy already prepared kubespray config.  use default or make your own config if needed
+
+cd ~/seba-control-repo/kubespray-inventory/
+cp -a seba-pod-v2  ~/kubespray-2.10.3/inventory
+
+cd ~/kubespray-2.10.3/
+vi seba-pod-v2/inventory.ini
+# replace ip with 3 target kube/ceph hosts
+
+
+
+# Preinstallation and verification
+cd ~/kubespray-2.10.3/
+
+# Verify ansible can reach 3 worker hosts
+cd ~/kubespray-2.10.3/
+ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "whoami; uname -a" --become --become-user=root
+
+
+
+##
+## Use ansible to install setup any manual prerequisites
+## 
+
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "apt install -y ntp ntpdate ntp-doc" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "systemctl start ntpd" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "systemctl start ntp" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "systemctl enable ntp" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "ntpq -p" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "date" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "lsblk" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "sysctl -w vm.max_map_count=262144" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "echo 'vm.max_map_count=262144' >> /etc/sysctl.conf" --become --become-user=root
+
+
+
+##
+## use ceph-deploy from ansible host to install ceph daemons and disks
+##
+
+# create new "config".  replace hostnames with /etc/hosts names given to 3 workers
+ceph-deploy new lab-kube-01 lab-kube-02 lab-kube-03
+
+# install software on workers
+ceph-deploy install lab-kube-01 lab-kube-02 lab-kube-03
+
+# setup mon, admin, mgr on all 3
+ceph-deploy mon create-initial
+ceph-deploy admin lab-kube-01 lab-kube-02 lab-kube-03
+ceph-deploy mgr create lab-kube-01 lab-kube-02 lab-kube-03
+
+# create osd disks, providing available partition to each.  
+ceph-deploy osd create --data /dev/vdb lab-kube-01
+ceph-deploy osd create --data /dev/vdb lab-kube-02
+ceph-deploy osd create --data /dev/vdb lab-kube-03
+
+# create mds and rgw
+ceph-deploy mds create lab-kube-01 lab-kube-02 lab-kube-03
+ceph-deploy rgw create lab-kube-01 lab-kube-02 lab-kube-03
+
+
+
+# Ad-hoc commands for environment pre-setup and verification
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "ceph -s" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "ceph health" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "ceph quorum_status --format json-pretty" --become --become-user=root
+
+
+
+# Optionally install POD CA cert if you setup a docker registry.  Replace non-root-user with your local username
+ansible -i inventory/seba-pod/hosts.ini kube-node -m copy -a "src=~/seba-pod-ca/ca/ca.crt dest=/usr/local/share/ca-certificates/seba-pod-ca.crt" --become --become-user=root
+ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "update-ca-certificates" --become --become-user=root
+
+#
+# TODO: Fix swapoff in kubespray ansible scripts.  Currently swap must be removed MANUALLY.  Edit /etc/fstab to get rid of.
+#
+ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "swapoff -a" --become --become-user=root
+
+
+
+# Inform kubespray where to find ceph.  last chance before the big stuff below!
+# Installing k8s with ceph as storage
+# modify kubespray ceph config to use newly defined cluster
+
+
+## get the key by running this on one of the ceph workers
+# sudo ceph auth get-key client.admin 
+
+
+vi inventory/seba-pod-v2/group_vars/k8s-cluster/addons.yml
+# replace rbd_provisioner_user_secret and rbd_provisioner_secret with above base64 key
+# replace ip:port for ceph mons, one for each ip defined as a ceph worker
+
+
+
+#
+# Run the ansible kubespray kubernetes installation.  Takes about 12 minutes. 
+cd ~/kubespray-2.10.3/
+ansible-playbook -i inventory/seba-pod/hosts.ini --become --become-user=root cluster.yml
+
+
+
+
+# Ad-hoc commands for environment post-setup and verification
+# Verify k8s.  All 3 hosts must be able to lookup services
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "dig +short kubernetes.default.svc.cluster.local @10.233.0.3"
+
+# setup kubectl for each host
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "mkdir .kube"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m copy -a "src=inventory/seba-pod-v2/artifacts/admin.conf dest=~/.kube/config" 
+
+# verify kubectl works on each host
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "kubectl get nodes -o wide"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "kubectl get pods --all-namespaces -o wide"
+
+
+
+# Initialize helm repos, add ONF helm repo
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "helm init --client-only"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "helm repo list"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "helm repo add onf https://charts.opencord.org/"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "helm repo update"
+
+# Verify helm
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "helm list"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "helm search voltha"
+
+# Allow not-root-user to run docker commands.  Replace with your user
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "usermod -aG docker foundry" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "docker ps" --become --become-user=root
+
+# Optionally install any bashrc shortcuts
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m copy -a "src=~/seba-control-repo/scripts/bashrc dest=~/voltha-bashrc"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "cat ~/voltha-bashrc >> ~/.bashrc"
+
+
+
+# From here helm is used to install seba/voltha on k8s nodes themselves.  See helm-seba-voltha-install.txt

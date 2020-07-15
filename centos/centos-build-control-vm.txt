@@ -40,7 +40,6 @@ wget https://get.helm.sh/helm-v2.13.1-linux-amd64.tar.gz
 tar -zxvf helm-v2.13.1-linux-amd64.tar.gz
 sudo cp linux-amd64/helm /usr/local/bin/
 
-tar -zxvf seba-control-repo.tgz
 sudo cp ~/seba-control-repo/att-foundry-atlanta-ca.crt /etc/pki/ca-trust/source/anchors/
 sudo update-ca-trust
 

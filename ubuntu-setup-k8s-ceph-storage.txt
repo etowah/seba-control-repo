@@ -1,10 +1,21 @@
+#
+# Add ceph storage pool for k8s.  also setup default storageclass for persistent volume claims
+#
+
+# Run this on *one* of the k8s/ceph workers.  not on the ansible host.
+
+# Examine and gather ceph auth credentials
 sudo ceph auth ls
 sudo ceph auth get-key client.admin
 sudo ceph auth get-key client.admin | base64
 
+
+# Examine k8s storage class settings.  verify ceph is there
 kubectl get secret -n rbd-provisioner -o yaml
 kubectl get sc rbd -o yaml
 
+
+# Edit the rbd storage class to make it default
 kubectl edit sc rbd
 # change to be a default rbd #
 metadata:
@@ -14,24 +25,33 @@ metadata:
 ####
 kubectl get sc rbd -o yaml
 
+
+# verify before pool creation
 sudo ceph osd lspools
 sudo rados df
 
+# create kube pool to be used by k8s
 sudo ceph osd pool create kube 64
 sudo rbd pool init kube
 
+# verify after pool creation
 sudo ceph osd lspools
 sudo rados df
 
+# verify status in general
 sudo ceph osd status
 sudo ceph osd pool get kube pg_num
 sudo ceph osd pool get kube size
 sudo ceph -s
 
-# test
+
+
+# optionally test by installing a chart that needs persistent storage
 helm install --name test-mysql stable/mysql
 
+# verify persistent volumes and claims are created and that mysql pod is running
 kubectl get pvc -o yaml
 kubectl get pv -o yaml
+kubectl get pods
 sudo ceph -s
 
