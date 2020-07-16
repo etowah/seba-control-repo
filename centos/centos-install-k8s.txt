@@ -27,7 +27,6 @@ ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "systemctl 
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "systemctl disable firewalld" --become --become-user=root
 
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m copy -a "src=~/seba-pod-ca/ca/ca.crt dest=/etc/pki/ca-trust/source/anchors/seba-pod-ca.crt" --become --become-user=root
-ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m copy -a "src=~/seba-control-repo/att-foundry-atlanta-ca.crt dest=/etc/pki/ca-trust/source/anchors/att-foundry-atlanta-ca.crt" --become --become-user=root
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "update-ca-trust" --become --become-user=root
 
 
@@ -58,12 +57,14 @@ ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "ceph quoru
 
 # Installing k8s with ceph as storage
 # modify kubespray ceph config to use newly defined cluster
+
+## From one of the workers/nodes, get the ceph client.admin key by running this. 
+sudo ceph auth get-key client.admin 
+
 vi inventory/seba-pod-v2/group_vars/k8s-cluster/addons.yml
-#
-# sudo ceph auth get-key client.admin 
 # replace rbd_provisioner_user_secret and rbd_provisioner_secret with above base64 stuff
 # replace ip:port for ceph mons
-#
+
 
 # run the installation.  takes ~15mins
 ansible-playbook -i inventory/seba-pod-v2/inventory.ini --become --become-user=root cluster.yml

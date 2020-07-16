@@ -36,12 +36,6 @@ vi requirements.txt
 ## 
 sudo pip install -r requirements.txt
 
-wget https://get.helm.sh/helm-v2.13.1-linux-amd64.tar.gz
-tar -zxvf helm-v2.13.1-linux-amd64.tar.gz
-sudo cp linux-amd64/helm /usr/local/bin/
-
-sudo cp ~/seba-control-repo/att-foundry-atlanta-ca.crt /etc/pki/ca-trust/source/anchors/
-sudo update-ca-trust
 
 sudo cp ~/seba-control-repo/docker-repo.service /etc/systemd/system/
 sudo mkdir -p /var/docker-persist/docker-registry/registry
@@ -53,4 +47,3 @@ sudo docker images |grep registry
 sudo systemctl stop docker-repo
 
 sudo usermod -aG docker foundry
-

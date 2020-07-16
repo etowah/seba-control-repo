@@ -41,7 +41,6 @@ ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "whoami; un
 ## 
 
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "apt install -y ntp ntpdate ntp-doc" --become --become-user=root
-ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "systemctl start ntpd" --become --become-user=root
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "systemctl start ntp" --become --become-user=root
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "systemctl enable ntp" --become --become-user=root
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "ntpq -p" --become --become-user=root
