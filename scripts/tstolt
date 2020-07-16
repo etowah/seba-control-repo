@@ -1,0 +1,19 @@
+#!/bin/bash
+
+olt=$1
+
+if [ -z "$olt" ]
+then
+  echo "$0 - oltip:port"
+  exit 1
+fi
+
+set -x
+deviceid=$(voltctl device create -t openolt -H ${olt})
+sleep 1
+voltctl device list
+voltctl device enable ${deviceid}
+sleep 1
+voltctl device list
+sleep 5
+voltctl device list
