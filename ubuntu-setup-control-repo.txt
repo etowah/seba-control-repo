@@ -29,17 +29,22 @@ ssh-keygen -t rsa
 # This pre-shared ssh key is needed for ansible to work
 
 declare -a IPS=(10.242.11.1 10.242.11.2 10.242.11.3)
-for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh non-root-user@$i 'mkdir -p ~/.ssh/; cat >> ~/.ssh/authorized_keys'; done
+for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh foundry@$i 'mkdir -p ~/.ssh/; cat >> ~/.ssh/authorized_keys'; done
 
 # Add 3 workers to /etc/hosts on ansible/seba-control-repo host
-10.242.11.1 lab-kube-01
-10.242.11.2 lab-kube-02
-10.242.11.3 lab-kube-03
+vi /etc/hosts
+
+  10.242.11.1 lab-kube-01
+  10.242.11.2 lab-kube-02
+  10.242.11.3 lab-kube-03
 
 
-# Install versioned seba-control-repo.tgz. Pull from external storage or scp copy in.  Or git pull.
+
+# Install versioned seba-control-repo.tgz if does not exist. Pull from external storage or scp copy in.  Or git clone.
 cd ~/
-tar -zxvf seba-control-repo.tgz 
+tar -zxvf seba-control-repo.tgz
+# or
+# git clone https://github.com/etowah/seba-control-repo.git
 
 
 
@@ -74,11 +79,9 @@ sudo cp ~/seba-pod-ca/ca/ca.crt /usr/local/share/ca-certificates/seba-pod-ca.crt
 sudo update-ca-certificates 
 sudo systemctl restart docker
 
-
 # Setup Docker repo.  Adding key/cert allows docker-repo to start
 sudo cp ~/seba-pod-ca/issued/docker-repo.key /var/docker-persist/docker-registry/certs
 sudo cp ~/seba-pod-ca/issued/docker-repo.crt /var/docker-persist/docker-registry/certs
 
 sudo systemctl start docker-repo
 sudo systemctl enable docker-repo
-

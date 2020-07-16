@@ -1,6 +1,6 @@
 
 ssh-keygen -t rsa
-declare -a IPS=(10.64.1.192 10.64.1.145 10.64.1.123)
+declare -a IPS=(10.242.11.1 10.242.11.2 10.242.11.3)
 for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh foundry@$i 'mkdir -p ~/.ssh/; cat >> ~/.ssh/authorized_keys'; done
 
 cp -a ~/seba-control-repo/seba-pod-ca ~/

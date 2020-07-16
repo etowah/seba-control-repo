@@ -10,7 +10,7 @@
 
 
 # Copy and modify seba-pod specific ansible/kubespray inventory and configuration
-# Set 3 k8s hosts in hosts.ini, replace 10.242.11.X with yours.
+# Set 3 k8s hosts in inventory.ini, replace 10.242.11.X with yours.
 # Copy already prepared kubespray config.  use default or make your own config if needed
 
 cd ~/seba-control-repo/kubespray-inventory/
@@ -20,6 +20,11 @@ cd ~/kubespray-2.10.3/
 vi seba-pod-v2/inventory.ini
 # replace ip with 3 target kube/ceph hosts
 
+  # example ip entries to change
+  lab-kube-01 ansible_host=10.242.11.1 etcd_member_name=etcd1
+  lab-kube-02 ansible_host=10.242.11.2 etcd_member_name=etcd2
+  lab-kube-03 ansible_host=10.242.11.3 etcd_member_name=etcd3
+
 
 
 # Preinstallation and verification
@@ -27,7 +32,7 @@ cd ~/kubespray-2.10.3/
 
 # Verify ansible can reach 3 worker hosts
 cd ~/kubespray-2.10.3/
-ansible -i inventory/seba-pod-v2/hosts.ini kube-node -m shell -a "whoami; uname -a" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "whoami; uname -a" --become --become-user=root
 
 
 
@@ -80,14 +85,9 @@ ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "ceph quoru
 
 
 
-# Optionally install POD CA cert if you setup a docker registry.  Replace non-root-user with your local username
-ansible -i inventory/seba-pod-v2/hosts.ini kube-node -m copy -a "src=~/seba-pod-ca/ca/ca.crt dest=/usr/local/share/ca-certificates/seba-pod-ca.crt" --become --become-user=root
-ansible -i inventory/seba-pod-v2/hosts.ini kube-node -m shell -a "update-ca-certificates" --become --become-user=root
-
-#
-# TODO: Fix swapoff in kubespray ansible scripts.  Currently swap must be removed MANUALLY.  Edit /etc/fstab to get rid of.
-#
-ansible -i inventory/seba-pod-v2/hosts.ini kube-node -m shell -a "swapoff -a" --become --become-user=root
+# Optionally install POD CA cert if you setup a docker registry.
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m copy -a "src=~/seba-pod-ca/ca/ca.crt dest=/usr/local/share/ca-certificates/seba-pod-ca.crt" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "update-ca-certificates" --become --become-user=root
 
 
 
@@ -95,22 +95,22 @@ ansible -i inventory/seba-pod-v2/hosts.ini kube-node -m shell -a "swapoff -a" --
 # Installing k8s with ceph as storage
 # modify kubespray ceph config to use newly defined cluster
 
+## From one of the workers/nodes, get the ceph client.admin key by running this. 
+sudo ceph auth get-key client.admin 
 
-## get the key by running this on one of the ceph workers
-# sudo ceph auth get-key client.admin 
-
-
+# back on the ansible host, edit the ceph configuration that will be used for kubespray
 vi inventory/seba-pod-v2/group_vars/k8s-cluster/addons.yml
-# replace rbd_provisioner_user_secret and rbd_provisioner_secret with above base64 key
-# replace ip:port for ceph mons, one for each ip defined as a ceph worker
+
+  # replace rbd_provisioner_user_secret and rbd_provisioner_secret with above base64 key
+  # replace ip:port for ceph mons, one for each ip defined as a ceph worker
 
 
 
 #
-# Run the ansible kubespray kubernetes installation.  Takes about 12 minutes. 
+# Run the ansible kubespray kubernetes installation!  Takes about 12 minutes. 
+#
 cd ~/kubespray-2.10.3/
-ansible-playbook -i inventory/seba-pod-v2/hosts.ini --become --become-user=root cluster.yml
-
+ansible-playbook -i inventory/seba-pod-v2/inventory.ini --become --become-user=root cluster.yml
 
 
 
@@ -125,6 +125,7 @@ ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m copy -a "src=invento
 # verify kubectl works on each host
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "kubectl get nodes -o wide"
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "kubectl get pods --all-namespaces -o wide"
+
 
 
 

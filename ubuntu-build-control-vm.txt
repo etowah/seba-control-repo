@@ -7,6 +7,8 @@
 
 # Create a vm with a 100GB virtual disk.  
 
+
+
 # install docker repo
 curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
@@ -23,6 +25,7 @@ sudo mkdir /var/www/html/k8s
 sudo systemctl start apache2
 
 
+
 ## Install current version of pip, needed to get current ansible
 cd ~/
 wget https://bootstrap.pypa.io/get-pip.py
@@ -30,12 +33,17 @@ sudo python get-pip.py
 pip -V
 pip list
 
+
+
+## Install Ceph deployer script
 sudo pip install ceph-deploy
 
 # confirm its there
 ceph-deploy --help
 
 
+
+## Install kubespray and its requirements
 curl -o kubespray-v2.10.3.tar.gz https://codeload.github.com/kubernetes-sigs/kubespray/tar.gz/v2.10.3
 tar -zxvf kubespray-v2.10.3.tar.gz
 cd kubespray-2.10.3/
@@ -48,18 +56,21 @@ vi requirements.txt
 sudo pip install -r requirements.txt
 
 
-wget https://get.helm.sh/helm-v2.13.1-linux-amd64.tar.gz
-tar -zxvf helm-v2.13.1-linux-amd64.tar.gz
-sudo cp linux-amd64/helm /usr/local/bin/
 
-
-# allow non-root to run docker
+# allow non-root-user to run docker
 sudo usermod -aG docker foundry
+
 
 
 #
 # Below is optional if you want to run a docker registry
 # 
+
+# Install versioned seba-control-repo.tgz if does not exist. Pull from external storage or scp copy in.  Or git clone.
+cd ~/
+tar -zxvf seba-control-repo.tgz
+# or 
+# git clone https://github.com/etowah/seba-control-repo.git
 
 # stage docker repo service
 sudo cp ~/seba-control-repo/docker-repo.service /etc/systemd/system/

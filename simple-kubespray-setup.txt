@@ -14,7 +14,7 @@ ssh-keygen -t rsa
 declare -a IPS=(10.242.11.1 10.242.11.2 10.242.11.3)
 
 # non-root-user on control host and 3 k8s hosts must match!  Also non-root-user must have passwordless sudo access
-for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh non-root-user@$i 'mkdir -p ~/.ssh/; cat >> ~/.ssh/authorized_keys'; done
+for i in ${IPS[@]}; do cat ~/.ssh/id_rsa.pub | ssh foundry@$i 'mkdir -p ~/.ssh/; cat >> ~/.ssh/authorized_keys'; done
 
 
 ## Install current version of pip, needed to get current ansible
@@ -42,40 +42,48 @@ sudo pip install -r requirements.txt
 cd ~/
 git clone https://github.com/etowah/seba-control-repo.git
 
+
 ## Install seba-pod specific inventory and configuration.  
 cp -a ~/seba-control-repo/kubespray-inventory/seba-pod-v2 ~/kubespray-2.10.3/inventory/
 
 ## Alternatively you can create your own inventory configuration by coping the sample directory ~/kubespray-2.10.3/inventory/sample 
 # cp -a ~/kubespray-2.10.3/inventory/sample ~/kubespray-2.10.3/inventory/your-environment
 
-# edit hosts.ini, replace 10.242.11.X with yours.
-vi ~/kubespray-2.10.3/inventory/seba-pod-v2/hosts.ini
+# edit inventory.ini, replace 10.242.11.X with yours.
+vi ~/kubespray-2.10.3/inventory/seba-pod-v2/inventory.ini
 
   # example ip entries to change
-  seba-node1 	 ansible_host=10.242.11.1 ip=10.242.11.1
-  seba-node2 	 ansible_host=10.242.11.2 ip=10.242.11.2
-  seba-node3 	 ansible_host=10.242.11.3 ip=10.242.11.3
+  lab-kube-01 ansible_host=10.242.11.1 etcd_member_name=etcd1
+  lab-kube-02 ansible_host=10.242.11.2 etcd_member_name=etcd2
+  lab-kube-03 ansible_host=10.242.11.3 etcd_member_name=etcd3
 
+
+# Add 3 workers to /etc/hosts on ansible/seba-control-repo host
+vi /etc/hosts
+
+  10.242.11.1 lab-kube-01
+  10.242.11.2 lab-kube-02
+  10.242.11.3 lab-kube-03
 
 
 # Verify ansible can reach 3 hosts
 cd ~/kubespray-2.10.3/
-ansible -i inventory/seba-pod/hosts.ini kube-node -m shell -a "whoami; uname -a" --become --become-user=root
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "whoami; uname -a" --become --become-user=root
 
 
 ## Run the install.  Takes about 12 minutes. 
 cd ~/kubespray-2.10.3/
-ansible-playbook -i inventory/seba-pod-v2/hosts.ini --become --become-user=root cluster.yml
+ansible-playbook -i inventory/seba-pod-v2/inventory.ini --become --become-user=root cluster.yml
 
 
 ## Verify k8s.  All 3 hosts must be able to lookup services
-ansible -i inventory/seba-pod-v2/hosts.ini kube-node -a "kubectl get pods --all-namespaces -o wide"
-ansible -i inventory/seba-pod-v2/hosts.ini kube-node -a "dig +short kubernetes.default.svc.cluster.local @10.233.0.3"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "kubectl get pods --all-namespaces -o wide"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "dig +short kubernetes.default.svc.cluster.local @10.233.0.3"
 
 
 ## Install helm client
-ansible -i inventory/seba-pod-v2/hosts.ini kube-node -a "helm init --client-only"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "helm init --client-only"
 
 ## Verify helm
-ansible -i inventory/seba-pod-v2/hosts.ini kube-node -a "helm repo list"
-ansible -i inventory/seba-pod-v2/hosts.ini kube-node -a "helm list"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "helm repo list"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "helm list"
