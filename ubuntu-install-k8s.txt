@@ -56,6 +56,11 @@ ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "echo 'vm.m
 ## use ceph-deploy from ansible host to install ceph daemons and disks
 ##
 
+# Create local directory on ansible host to store generated config.
+cd ~/
+mkdir ceph-cluster
+cd ceph-cluster/
+
 # create new "config".  replace hostnames with /etc/hosts names given to 3 workers
 ceph-deploy new lab-kube-01 lab-kube-02 lab-kube-03
 

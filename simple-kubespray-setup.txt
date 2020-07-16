@@ -75,6 +75,9 @@ ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "whoami; un
 cd ~/kubespray-2.10.3/
 ansible-playbook -i inventory/seba-pod-v2/inventory.ini --become --become-user=root cluster.yml
 
+# Setup kubectl for each host
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "mkdir .kube"
+ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m copy -a "src=inventory/seba-pod-v2/artifacts/admin.conf dest=~/.kube/config" 
 
 ## Verify k8s.  All 3 hosts must be able to lookup services
 ansible -i inventory/seba-pod-v2/inventory.ini kube-node -a "kubectl get pods --all-namespaces -o wide"
