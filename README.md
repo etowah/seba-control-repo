@@ -27,6 +27,7 @@ https://github.com/etowah/seba-control-repo/blob/master/ubuntu-setup-k8s-ceph-st
 
 ### Install VOLTHA/SEBA
 Helm package installation.  Run from node1/worker1.  Run helm install steps pulling from above mentioned repo.  
+https://github.com/etowah/seba-control-repo/blob/master/helm-seba-voltha2-prep.txt  
 https://github.com/etowah/seba-control-repo/blob/master/helm-seba-voltha2-install.txt  
 
 
