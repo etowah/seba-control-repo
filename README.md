@@ -33,6 +33,6 @@ https://github.com/etowah/seba-control-repo/blob/master/helm-seba-voltha2-instal
 
 ## Simple Installs
 Use below for a simple single instance kubeadm k8s install or a simplified (no ceph) kubespray install.  
-https://github.com/etowah/seba-control-repo/blob/master/simple-kubeadm-setup.txt
+https://github.com/etowah/seba-control-repo/blob/master/simple-kubeadm-setup.txt  
 https://github.com/etowah/seba-control-repo/blob/master/simple-kubespray-setup.txt
 
