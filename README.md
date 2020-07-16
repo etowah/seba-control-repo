@@ -29,3 +29,10 @@ https://github.com/etowah/seba-control-repo/blob/master/ubuntu-setup-k8s-ceph-st
 Helm package installation.  Run from node1/worker1.  Run helm install steps pulling from above mentioned repo.  
 https://github.com/etowah/seba-control-repo/blob/master/helm-seba-voltha2-install.txt  
 
+
+
+## Simple Installs
+Use below for a simple single instance kubeadm k8s install or a simplified (no ceph) kubespray install.  
+https://github.com/etowah/seba-control-repo/blob/master/simple-kubeadm-setup.txt
+https://github.com/etowah/seba-control-repo/blob/master/simple-kubespray-setup.txt
+
