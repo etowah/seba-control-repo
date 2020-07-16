@@ -1,7 +1,7 @@
 #
 # Setup seba control repo in a pod
 #
-# Sets up POD apt, docker, helm, and oar repositories. 
+# Sets up ansible ssh keying and optionally a TLS CA, apt, docker, helm, and oar repositories. 
 #
 #
 

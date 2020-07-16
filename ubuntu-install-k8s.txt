@@ -1,11 +1,14 @@
 #
-# Install Kubernetes and Ceph using Ansible and Kubesprary
+# Install Kubernetes and Ceph using Ansible and Kubespray
 #
-# Ansible inventory values have been overridden to use the local apt and docker repo
+# Ansible inventory values have been overridden to install helm tiller, ceph and the k8s dashboard.
+# Also optionally override apt and docker registries to pull from local sources rather than internet.
+# See offline folder for (an outdated) offline no-internet setup.
 #
 
 # ssh into the seba-control-repo virtual machine.  This will be the ansible control host.  Packages should have already been 
-# extracted and repos setup. TODO: convert ansible ad-hoc commands into custom seba playbooks
+# extracted and repos setup if online.  If online, should pull from internet. 
+# TODO: convert ansible ad-hoc commands into custom seba playbooks
 
 
 
