@@ -1,0 +1,5 @@
+#!/bin/bash
+
+ip=$(dig +short voltha-api.default.svc.cluster.local @10.233.0.3)
+
+~/bin/voltctl-bin -s $ip:55555 $*

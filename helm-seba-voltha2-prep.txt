@@ -26,3 +26,12 @@ sleep 20
 
 helm install -n voltha-etcd-cluster onf/voltha-etcd-cluster --version 2.2.0
 
+
+# Install voltctl and etcdctl binaries
+curl -o ~/bin/voltctl-bin https://github.com/opencord/voltctl/releases/download/v1.0.18/voltctl-1.0.18-linux-amd64
+cp ~/seba-control-repo/scripts/voltctl ~/bin/voltctl
+
+curl -o etcd-v3.2.26-linux-amd64.tar.gz https://github.com/etcd-io/etcd/releases/download/v3.2.26/etcd-v3.2.26-linux-amd64.tar.gz
+tar -xzvf etcd-v3.2.26-linux-amd64.tar.gz -C /tmp/etcd-download
+cp /tmp/etcd-download/etcdctl ~/bin/
+
