@@ -102,13 +102,14 @@ ansible -i inventory/seba-pod-v2/inventory.ini kube-node -m shell -a "update-ca-
 # Installing k8s with ceph as storage
 # modify kubespray ceph config to use newly defined cluster
 
-## From one of the workers/nodes, get the ceph client.admin key by running this. 
-sudo ceph auth get-key client.admin 
+# Get the ceph client.admin key from any one of the workers/nodes.
+# sudo ceph auth get-key client.admin 
+ansible -i inventory/seba-pod-v2/inventory.ini lab-kube-01 -m shell -a "ceph auth get-key client.admin" --become --become-user=root
 
-# back on the ansible host, edit the ceph configuration that will be used for kubespray
+# Edit the ceph configuration that will be used by kubespray in setting up the k8s storageclass
 vi inventory/seba-pod-v2/group_vars/k8s-cluster/addons.yml
 
-  # replace rbd_provisioner_user_secret and rbd_provisioner_secret with above base64 key
+  # replace rbd_provisioner_user_secret and rbd_provisioner_secret with above copied client.admin base64 key
   # replace ip:port for ceph mons, one for each ip defined as a ceph worker
 
 
